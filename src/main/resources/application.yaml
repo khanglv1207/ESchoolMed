@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: eSchoolMed
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/school_medical_schema
+    username: postgres
+    password: 12345
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
