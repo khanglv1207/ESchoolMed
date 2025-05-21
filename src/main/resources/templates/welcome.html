@@ -1,0 +1,12 @@
+<!-- welcome.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Chào mừng</title></head>
+<body>
+<h2 th:text="${message}"></h2>
+
+<form th:action="@{/logout}" method="get">
+  <button type="submit">Đăng xuất</button>
+</form>
+</body>
+</html>
