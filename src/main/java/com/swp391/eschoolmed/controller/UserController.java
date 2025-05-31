@@ -2,7 +2,9 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.LoginRequest;
+import com.swp391.eschoolmed.dto.request.RegisterRequest;
 import com.swp391.eschoolmed.dto.response.LoginResponse;
+import com.swp391.eschoolmed.dto.response.RegisterResponse;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.UserRepository;
 import com.swp391.eschoolmed.service.UserService;
@@ -29,6 +31,15 @@ public class UserController {
                 .result(response)
                 .build();
 
+    }
+
+    @PostMapping("/register")
+    ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest request){
+        RegisterResponse register = userService.register(request);
+            return ApiResponse.<RegisterResponse>builder()
+                    .message("Đăng kí tài khoản thành công.")
+                    .result(register)
+                    .build();
     }
 
 
