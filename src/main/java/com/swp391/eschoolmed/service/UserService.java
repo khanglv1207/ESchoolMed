@@ -1,6 +1,8 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.dto.request.RegisterRequest;
 import com.swp391.eschoolmed.dto.response.LoginResponse;
+import com.swp391.eschoolmed.dto.response.RegisterResponse;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,25 @@ public class UserService {
         response.setFullName(users.getFullName());
 
 
+        return response;
+    }
+
+    public RegisterResponse register(RegisterRequest request) {
+        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng.");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setFullName(request.getFullName());
+        user.setPassword(request.getPassword());
+        user.setRole(user.getRole());
+        userRepository.save(user);
+
+        RegisterResponse response = new RegisterResponse();
+        response.setEmail(request.getEmail());
+        response.setFullName(request.getFullName());
+        response.setRole(user.getRole());
         return response;
     }
 }
