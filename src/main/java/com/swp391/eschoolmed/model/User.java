@@ -1,38 +1,29 @@
 package com.swp391.eschoolmed.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Data
 public class User {
+
     @Id
     @GeneratedValue
     @Column(name = "user_id")
-    private UUID userId;
+    private UUID id;
 
+    @Column(name = "full_name")
     private String fullName;
 
+    @Column(name = "email")
     private String email;
 
-    private String passwordHash;
+    @Column(name = "password_hash")
+    private String password;
 
-    private String role = "parent"; // Gán mặc định khi khởi tạo
-
-
-    // Getters & Setters
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
-
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    @Column(name = "role")
+    private String role = "parent"; // Gán mặc định
 }
