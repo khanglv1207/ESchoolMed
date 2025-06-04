@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý người dùng</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Trang quản lý người dùng</h1>
+<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+    <a href="/admin/home" style="text-decoration: none;">
+        <button type="button">Home</button>
+    </a>
+    <form th:action="@{/users/all}" method="get">
+        <button type="submit">Show All Users</button>
+    </form>
+</div>
+
+<!-- Form tìm kiếm người dùng theo tên -->
+<form th:action="@{/users/search}" method="get" style="margin-bottom: 20px;">
+    <input type="text" name="name" placeholder="Nhập tên người dùng" th:value="${name}" required>
+    <button type="submit">Search</button>
+</form>
+
+<!-- Danh sách người dùng chỉ hiển thị sau khi nhấn nút -->
+<div th:if="${users != null}">
+    <h2>Danh sách người dùng:</h2>
+    <ul>
+        <li th:each="user : ${users}">
+            <span th:text="'ID: ' + ${user.userId} + ', Tên: ' + ${user.fullName}"></span>
+        </li>
+    </ul>
+</div>
+
+<!-- Nếu không có user nào -->
+<div th:if="${users != null} and ${users.isEmpty()}">
+    <p>Không có người dùng nào.</p>
+</div>
+
+</body>
+</html>
