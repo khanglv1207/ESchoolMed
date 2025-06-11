@@ -1,9 +1,9 @@
 spring:
   application:
-    name: eSchoolMed
+    name: Y TE
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/school
+    url: jdbc:postgresql://localhost:5432/helloword
     username: postgres
     password: 12345
     hikari:
@@ -16,7 +16,20 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  signer-key: HJ4ppveef04BKJzTq+dyLhRdicqYiQWxaSqTLiTUxksDu4zMs/NLfrJsbHz+4OiB
+  expiration-duration: 300 #don vi giay
+
+springdoc:
+  api-docs:
+    path: "/api/v1/api-docs"
+  swagger-ui:
+    operationsSorter: method
+    try-it-out-enabled: true
+    path: "/api/swagger-ui.html"
+  servers: http://localhost:8080
