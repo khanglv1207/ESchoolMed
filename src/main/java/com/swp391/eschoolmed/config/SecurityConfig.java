@@ -27,8 +27,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/accounts/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/accounts/register").permitAll()            
+                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()            
                 .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
         );
 
