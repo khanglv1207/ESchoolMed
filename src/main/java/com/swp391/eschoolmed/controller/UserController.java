@@ -21,20 +21,21 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request){
+    ApiResponse<LoginResponse> login(@RequestBody LoginRequest request){
         LoginResponse response = userService.login(request.getEmail(), request.getPassword());
         return ApiResponse.<LoginResponse>builder()
-                .message("Login thành công")
+                .message("Login thanh cong")
                 .result(response)
                 .build();
+
     }
 
     @PostMapping("/register")
-    public ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest request){
+    ApiResponse<RegisterResponse> register(@RequestBody RegisterRequest request){
         RegisterResponse register = userService.register(request);
-        return ApiResponse.<RegisterResponse>builder()
-                .message("Đăng ký tài khoản thành công.")
-                .result(register)
-                .build();
+            return ApiResponse.<RegisterResponse>builder()
+                    .message("Đăng kí tài khoản thành công.")
+                    .result(register)
+                    .build();
     }
 }
