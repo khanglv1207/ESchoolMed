@@ -1,0 +1,14 @@
+package com.swp391.eschoolmed.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping("/")
+    public String home() {
+        return "home";  // maps to templates/home.html
+    }
+}
+mvnw.cmd spring-boot:run
