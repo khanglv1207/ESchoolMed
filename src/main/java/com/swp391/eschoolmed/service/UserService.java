@@ -44,7 +44,7 @@ public class UserService {
     public LoginResponse login(String email, String password) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không được bỏ trống");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email không tồn tại");
         }
 
         User users = optionalUser.get();
