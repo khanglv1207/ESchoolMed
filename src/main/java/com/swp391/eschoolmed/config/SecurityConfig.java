@@ -24,26 +24,37 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final CustomJwtDecoder customJwtDecoder;
 
+    
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()            
-                .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/",
+                "/login.html",
+                "/index.html",
+                "/home.html",
+                "/css/**",
+                "/js/**",
+                "/images/**",
+                "/favicon.ico"
+            ).permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+            .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(oauth2 -> oauth2
+            .jwt(jwtConfigurer -> jwtConfigurer
+                .decoder(customJwtDecoder)
+                .jwtAuthenticationConverter(converter())
+            )
+            .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
-        http.oauth2ResourceServer(
-                oauth2 ->
-                        oauth2.jwt(
-                                        jwtConfigurer -> jwtConfigurer
-                                                .decoder(customJwtDecoder)
-                                                .jwtAuthenticationConverter(converter()))
-                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-        );
+    return http.build();
+}
 
-        http.csrf(AbstractHttpConfigurer::disable);
-        return http.build();
-    }
 
     @Bean
     JwtAuthenticationConverter converter() {
@@ -59,7 +70,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         // CORS
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:5173"); // thay bang frontend URL cua ban
+        corsConfiguration.addAllowedOrigin("http://localhost:5173"); 
         corsConfiguration.addAllowedOrigin("http://localhost:8080");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
