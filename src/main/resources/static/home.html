@@ -14,6 +14,38 @@
     body {
       font-family: 'Inter', sans-serif;
     }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 14px;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f3f4f6;
+    }
   </style>
 </head>
 
@@ -31,9 +63,16 @@
         <a class="hover:underline" href="#">
           Trang chủ
         </a>
-        <a class="hover:underline" href="#">
-          Hồ sơ & Tiêm chủng
-        </a>
+        <div class="dropdown">
+          <a class="hover:underline" href="#">
+            Hồ sơ & Tiêm chủng
+          </a>
+          <div class="dropdown-content">
+            <a href="/health-declaration.html">Khai báo sức khỏe</a>
+            <a href="/vaccination.html">Tiêm chủng</a>
+            <a href="/medical-checkup.html">Kiểm tra y tế định kỳ</a>
+          </div>
+        </div>
         <a class="hover:underline" href="#">
           Sự kiện y tế
         </a>
@@ -42,6 +81,9 @@
         </a>
         <a class="hover:underline" href="#">
           Liên hệ & Hỗ trợ
+        </a>
+        <a class="hover:underline" href="/login.html">
+          Đăng nhập
         </a>
       </nav>
     </div>
