@@ -1,6 +1,5 @@
 package com.swp391.eschoolmed.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,37 +23,31 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final CustomJwtDecoder customJwtDecoder;
 
-    
     @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/",
-                "/login.html",
-                "/index.html",
-                "/home.html",
-                "/css/**",
-                "/js/**",
-                "/images/**",
-                "/favicon.ico"
-            ).permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2ResourceServer(oauth2 -> oauth2
-            .jwt(jwtConfigurer -> jwtConfigurer
-                .decoder(customJwtDecoder)
-                .jwtAuthenticationConverter(converter())
-            )
-            .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep truy cap swagger
+
+                .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
         );
 
-    return http.build();
-}
+        http.oauth2ResourceServer(
+                oauth2 ->
+                        oauth2.jwt(
+                                        jwtConfigurer -> jwtConfigurer
+                                                .decoder(customJwtDecoder)
+                                                .jwtAuthenticationConverter(converter()))
+                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+        );
 
+        http.csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
 
     @Bean
     JwtAuthenticationConverter converter() {
@@ -70,7 +63,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     public CorsFilter corsFilter() {
         // CORS
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:5173"); 
+        corsConfiguration.addAllowedOrigin("http://localhost:5173"); // thay bang frontend URL cua ban
         corsConfiguration.addAllowedOrigin("http://localhost:8080");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
