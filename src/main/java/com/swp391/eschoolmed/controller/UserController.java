@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,4 +39,13 @@ public class UserController {
                     .result(register)
                     .build();
     }
+
+    @Controller
+    public class HomeController {
+    @RequestMapping(value = { "/", "/{path:[^\\.]*}" }) // tất cả path không chứa dấu chấm
+    public String redirect() {
+        return "forward:/index.html";
+    }
+}
+
 }

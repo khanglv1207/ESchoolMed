@@ -42,28 +42,33 @@ public class UserService {
     private UserRepository userRepository; // dua repo vao service
 
     public LoginResponse login(String email, String password) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email không tồn tại");
-        }
-
-        User users = optionalUser.get();
-        if (!users.getPassword().equals(password)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sai mật khẩu");
-        }
-        
-        Optional<User> user = userRepository.findById(users.getId());
-        if (user.isEmpty()) {
-            throw new RuntimeException("User không tồn tại");
-        }
-
-        LoginResponse response = new LoginResponse();
-        response.setId(users.getId());
-        response.setEmail(users.getEmail());
-        response.setFullName(users.getFullName());
-
-        return response;
+    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        throw new ResponseStatusException(
+            ErrorCode.EMPTY_CREDENTIALS.getStatusCode(),
+            "Vui lòng nhập đầy đủ email và mật khẩu"
+        );
     }
+
+    Optional<User> optionalUser = userRepository.findByEmail(email);
+    
+    // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
+    if (optionalUser.isEmpty() || !optionalUser.get().getPassword().equals(password)) {
+        throw new ResponseStatusException(
+            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()
+        );
+    }
+
+    User user = optionalUser.get();
+
+    LoginResponse response = new LoginResponse();
+    response.setId(user.getId());
+    response.setEmail(user.getEmail());
+    response.setFullName(user.getFullName());
+
+    return response;
+}
+
 
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
