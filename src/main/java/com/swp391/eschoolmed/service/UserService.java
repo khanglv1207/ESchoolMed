@@ -30,6 +30,7 @@ import com.swp391.eschoolmed.exception.AppException;
 import com.swp391.eschoolmed.exception.ErrorCode;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.UserRepository;
+
 @Service
 public class UserService {
     @Value("${jwt.signer-key}")
@@ -40,34 +41,37 @@ public class UserService {
     @Autowired
     private UserRepository userRepository; // dua repo vao service
 
-    public LoginResponse login(String email, String password){
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if(optionalUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không được bỏ trống");
-        }
-
-        User users = optionalUser.get();
-        if(!users.getPassword().equals(password)){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sai mật khẩu");
-        }
-
-
-        Optional<User> user =  userRepository.findById(users.getId());
-        if(user.isEmpty()){
-            throw new RuntimeException("User không tồn tại");
-        }
-
-        LoginResponse response = new LoginResponse();
-        response.setId(users.getId());
-        response.setEmail(users.getEmail());
-        response.setFullName(users.getFullName());
-
-
-        return response;
+    public LoginResponse login(String email, String password) {
+    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        throw new ResponseStatusException(
+            ErrorCode.EMPTY_CREDENTIALS.getStatusCode(),
+            "Vui lòng nhập đầy đủ email và mật khẩu"
+        );
     }
 
+    Optional<User> optionalUser = userRepository.findByEmail(email);
+    
+    // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
+    if (optionalUser.isEmpty() || !optionalUser.get().getPassword().equals(password)) {
+        throw new ResponseStatusException(
+            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()
+        );
+    }
+
+    User user = optionalUser.get();
+
+    LoginResponse response = new LoginResponse();
+    response.setId(user.getId());
+    response.setEmail(user.getEmail());
+    response.setFullName(user.getFullName());
+
+    return response;
+}
+
+
     public RegisterResponse register(RegisterRequest request) {
-        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng.");
         }
 
@@ -84,9 +88,9 @@ public class UserService {
         response.setRole(user.getRole());
         return response;
     }
-    
-    //token
-     public IntrospectResponse introspect(String token) {
+
+    // token
+    public IntrospectResponse introspect(String token) {
         boolean isValid = true;
         try {
             verifyToken(token);
@@ -107,13 +111,12 @@ public class UserService {
 
     private String generateToken(User user) throws JOSEException { // tao token
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet
-                .Builder()
-                .subject(user.getId()+"")
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getId() + "")
                 .issuer("Khanglv")
                 .issueTime(Date.from(Instant.now()))
                 .expirationTime(Date.from(Instant.now().plus(EXPIRATION_DURATION, ChronoUnit.SECONDS)))
-                .claim( "scope",user.getRole().toUpperCase())
+                .claim("scope", user.getRole().toUpperCase())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

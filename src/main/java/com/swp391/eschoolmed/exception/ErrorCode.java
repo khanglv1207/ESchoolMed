@@ -1,8 +1,9 @@
 package com.swp391.eschoolmed.exception;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
@@ -10,8 +11,9 @@ public enum ErrorCode {
     UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED), //ko co quyen truy cap
     UNAUTHORIZED(1002, "Unauthorized", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(1003, "Invalid key", HttpStatus.BAD_REQUEST), //sai khoa
-    USER_NOT_FOUND(1004, "User not found", HttpStatus.NOT_FOUND),
-    USERNAME_OR_PASSWORD_ERROR(1005, "Username or password error", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(1004, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND), // ko tim thay user
+    USERNAME_OR_PASSWORD_ERROR(1005, "Sai email hoặc mật khẩu", HttpStatus.BAD_REQUEST),
+    EMPTY_CREDENTIALS(1008, "Vui lòng nhập đầy đủ email và mật khẩu", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

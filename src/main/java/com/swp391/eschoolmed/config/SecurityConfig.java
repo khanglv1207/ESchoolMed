@@ -1,6 +1,5 @@
 package com.swp391.eschoolmed.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,7 +27,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()            
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep truy cap swagger
+
                 .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
         );
 
