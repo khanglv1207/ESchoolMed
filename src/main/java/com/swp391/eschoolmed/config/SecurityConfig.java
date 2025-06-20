@@ -32,7 +32,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap swagger
                 .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap swagger
                 .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep truy cap swagger
-
                 .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
         );
 
