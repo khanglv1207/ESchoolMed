@@ -21,6 +21,19 @@ spring:
       hibernate:
         format_sql: true
 
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: lakhangpro125@gmail.com
+    password: "mcif hhai bqaz gfhw"
+    port: 587
+    protocol: smtp
+    test-connection: false
+    properties:
+      mail.smtp.ssl.trust: "*"
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
 jwt:
   signer-key: HJ4ppveef04BKJzTq+dyLhRdicqYiQWxaSqTLiTUxksDu4zMs/NLfrJsbHz+4OiB
   expiration-duration: 300 #don vi giay
