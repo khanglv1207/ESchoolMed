@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>OTP Verification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      margin: 40px auto;
+      padding: 30px;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .otp-code {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c3e50;
+      letter-spacing: 4px;
+      margin: 20px 0;
+    }
+    .footer {
+      font-size: 12px;
+      color: #7f8c8d;
+      margin-top: 30px;
+    }
+    .logo {
+      max-width: 150px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <img class="logo" src="https://yourdomain.com/logo.png" alt="App Logo">
+  <h2>Xin chào <span th:text="${userName}">Người dùng</span>,</h2>
+
+  <p>Bạn đã yêu cầu mã xác thực (OTP) để đăng nhập hoặc xác nhận hành động trên hệ thống của chúng tôi.</p>
+
+  <p>Mã OTP của bạn là:</p>
+
+  <div class="otp-code" th:text="${otpCode}">123456</div>
+
+  <p>Mã này sẽ hết hạn sau <strong th:text="${expirationMinutes}">5</strong> phút.</p>
+
+  <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ.</p>
+
+  <div class="footer">
+    &copy; 2025 FOMUS Team. Mọi quyền được bảo lưu.
+  </div>
+</div>
+</body>
+</html>
