@@ -3,7 +3,7 @@ spring:
     name: Y TE
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/school
+    url: jdbc:postgresql://localhost:5432/Emed
     username: postgres
     password: 12345
     hikari:
