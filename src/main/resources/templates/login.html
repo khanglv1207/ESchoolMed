@@ -18,7 +18,7 @@
   <header class="border-b border-blue-500">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
       <div class="flex items-center space-x-2">
-        <img src="img/image 5.png" class="w-10 h-10" alt="Logo" />
+        <img src="/img/logo.png" class="w-10 h-10" alt="Logo" />
         <span class="text-blue-600 font-semibold text-lg">eSchoolMed</span>
       </div>
     </div>
@@ -40,7 +40,7 @@
               placeholder="Mật khẩu" required />
           </div>
           <p class="text-xs text-right text-blue-500 hover:underline cursor-pointer mb-4">
-            <a href="/forgot-password.html">Quên mật khẩu?</a>
+            <a href="/forgot-password">Quên mật khẩu?</a>
           </p>
           <button type="submit"
             class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200">
@@ -51,7 +51,7 @@
 
         <p class="text-sm text-center text-gray-600 mt-6">
           Chưa có tài khoản?
-          <a href="/register.html" class="text-blue-500 hover:underline">Đăng ký ngay</a>
+          <a href="/register" class="text-blue-500 hover:underline">Đăng ký ngay</a>
         </p>
       </div>
     </section>
@@ -78,7 +78,7 @@
           document.getElementById("errorMsg").textContent = result.message || "Đăng nhập thất bại";
         } else {
           const result = await response.json();
-          window.location.href = "/home.html";
+          window.location.href = "/home";
         }
       } catch (error) {
         document.getElementById("errorMsg").textContent = "Lỗi kết nối tới máy chủ.";
