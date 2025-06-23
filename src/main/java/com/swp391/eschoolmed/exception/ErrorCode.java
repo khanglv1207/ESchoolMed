@@ -14,6 +14,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(1004, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND), // ko tim thay user
     USERNAME_OR_PASSWORD_ERROR(1005, "Sai email hoặc mật khẩu", HttpStatus.BAD_REQUEST),
     EMPTY_CREDENTIALS(1008, "Vui lòng nhập đầy đủ email và mật khẩu", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1006,"Email đã tồn tại", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

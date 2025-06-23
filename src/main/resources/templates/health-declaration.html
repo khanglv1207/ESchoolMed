@@ -12,38 +12,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-            border-radius: 4px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 14px;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f3f4f6;
-        }
     </style>
 </head>
 
@@ -51,23 +19,23 @@
     <header class="border-b border-blue-500 bg-white">
         <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
             <div class="flex items-center space-x-2">
-                <img alt="Logo eSchoolMed" class="w-30 h-30" height="120" src="img/logo.png" width="120" />
+                <img src="img/logo.png" class="w-10 h-10" alt="Logo" />
                 <span class="text-blue-600 font-semibold text-lg">eSchoolMed</span>
             </div>
             <nav class="hidden sm:flex space-x-8 text-sm font-semibold text-black">
-                <a class="hover:underline" href="home">Trang chủ</a>
+                <a class="hover:underline" href="home.html">Trang chủ</a>
                 <div class="dropdown">
                     <a class="hover:underline" href="#">Hồ sơ & Tiêm chủng</a>
                     <div class="dropdown-content">
-                        <a href="health-declaration">Khai báo sức khỏe</a>
-                        <a href="vaccination">Tiêm chủng</a>
-                        <a href="medical-checkup">Kiểm tra y tế định kỳ</a>
+                        <a href="health-declaration.html">Khai báo sức khỏe</a>
+                        <a href="vaccination.html">Tiêm chủng</a>
+                        <a href="medical-checkup.html">Kiểm tra y tế định kỳ</a>
                     </div>
                 </div>
                 <a class="hover:underline" href="#">Sự kiện y tế</a>
                 <a class="hover:underline" href="#">Quản lý thuốc</a>
-                <a class="hover:underline" href="contact">Liên hệ & Hỗ trợ</a>
-                <a class="hover:underline" href="login">Đăng nhập</a>
+                <a class="hover:underline" href="contact.html">Liên hệ & Hỗ trợ</a>
+                <a class="hover:underline" href="login.html">Đăng nhập</a>
             </nav>
         </div>
     </header>
@@ -166,23 +134,16 @@
                     <!-- Thị lực -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Thị lực</label>
-                        <div class="space-y-2">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="chronicNone" name="chronicDiseases" value="none"
-                                    class="mr-2" />
-                                <label for="chronicNone">Bình thường</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">Mắt trái</label>
+                                <input type="text" placeholder="Ví dụ: 10/10"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="chronicAsthma" name="chronicDiseases" value="asthma"
-                                    class="mr-2" />
-                                <label for="chronicAsthma">Giảm thị lực</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="chronicOther" name="chronicDiseases" value="other"
-                                    class="mr-2" />
-                                <label for="chronicOther">Khác</label>
-                                <input type="text" placeholder="Chi tiết"
-                                    class="ml-2 px-2 py-1 border border-gray-300 rounded-md" />
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">Mắt phải</label>
+                                <input type="text" placeholder="Ví dụ: 10/10"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             </div>
                         </div>
                     </div>
