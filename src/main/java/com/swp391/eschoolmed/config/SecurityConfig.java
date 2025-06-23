@@ -26,29 +26,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                // cho phép tat cả
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
-
-                // user
-
-                .requestMatchers(HttpMethod.GET, "/api/mail/change-password-first-time").hasRole("PARENT")
-
-                // truy cập swagger
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap swagger
                 .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap swagger
                 .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap swagger
                 .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep truy cap swagger
-
-                //truy cập các page
-                .requestMatchers("/home","/login","/register","/health-declaration",
-                        "/contact","/vaccination","/medical-checkup","/import-students").permitAll()
-                .requestMatchers("/static/**", "/images/**", "/css/**", "/js/**").permitAll()
-
-                //admin
-                .requestMatchers("/create-parent-account","/admin-dashboard").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
 
                 .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
         );
