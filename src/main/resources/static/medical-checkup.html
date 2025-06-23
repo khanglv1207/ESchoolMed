@@ -12,28 +12,81 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+    
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+    
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+    
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+    
+        .dropdown-content a:hover {
+            background-color: #f3f4f6;
+        }
     </style>
-</head>
-
-<body class="bg-white min-h-screen">
-    <header class="border-b border-blue-500">
-        <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-            <div class="flex items-center space-x-2">
-                <img alt="Logo eSchoolMed" class="w-30 h-30" height="120" src="img/logo.png" width="120" />
-                <span class="text-blue-600 font-semibold text-lg select-none">
-                    eSchoolMed
-                </span>
+    </head>
+    
+    <body class="bg-white">
+        <header class="border-b border-blue-500">
+            <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
+                <div class="flex items-center space-x-2">
+                    <img alt="Logo eSchoolMed" class="w-30 h-30" height="120" src="img/logo.png" width="120" />
+                    <span class="text-blue-600 font-semibold text-lg select-none">
+                        eSchoolMed
+                    </span>
+                </div>
+                <nav class="hidden sm:flex space-x-8 text-sm font-semibold text-black">
+                    <a class="hover:underline" href="home.html">
+                        Trang chủ
+                    </a>
+                    <div class="dropdown">
+                        <a class="hover:underline">
+                            Hồ sơ & Tiêm chủng
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="health-declaration.html">Khai báo sức khỏe</a>
+                            <a href="vaccination.html">Tiêm chủng</a>
+                            <a href="medical-checkup.html">Kiểm tra y tế định kỳ</a>
+                        </div>
+                    </div>
+                    <a class="hover:underline" href="#">
+                        Sự kiện y tế
+                    </a>
+                    <a class="hover:underline" href="medical-checkup.html">
+                        Quản lý thuốc
+                    </a>
+                    <a class="hover:underline" href="contact.html">
+                        Liên hệ & Hỗ trợ
+                    </a>
+                    <a class="hover:underline" href="login.html">
+                        Đăng nhập
+                    </a>
+                </nav>
             </div>
-            <nav class="hidden sm:flex space-x-8 text-sm font-semibold text-black">
-                <a class="hover:underline" href="home.html">Trang chủ</a>
-                <a class="hover:underline" href="health-declaration.html">Khai báo sức khỏe</a>
-                <a class="hover:underline" href="vaccination.html">Tiêm chủng</a>
-                <a class="hover:underline text-blue-600" href="medical-checkup.html">Kiểm tra y tế</a>
-                <a class="hover:underline" href="contact.html">Liên hệ & Hỗ trợ</a>
-                <a class="hover:underline" href="login.html">Đăng nhập</a>
-            </nav>
-        </div>
-    </header>
+        </header>
+
+
     <main class="max-w-xl mx-auto px-4 py-10">
         <h1 class="text-2xl font-bold text-blue-600 mb-6 text-center">Kiểm tra y tế định kỳ</h1>
         <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
