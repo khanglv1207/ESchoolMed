@@ -11,10 +11,11 @@ import com.swp391.eschoolmed.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    
+
     Optional<User> findByEmail(String email);
 
     @Override
     @NonNull
     Optional<User> findById(@NonNull UUID id);
 }
+

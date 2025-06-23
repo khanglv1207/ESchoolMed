@@ -5,10 +5,15 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 
+import com.swp391.eschoolmed.service.mail.MailService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +36,8 @@ import com.swp391.eschoolmed.exception.ErrorCode;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.UserRepository;
 
+import javax.naming.Context;
+
 @Service
 public class UserService {
     @Value("${jwt.signer-key}")
@@ -41,7 +48,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository; // dua repo vao service
 
-    public LoginResponse login(String email, String password) {
+
+    public LoginResponse login(String email, String password) throws JOSEException {
     if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
         throw new ResponseStatusException(
             ErrorCode.EMPTY_CREDENTIALS.getStatusCode(),
@@ -52,7 +60,7 @@ public class UserService {
     Optional<User> optionalUser = userRepository.findByEmail(email);
     
     // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
-    if (optionalUser.isEmpty() || !optionalUser.get().getPassword().equals(password)) {
+    if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
         throw new ResponseStatusException(
             ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
             ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()
@@ -65,29 +73,11 @@ public class UserService {
     response.setId(user.getId());
     response.setEmail(user.getEmail());
     response.setFullName(user.getFullName());
+    response.setToken(generateToken(user));
 
     return response;
 }
 
-
-    public RegisterResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng.");
-        }
-
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setFullName(request.getFullName());
-        user.setPassword(request.getPassword());
-        user.setRole("PARENT");
-        userRepository.save(user);
-
-        RegisterResponse response = new RegisterResponse();
-        response.setEmail(request.getEmail());
-        response.setFullName(request.getFullName());
-        response.setRole(user.getRole());
-        return response;
-    }
 
     // token
     public IntrospectResponse introspect(String token) {
@@ -125,5 +115,6 @@ public class UserService {
         jwsObject.sign(new MACSigner(KEY));
         return jwsObject.serialize();
     }
+
 
 }

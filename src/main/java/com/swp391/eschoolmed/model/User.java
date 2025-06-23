@@ -22,8 +22,13 @@ public class User {
     private String email;
 
     @Column(name = "password_hash")
-    private String password;
+    private String passwordHash;
 
     @Column(name = "role")
     private String role = "parent"; // Gán mặc định
+
+    @Column(name = "must_change_password")
+    private boolean mustChangePassword = false;
+
+
 }
