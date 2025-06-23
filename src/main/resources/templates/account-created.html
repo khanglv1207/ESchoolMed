@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tài khoản phụ huynh đã được tạo</title>
+</head>
+<body>
+<h2>Xin chào <span th:text="${fullName}">Phụ huynh</span>,</h2>
+<p>Hệ thống E-SchoolMed đã tạo tài khoản dành cho bạn.</p>
+<ul>
+    <li><strong>Email đăng nhập:</strong> <span th:text="${email}">parent@example.com</span></li>
+    <li><strong>Mật khẩu tạm thời:</strong> <span th:text="${tempPassword}">abc12345</span></li>
+</ul>
+<p>Hãy đăng nhập và đổi mật khẩu ngay sau khi sử dụng lần đầu tại:</p>
+<p><a href="http://localhost:8080/login">http://localhost:8080/login</a></p>
+<p>Trân trọng,<br>Đội ngũ E-SchoolMed</p>
+</body>
+</html>

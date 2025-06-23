@@ -12,38 +12,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-            border-radius: 4px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 14px;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f3f4f6;
-        }
     </style>
 </head>
 
@@ -51,7 +19,7 @@
     <header class="border-b border-blue-500 bg-white">
         <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
             <div class="flex items-center space-x-2">
-                <img alt="Logo eSchoolMed" class="w-30 h-30" height="120" src="img/logo.png" width="120" />
+                <img src="../static/img/logo.png" class="w-10 h-10" alt="Logo" />
                 <span class="text-blue-600 font-semibold text-lg">eSchoolMed</span>
             </div>
             <nav class="hidden sm:flex space-x-8 text-sm font-semibold text-black">
@@ -169,31 +137,24 @@
                         <div class="space-y-2">
                             <div class="flex items-center">
                                 <input type="checkbox" id="chronicNone" name="chronicDiseases" value="none"
-                                    class="mr-2" />
+                                       class="mr-2" />
                                 <label for="chronicNone">Bình thường</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" id="chronicAsthma" name="chronicDiseases" value="asthma"
-                                    class="mr-2" />
+                                       class="mr-2" />
                                 <label for="chronicAsthma">Giảm thị lực</label>
                             </div>
+
                             <div class="flex items-center">
                                 <input type="checkbox" id="chronicOther" name="chronicDiseases" value="other"
-                                    class="mr-2" />
-                                <label for="chronicOther">Khác</label>
+                                       class="mr-2" />
+                                <label for="chronicOther">Có vấn đề</label>
                                 <input type="text" placeholder="Chi tiết"
-                                    class="ml-2 px-2 py-1 border border-gray-300 rounded-md" />
+                                       class="ml-2 px-2 py-1 border border-gray-300 rounded-md" />
                             </div>
                         </div>
                     </div>
-
-                    <!-- Thông tin khác -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Thông tin khác</label>
-                        <textarea rows="4" placeholder="Nhập các thông tin sức khỏe khác cần lưu ý..."
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                    </div>
-                </div>
 
                 <!-- Nút gửi -->
                 <div class="flex justify-end">
