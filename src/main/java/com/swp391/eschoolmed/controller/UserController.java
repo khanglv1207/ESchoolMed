@@ -40,12 +40,6 @@ public class UserController {
                     .build();
     }
 
-    @Controller
-    public class HomeController {
-    @RequestMapping(value = { "/", "/{path:[^\\.]*}" }) // tất cả path không chứa dấu chấm
-    public String redirect() {
-        return "forward:/index.html";
-    }
-}
+
 
 }

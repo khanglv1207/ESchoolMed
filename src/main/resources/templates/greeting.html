@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lời chào</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff8f0;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            border: 1px solid #ffcc99;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2);
+        }
+
+        h1 {
+            color: #ff7f00;
+            text-align: center;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Xin chào!</h1>
+    <p>Chào <strong th:text="${name}">Tên</strong>,</p>
+    <p>Chúng tôi rất vui được gửi lời chào đến bạn. Bạn hiện đang <strong th:text="${age}">tuổi</strong> tuổi.</p>
+    <p>Chúc bạn một ngày tuyệt vời và tràn đầy năng lượng!</p>
+    <div class="footer">
+        <p>— Đội ngũ của chúng tôi</p>
+    </div>
+</div>
+</body>
+</html>
