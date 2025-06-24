@@ -35,7 +35,7 @@ public class MailService {
     public void sendNewPassword(String receiverEmail, String fullName, int age, String tempPassword) {
         try {
             Context context = new Context();
-            context.setVariable("name",fullName);
+            context.setVariable("name", fullName);
             context.setVariable("age", age);
             context.setVariable("password", tempPassword);
             String text = templateEngine.process("greeting.html", context);
@@ -51,7 +51,6 @@ public class MailService {
             throw new RuntimeException(e);
         }
 
-
     }
 
     public void changePasswordFirstTime(UUID userId, String newPassword) {
@@ -62,7 +61,7 @@ public class MailService {
     }
 
     public void createParentAccount(String email, String fullName, int age) {
-        if(userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
@@ -76,7 +75,7 @@ public class MailService {
         user.setMustChangePassword(true);
         userRepository.save(user);
 
-        try{
+        try {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("email", email);
@@ -91,34 +90,31 @@ public class MailService {
             helper.setText(text, true);
             javaMailSender.send(message);
 
-        }catch (MessagingException e) {
+        } catch (MessagingException e) {
             e.printStackTrace();
             throw new RuntimeException("Gửi email thất bại: " + e.getMessage(), e);
         }
     }
+
     private String generateTempPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-
-
-
-
-//    public void sendOtp(String receiverEmail, String otpCode) {
-//        try {
-//            Context context = new Context();
-//            context.setVariable("otp",otpCode);
-//            String text = templateEngine.process("otp.html", context);
-//            MimeMessage message = javaMailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-//            helper.setPriority(1);
-//            helper.setSubject("OTP của bạn");
-//            helper.setFrom(from);
-//            helper.setTo(receiverEmail);
-//            helper.setText(text, true);
-//            javaMailSender.send(message);
-//        }catch (MessagingException e){
-//            throw new RuntimeException(e);
-//        }
-//    }
+    // public void sendOtp(String receiverEmail, String otpCode) {
+    // try {
+    // Context context = new Context();
+    // context.setVariable("otp",otpCode);
+    // String text = templateEngine.process("otp.html", context);
+    // MimeMessage message = javaMailSender.createMimeMessage();
+    // MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    // helper.setPriority(1);
+    // helper.setSubject("OTP của bạn");
+    // helper.setFrom(from);
+    // helper.setTo(receiverEmail);
+    // helper.setText(text, true);
+    // javaMailSender.send(message);
+    // }catch (MessagingException e){
+    // throw new RuntimeException(e);
+    // }
+    // }
 }

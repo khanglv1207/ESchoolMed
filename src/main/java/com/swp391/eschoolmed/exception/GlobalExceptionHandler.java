@@ -44,8 +44,7 @@ public class GlobalExceptionHandler {
                 ApiResponse.<Void>builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
-                        .build()
-        );
+                        .build());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -68,4 +67,3 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 }
-

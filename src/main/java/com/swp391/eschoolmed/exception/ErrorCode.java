@@ -8,13 +8,13 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.OK),
-    UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED), //ko co quyen truy cap
+    UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED), // ko co quyen truy cap
     UNAUTHORIZED(1002, "Unauthorized", HttpStatus.UNAUTHORIZED),
-    INVALID_KEY(1003, "Invalid key", HttpStatus.BAD_REQUEST), //sai khoa
+    INVALID_KEY(1003, "Invalid key", HttpStatus.BAD_REQUEST), // sai khoa
     USER_NOT_FOUND(1004, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND), // ko tim thay user
     USERNAME_OR_PASSWORD_ERROR(1005, "Sai email hoặc mật khẩu", HttpStatus.BAD_REQUEST),
     EMPTY_CREDENTIALS(1008, "Vui lòng nhập đầy đủ email và mật khẩu", HttpStatus.BAD_REQUEST),
-    EMAIL_EXISTED(1006,"Email đã tồn tại", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1006, "Email đã tồn tại", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
