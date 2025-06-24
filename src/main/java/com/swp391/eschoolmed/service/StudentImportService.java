@@ -22,13 +22,13 @@ public class StudentImportService {
     @Autowired
     private StudentRepository studentRepository;
 
-
     public void importExcel(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
+                if (row == null)
+                    continue;
 
                 Student student = new Student();
                 student.setStudentId(UUID.randomUUID());

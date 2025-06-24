@@ -32,21 +32,28 @@ public class SecurityConfig {
 
                 // user
 
-                .requestMatchers(HttpMethod.GET, "/api/mail/change-password-first-time").hasRole("PARENT")
+                .requestMatchers(HttpMethod.GET, "/api/mail/change-password-first-time")
+                .hasRole("PARENT")
 
                 // truy cập swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap swagger
-                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep truy cap swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap
+                // swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap
+                // swagger
+                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap
+                // swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep
+                // truy cap
+                // swagger
 
-                //truy cập các page
-                .requestMatchers("/home","/login","/register","/health-declaration",
-                        "/contact","/vaccination","/medical-checkup","/import-students").permitAll()
+                // truy cập các page
+                .requestMatchers("/home", "/login", "/register", "/health-declaration",
+                        "/contact", "/vaccination", "/medical-checkup", "/import-students")
+                .permitAll()
                 .requestMatchers("/static/**", "/images/**", "/css/**", "/js/**").permitAll()
 
-                //admin
-                .requestMatchers("/create-parent-account","/admin-dashboard").hasAuthority("ADMIN")
+                // admin
+                .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
 
@@ -54,13 +61,12 @@ public class SecurityConfig {
         );
 
         http.oauth2ResourceServer(
-                oauth2 ->
-                        oauth2.jwt(
-                                        jwtConfigurer -> jwtConfigurer
-                                                .decoder(customJwtDecoder)
-                                                .jwtAuthenticationConverter(converter()))
-                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-        );
+                oauth2 -> oauth2.jwt(
+                                jwtConfigurer -> jwtConfigurer
+                                        .decoder(customJwtDecoder)
+                                        .jwtAuthenticationConverter(converter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+
 
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -78,12 +84,13 @@ public class SecurityConfig {
 
     @Bean
     public CorsFilter corsFilter() {
-        // CORS
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:5173"); // thay bang frontend URL cua ban
+        corsConfiguration.addAllowedOrigin("http://localhost:3000");
+        corsConfiguration.addAllowedOrigin("http://localhost:3002"); // Thêm dòng này!
         corsConfiguration.addAllowedOrigin("http://localhost:8080");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true); // Nếu dùng cookie
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

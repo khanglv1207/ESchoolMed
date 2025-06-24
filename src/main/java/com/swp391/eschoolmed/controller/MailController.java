@@ -18,13 +18,12 @@ public class MailController {
     void receiveEmail(@RequestParam String receiverEmail,
                       @RequestParam String fullName,
                       @RequestParam int age,
-                      @RequestParam String tempPassword
-    ) {
+                      @RequestParam String tempPassword) {
         mailService.sendNewPassword(receiverEmail, fullName, age, tempPassword);
     }
 
     @PostMapping("/change-password-first-time")
-    ApiResponse<Void> changePasswordFirstTime(@RequestBody ChangePasswordRequest request){
+    ApiResponse<Void> changePasswordFirstTime(@RequestBody ChangePasswordRequest request) {
         mailService.changePasswordFirstTime(request.getUserId(), request.getNewPassword());
         return ApiResponse.<Void>builder()
                 .message("Thay đổi mật khẩu thành công")
@@ -32,7 +31,7 @@ public class MailController {
     }
 
     @PostMapping("/create-parent")
-    ApiResponse <String> createParent(@RequestBody CreateParentRequest request){
+    ApiResponse<String> createParent(@RequestBody CreateParentRequest request) {
         mailService.createParentAccount(request.getEmail(), request.getFullName(), request.getAge());
         return ApiResponse.<String>builder()
                 .message("Tạo tài khoản phụ huynh thành công. Mật khẩu được gửi qua email.")

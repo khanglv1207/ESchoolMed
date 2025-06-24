@@ -48,36 +48,32 @@ public class UserService {
     @Autowired
     private UserRepository userRepository; // dua repo vao service
 
-
     public LoginResponse login(String email, String password) throws JOSEException {
-    if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-        throw new ResponseStatusException(
-            ErrorCode.EMPTY_CREDENTIALS.getStatusCode(),
-            "Vui lòng nhập đầy đủ email và mật khẩu"
-        );
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    ErrorCode.EMPTY_CREDENTIALS.getStatusCode(),
+                    "Vui lòng nhập đầy đủ email và mật khẩu");
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
+        if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
+            throw new ResponseStatusException(
+                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage());
+        }
+
+        User user = optionalUser.get();
+
+        LoginResponse response = new LoginResponse();
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setFullName(user.getFullName());
+        response.setToken(generateToken(user));
+
+        return response;
     }
-
-    Optional<User> optionalUser = userRepository.findByEmail(email);
-    
-    // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
-    if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
-        throw new ResponseStatusException(
-            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
-            ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()
-        );
-    }
-
-    User user = optionalUser.get();
-
-    LoginResponse response = new LoginResponse();
-    response.setId(user.getId());
-    response.setEmail(user.getEmail());
-    response.setFullName(user.getFullName());
-    response.setToken(generateToken(user));
-
-    return response;
-}
-
 
     // token
     public IntrospectResponse introspect(String token) {
@@ -115,6 +111,5 @@ public class UserService {
         jwsObject.sign(new MACSigner(KEY));
         return jwsObject.serialize();
     }
-
 
 }

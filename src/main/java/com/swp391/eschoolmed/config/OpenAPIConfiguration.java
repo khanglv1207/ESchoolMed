@@ -11,14 +11,9 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
-@SecurityScheme(
-        name = "Bearer Authentication",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        scheme = "bearer",
-        description = "A JWT token is required to access this API. JWT token can be obtain by api/accounts/login " +
-                "} API"
-)
+@SecurityScheme(name = "Bearer Authentication", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer", description = "A JWT token is required to access this API. JWT token can be obtain by api/accounts/login "
+        +
+        "} API")
 public class OpenAPIConfiguration {
     @Value("${springdoc.servers}")
     private String serverUrl;
@@ -30,6 +25,5 @@ public class OpenAPIConfiguration {
                 .addServersItem(new Server().url(serverUrl).description("API Gateway"))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"));
     }
-
 
 }

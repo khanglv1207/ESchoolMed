@@ -7,52 +7,52 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ViewController {
 
     @GetMapping("/login")
-    public String loginPage(){
+    public String loginPage() {
         return "login";
     }
 
     @GetMapping("/register")
-    public String registerPage(){
+    public String registerPage() {
         return "register";
     }
 
     @GetMapping("/home")
-    public String homePage(){
+    public String homePage() {
         return "home";
     }
 
     @GetMapping("/health-declaration")
-    public String healthDeclarationPage(){
+    public String healthDeclarationPage() {
         return "health-declaration";
     }
 
     @GetMapping("/medical-checkup")
-    public String medicalCheckupPage(){
+    public String medicalCheckupPage() {
         return "medical-checkup";
     }
 
     @GetMapping("/vaccination")
-    public String vaccinationPage(){
+    public String vaccinationPage() {
         return "vaccination";
     }
 
     @GetMapping("/contact")
-    public String contactPage(){
+    public String contactPage() {
         return "contact";
     }
 
     @GetMapping("/create-parent-account")
-    public String createParentAccountPage(){
+    public String createParentAccountPage() {
         return "create-parent-account";
     }
 
     @GetMapping("/import-students")
-    public String importStudentsPage(){
+    public String importStudentsPage() {
         return "import-students";
     }
 
     @GetMapping("/admin-dashboard")
-    public String adminDashboardPage(){
+    public String adminDashboardPage() {
         return "admin-dashboard";
     }
 

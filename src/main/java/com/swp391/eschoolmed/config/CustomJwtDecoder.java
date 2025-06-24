@@ -1,6 +1,5 @@
 package com.swp391.eschoolmed.config;
 
-
 import java.util.Objects;
 
 import javax.crypto.spec.SecretKeySpec;
