@@ -32,21 +32,20 @@ public class CustomJwtDecoder implements JwtDecoder {
     public Jwt decode(String token) throws JwtException {
         try {
             log.info("Jwt token: {}", token);
-            var response = userService.introspect(token);
-            if (!response.isValid()) {
-                throw new AppException(ErrorCode.UNAUTHENTICATED);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-        if (Objects.isNull(nimbusJwtDecoder)) {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
+            if (Objects.isNull(nimbusJwtDecoder)) {
+                SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(), "HS512");
+                nimbusJwtDecoder = NimbusJwtDecoder
+                        .withSecretKey(secretKeySpec)
+                        .macAlgorithm(MacAlgorithm.HS512)
+                        .build();
+            }
+
+            return nimbusJwtDecoder.decode(token);
+
+        } catch (Exception e) {
+            throw new JwtException("Token invalid", e);
         }
-        return nimbusJwtDecoder.decode(token);
     }
+
 }
