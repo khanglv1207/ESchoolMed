@@ -55,6 +55,7 @@ public class MailService {
 
     public void changePasswordFirstTime(UUID userId, String newPassword) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         user.setPasswordHash(newPassword);
         user.setMustChangePassword(false);
         userRepository.save(user);

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,7 +45,8 @@ public class UserService {
     private String KEY;
     @Value("${jwt.expiration-duration}")
     private long EXPIRATION_DURATION;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository; // dua repo vao service
 
@@ -56,8 +58,6 @@ public class UserService {
         }
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
-
-        // Gộp cả 2 điều kiện email không tồn tại hoặc mật khẩu sai
         if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
             throw new ResponseStatusException(
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
@@ -65,15 +65,21 @@ public class UserService {
         }
 
         User user = optionalUser.get();
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new ResponseStatusException(
+                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage());
+        }
 
         LoginResponse response = new LoginResponse();
         response.setId(user.getId());
-        response.setEmail(user.getEmail());
-        response.setFullName(user.getFullName());
+        response.setEmail(email);
         response.setToken(generateToken(user));
-
+        response.setFirstLogin(user.isMustChangePassword());
         return response;
     }
+
+
 
     // token
     public IntrospectResponse introspect(String token) {

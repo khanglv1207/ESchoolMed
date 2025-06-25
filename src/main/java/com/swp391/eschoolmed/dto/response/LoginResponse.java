@@ -7,9 +7,8 @@ import java.util.UUID;
 @Data
 public class LoginResponse {
     private UUID id;
-
-    private String fullName;
-
     private String email;
     private String token;
+    private boolean firstLogin;
+
 }

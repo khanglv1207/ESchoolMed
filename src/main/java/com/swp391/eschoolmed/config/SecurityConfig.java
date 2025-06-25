@@ -34,19 +34,14 @@ public class SecurityConfig {
 
                 // user
 
-                .requestMatchers(HttpMethod.GET, "/api/mail/change-password-first-time")
-                .hasRole("PARENT")
+                .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time")
+                .hasAuthority("PARENT")
 
                 // truy cập swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()// cho phep truy cap
-                // swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll() // cho phep truy cap
-                // swagger
-                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll() // cho phep truy cap
-                // swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll() // cho phep
-                // truy cap
-                // swagger
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
                 // truy cập các page
                 .requestMatchers("/home", "/login", "/register", "/health-declaration",
