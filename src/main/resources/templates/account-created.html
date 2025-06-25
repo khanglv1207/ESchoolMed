@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tài khoản đã được tạo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            color: #007bff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .info {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">eSchoolMed – Tài khoản của bạn đã được tạo</div>
+
+    <div class="info">
+        Kính gửi <strong th:text="${fullName}">Phụ huynh</strong>,<br><br>
+
+        Tài khoản của bạn đã được tạo để truy cập hệ thống quản lý y tế học đường.<br><br>
+
+        <strong>Thông tin đăng nhập:</strong><br>
+        ✉ Email: <span th:text="${email}">example@gmail.com</span><br>
+        🔐 Mật khẩu tạm thời: <span th:text="${tempPassword}">Abc123</span>
+
+        👉 Vui lòng đăng nhập và đổi mật khẩu ngay sau lần đăng nhập đầu tiên để đảm bảo an toàn thông tin.
+    </div>
+
+    <div class="footer">
+        Trân trọng,<br>
+        Đội ngũ eSchoolMed
+    </div>
+</div>
+</body>
+</html>
