@@ -72,12 +72,12 @@ public class MailService {
         }
 
         String tempPassword = generateTempPassword();
-        String encodedPassword = passwordEncoder.encode(tempPassword); // ✅ Bắt buộc mã hóa
+        String encodedPassword = passwordEncoder.encode(tempPassword);
 
         User user = new User();
         user.setEmail(email);
         user.setFullName(fullName);
-        user.setPasswordHash(encodedPassword); // ✅ Lưu dạng bcrypt
+        user.setPasswordHash(encodedPassword);
         user.setRole("parent");
         user.setMustChangePassword(true);
         userRepository.save(user);
@@ -87,7 +87,7 @@ public class MailService {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("email", email);
-            context.setVariable("tempPassword", tempPassword); // gửi password plaintext cho phụ huynh
+            context.setVariable("tempPassword", tempPassword);
 
             String text = templateEngine.process("account-created.html", context);
             MimeMessage message = javaMailSender.createMimeMessage();

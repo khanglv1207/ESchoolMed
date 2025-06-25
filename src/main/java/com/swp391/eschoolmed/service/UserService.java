@@ -57,14 +57,11 @@ public class UserService {
                     "Vui lòng nhập đầy đủ email và mật khẩu");
         }
 
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            throw new ResponseStatusException(
-                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
-                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage());
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+                        ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()));
 
-        User user = optionalUser.get();
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new ResponseStatusException(
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
@@ -76,6 +73,9 @@ public class UserService {
         response.setEmail(email);
         response.setToken(generateToken(user));
         response.setFirstLogin(user.isMustChangePassword());
+
+        System.out.println("Generated Token: " + response.getToken());
+
         return response;
     }
 
