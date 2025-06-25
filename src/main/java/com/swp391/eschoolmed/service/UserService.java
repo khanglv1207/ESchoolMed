@@ -58,7 +58,7 @@ public class UserService {
         }
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
+        if (optionalUser.isEmpty()) {
             throw new ResponseStatusException(
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage());
