@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -51,7 +52,7 @@ public class SecurityConfig {
 
                 // admin
                 .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
 
                 .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
@@ -94,4 +95,7 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
+
+
 }
