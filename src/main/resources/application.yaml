@@ -36,7 +36,7 @@ spring:
 
 jwt:
   signer-key: HJ4ppveef04BKJzTq+dyLhRdicqYiQWxaSqTLiTUxksDu4zMs/NLfrJsbHz+4OiB
-  expiration-duration: 300 #don vi giay
+  expiration-duration: 86400 #don vi giay
 
 springdoc:
   api-docs:
