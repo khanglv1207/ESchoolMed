@@ -10,6 +10,6 @@ public class LoginResponse {
     private String email;
     private String token;
     private boolean firstLogin;
-
+    private String role;
 
 }

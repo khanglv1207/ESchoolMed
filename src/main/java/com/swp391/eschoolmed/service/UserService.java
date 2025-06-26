@@ -73,6 +73,7 @@ public class UserService {
         response.setEmail(email);
         response.setToken(generateToken(user));
         response.setFirstLogin(user.isMustChangePassword());
+        response.setRole(user.getRole());
 
         System.out.println("Generated Token: " + response.getToken());
 
