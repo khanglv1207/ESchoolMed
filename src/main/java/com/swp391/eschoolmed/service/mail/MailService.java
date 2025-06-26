@@ -2,7 +2,9 @@ package com.swp391.eschoolmed.service.mail;
 
 import com.swp391.eschoolmed.exception.AppException;
 import com.swp391.eschoolmed.exception.ErrorCode;
+import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -35,6 +37,9 @@ public class MailService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ParentRepository parentRepository;
+
     @Async
     public void sendNewPassword(String receiverEmail, String fullName, int age, String tempPassword) {
         try {
@@ -61,9 +66,18 @@ public class MailService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setPasswordHash(passwordEncoder.encode(newPassword)); // ✅ Mã hóa mật khẩu mới
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);
         userRepository.save(user);
+
+        if("password".equalsIgnoreCase(user.getRole())){
+            boolean exists = parentRepository.existsByUser(user);
+            if(!exists){
+                Parent parent = new Parent();
+                parent.setUser(user);
+                parentRepository.save(parent);
+            }
+        }
     }
 
     public void createParentAccount(String email, String fullName, int age) {
@@ -87,7 +101,7 @@ public class MailService {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("email", email);
-            context.setVariable("tempPassword", tempPassword);
+            context.setVariable("tempPassword", tempPassword); // gửi password plaintext cho phụ huynh
 
             String text = templateEngine.process("account-created.html", context);
             MimeMessage message = javaMailSender.createMimeMessage();
