@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -24,46 +23,32 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final CustomJwtDecoder customJwtDecoder;
-
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-
-        http.cors(Customizer.withDefaults());
-        http
+        http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                // cho phép tat cả
-                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
+                        // cho phép tat cả
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
 
-                // user
+                        // user
+                        .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
 
-                .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time")
-                .hasAuthority("PARENT")
+                        // truy cập swagger
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
-                // truy cập swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
+                        // admin
+                        .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
 
-                // truy cập các page
-                .requestMatchers("/home", "/login", "/register", "/health-declaration",
-                        "/contact", "/vaccination", "/medical-checkup", "/import-students")
-                .permitAll()
-                .requestMatchers("/static/**", "/images/**", "/css/**", "/js/**").permitAll()
-
-                // admin
-                .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
-
-                .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
-        );
+                        .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
+                );
 
         http.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(
