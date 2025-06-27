@@ -3,6 +3,7 @@ package com.swp391.eschoolmed.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +30,5 @@ public class User {
 
     @Column(name = "must_change_password")
     private boolean mustChangePassword = false;
-
 
 }

@@ -3,10 +3,14 @@ package com.swp391.eschoolmed.service;
 import java.sql.Date;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.model.PasswordResetToken;
+import com.swp391.eschoolmed.repository.PasswordResetTokenRepository;
 import com.swp391.eschoolmed.service.mail.MailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -49,6 +53,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository; // dua repo vao service
+    @Autowired
+    private PasswordResetTokenRepository tokenRepository;
+    @Autowired
+    private MailService mailService;
 
     public LoginResponse login(String email, String password) throws JOSEException {
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
@@ -119,4 +127,48 @@ public class UserService {
         return jwsObject.serialize();
     }
 
+    // nhập email reset password
+    public void requestPasswordRequest(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+        PasswordResetToken token = new PasswordResetToken();
+        token.setEmail(email);
+        token.setOtpCode(otp);
+        token.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+        tokenRepository.save(token);
+
+        mailService.sendOtpEmail(email,otp);
+    }
+
+    // xác thuc otp
+    public void verifyOtp(String email, String otpCode) {
+        PasswordResetToken token = tokenRepository.findByEmailAndOtpCode(email, otpCode)
+                .orElseThrow(() -> new AppException(ErrorCode.ERROR_OTP));
+
+        if(token.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.EXPIRY_OTP);
+        }
+        token.setVerified(true);
+        tokenRepository.save(token);
+    }
+
+    //reset password
+    public void resetPassword(String email, String newPassword) {
+        PasswordResetToken token = tokenRepository.findTopByEmailOrderByExpiryTimeDesc(email)
+                .orElseThrow(() -> new AppException(ErrorCode.OTP_NOT_FOUND));
+
+        if (!token.isVerified()) {
+            throw new AppException(ErrorCode.OTP_NOT_VERIFY);
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        tokenRepository.delete(token);
+        userRepository.save(user);
+    }
 }
+
