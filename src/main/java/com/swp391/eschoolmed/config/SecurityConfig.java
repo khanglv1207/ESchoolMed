@@ -32,6 +32,9 @@ public class SecurityConfig {
                         // cho phép tat cả
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/request-password-reset").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/verify-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/reset-password").permitAll()
 
                         // user
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")

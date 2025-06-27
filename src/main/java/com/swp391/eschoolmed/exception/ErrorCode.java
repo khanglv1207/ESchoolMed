@@ -15,7 +15,10 @@ public enum ErrorCode {
     USERNAME_OR_PASSWORD_ERROR(1005, "Sai email hoặc mật khẩu", HttpStatus.BAD_REQUEST),
     EMPTY_CREDENTIALS(1008, "Vui lòng nhập đầy đủ email và mật khẩu", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED(1006, "Email đã tồn tại", HttpStatus.BAD_REQUEST),
-    ;
+    ERROR_OTP(1007,"Sai otp" ,HttpStatus.BAD_REQUEST ),
+    EXPIRY_OTP(1008,"Otp hết hạn" ,HttpStatus.BAD_REQUEST ),
+    OTP_NOT_FOUND(1009,"Không tìm thấy otp" ,HttpStatus.NOT_FOUND ),
+    OTP_NOT_VERIFY(1010,"Chưa xác thực đươc otp" ,HttpStatus.BAD_REQUEST );
 
     private final int code;
     private final String message;

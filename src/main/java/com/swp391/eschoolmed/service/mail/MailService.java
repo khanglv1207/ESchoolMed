@@ -121,4 +121,22 @@ public class MailService {
     private String generateTempPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
+
+    public void sendOtpEmail(String email, String otp) {
+        try {
+            Context context = new Context();
+            context.setVariable("otpCode",otp);
+            String text = templateEngine.process("otp.html", context);
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setPriority(1);
+            helper.setSubject("Mã otp để reset password");
+            helper.setFrom(from);
+            helper.setTo(email);
+            helper.setText(text, true);
+            javaMailSender.send(message);
+        }catch (MessagingException e){
+            throw new RuntimeException(e);
+        }
+    }
 }
