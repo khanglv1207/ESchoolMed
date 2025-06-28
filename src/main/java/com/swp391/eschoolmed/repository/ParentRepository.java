@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.repository;
 
+import com.swp391.eschoolmed.dto.request.ParentProfileRequest;
 import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import java.util.UUID;
 public interface ParentRepository extends JpaRepository<Parent, UUID> {
 
     boolean existsByUser(User user);
+
 }
