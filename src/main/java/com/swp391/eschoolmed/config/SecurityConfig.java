@@ -39,6 +39,7 @@ public class SecurityConfig {
                         // user
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile/**").hasAuthority("PARENT")
                         // truy cập swagger
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()

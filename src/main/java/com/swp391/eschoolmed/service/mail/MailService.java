@@ -96,6 +96,14 @@ public class MailService {
         user.setMustChangePassword(true);
         userRepository.save(user);
 
+        Parent parent = new Parent();
+        parent.setUser(user);
+        parent.setFullName(fullName);
+        parent.setPhoneNumber("");
+        parent.setAddress("");
+        parent.setDateOfBirth("");
+        parentRepository.save(parent);
+
         // Gửi email thông báo
         try {
             Context context = new Context();
