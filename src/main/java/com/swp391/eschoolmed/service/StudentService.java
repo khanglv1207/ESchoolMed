@@ -1,5 +1,7 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
+import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.Row;
@@ -11,13 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class StudentImportService {
+public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -47,4 +48,16 @@ public class StudentImportService {
         }
     }
 
+    public void studentProfile(StudentProfileRequest request) {
+        Student student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+        student.setFullName(request.getFullName());
+        student.setClass_id(request.getClass_id());
+        student.setGender(request.getGender());
+        student.setDate_of_birth(request.getDate_of_birth());
+
+        studentRepository.save(student);
+
+
+    }
 }
