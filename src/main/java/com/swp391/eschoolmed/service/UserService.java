@@ -127,6 +127,16 @@ public class UserService {
         return jwsObject.serialize();
     }
 
+    public UUID extractUserIdFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String subject = signedJWT.getJWTClaimsSet().getSubject();
+            return UUID.fromString(subject);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+    }
+
     // nhập email reset password
     public void requestPasswordRequest(String email) {
         User user = userRepository.findByEmail(email)
@@ -141,6 +151,8 @@ public class UserService {
 
         mailService.sendOtpEmail(email,otp);
     }
+
+
 
     // xác thuc otp
     public void verifyOtp(String email, String otpCode) {

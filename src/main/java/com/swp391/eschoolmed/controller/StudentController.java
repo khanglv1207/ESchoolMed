@@ -36,9 +36,11 @@ public class StudentController {
     }
 
 
-    @PostMapping("/update-profile-student")
-    public ApiResponse<Void> updateStudentProfile(@RequestBody StudentProfileRequest request){
-        studentService.updateStudentProfile(request);
+    @PostMapping("/update-profile-student/{studentId}")
+    public ApiResponse<Void> updateStudentProfile(@PathVariable UUID studentId,
+                                                  @RequestBody StudentProfileRequest request,
+                                                  @RequestHeader("Authorization") String authHeader){
+        studentService.updateStudentProfile(studentId, request, authHeader);
         return ApiResponse.<Void>builder()
                 .message("Cập nhật thông tin học sinh thành công.")
                 .result(null)

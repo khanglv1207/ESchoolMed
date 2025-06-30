@@ -2,8 +2,11 @@ package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
 import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
+import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.Student;
+import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.StudentRepository;
+import com.swp391.eschoolmed.repository.UserRepository;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -24,6 +27,12 @@ public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ParentRepository parentRepository;
 
     public void importExcel(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
@@ -50,7 +59,12 @@ public class StudentService {
         }
     }
 
-    public void updateStudentProfile(StudentProfileRequest request) {
+    public void updateStudentProfile(UUID studentId, StudentProfileRequest request, String token) {
+        UUID userId = userService.extractUserIdFromToken(token);
+
+        Parent parent = parentRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
+
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         student.setFullName(request.getFullName());
