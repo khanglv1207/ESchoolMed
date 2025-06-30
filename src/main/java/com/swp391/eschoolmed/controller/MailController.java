@@ -42,7 +42,7 @@ public class MailController {
 
     @PostMapping("/create-parent")
     ApiResponse<String> createParent(@RequestBody CreateParentRequest request) {
-        mailService.createParentAccount(request.getEmail(), request.getFullName(), request.getAge());
+        mailService.createParentAccount(request.getEmail(), request.getFullName());
         return ApiResponse.<String>builder()
                 .message("Tạo tài khoản phụ huynh thành công. Mật khẩu được gửi qua email.")
                 .result("OK")

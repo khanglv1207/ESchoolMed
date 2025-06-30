@@ -6,5 +6,4 @@ import lombok.Data;
 public class CreateParentRequest {
     private String email;
     private String fullName;
-    private int age;
 }

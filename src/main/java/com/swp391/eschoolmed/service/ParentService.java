@@ -12,6 +12,7 @@ import com.swp391.eschoolmed.repository.ParentStudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,27 +40,31 @@ public class ParentService {
     public ParentProfileResponse getParentProfile(UUID userId) {
         Parent parent = parentRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh"));
-
         User user = parent.getUser();
-
-        ParentProfileResponse response = new ParentProfileResponse();
-        response.setUserId(user.getId().toString());
-        response.setFullName(parent.getFullName());
-        response.setEmail(user.getEmail());
-        response.setPhoneNumber(parent.getPhoneNumber());
-        response.setAddress(parent.getAddress());
-        response.setDateOfBirth(parent.getDateOfBirth());
 
         List<ParentStudent> linkedStudents = parentStudentRepository.findAllByParent_ParentId(parent.getParentId());
 
-        List<StudentProfileResponse> children = linkedStudents.stream().map(ps -> {
+        List<ParentProfileResponse.ChildInfo> children = linkedStudents.stream().map(ps -> {
             Student student = ps.getStudent();
-            return getStudentProfileResponse(student);
+            return ParentProfileResponse.ChildInfo.builder()
+                    .studentCode(student.getStudentCode())
+                    .studentName(student.getFullName())
+                    .className(String.valueOf(student.getClass_id()))
+                    .studentDob(student.getDate_of_birth())
+                    .gender(student.getGender())
+                    .build();
         }).collect(Collectors.toList());
 
-        response.setChildren(children);
-        return response;
+        return ParentProfileResponse.builder()
+                .parentName(parent.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(parent.getPhoneNumber())
+                .address(parent.getAddress())
+                .dateOfBirth(LocalDate.parse(parent.getDateOfBirth()))
+                .children(children)
+                .build();
     }
+
 
     static StudentProfileResponse getStudentProfileResponse(Student student) {
         StudentProfileResponse s = new StudentProfileResponse();
@@ -70,5 +75,8 @@ public class ParentService {
         s.setGender(student.getGender());
         return s;
     }
+
+
+
 }
 

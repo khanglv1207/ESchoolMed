@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.ParentProfileRequest;
+import com.swp391.eschoolmed.dto.request.ParentStudentUpdateRequest;
 import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
 import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
 import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
@@ -25,15 +26,27 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
-    @PostMapping(value = "/import-student", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> importExcel(@RequestParam("file") MultipartFile file) {
-        try {
-            studentService.importExcel(file);
-            return ResponseEntity.ok("Thêm học sinh vào danh sách thành công");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thêm học sinh thất bại" + e.getMessage());
-        }
+    @PostMapping(value = "/import-parent-students", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> importParentStudentExcel(@RequestParam("file") MultipartFile file) {
+        studentService.importParentStudentFromExcel(file);
+        return ApiResponse.<String>builder()
+                .message("Đã import thành công!")
+                .result("OK")
+                .build();
     }
+
+
+
+    @PutMapping("/update-imported")
+    public ApiResponse<Void> updateImportedRecord(@RequestBody ParentStudentUpdateRequest request) {
+        studentService.updateImportedParentStudent(request);
+        return ApiResponse.<Void>builder()
+                .message("Cập nhật thông tin thành công.")
+                .result(null)
+                .build();
+    }
+
+
 
 
     @PostMapping("/update-profile-student/{studentId}")
