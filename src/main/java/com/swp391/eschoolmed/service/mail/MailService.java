@@ -2,8 +2,8 @@ package com.swp391.eschoolmed.service.mail;
 
 import com.swp391.eschoolmed.exception.AppException;
 import com.swp391.eschoolmed.exception.ErrorCode;
-import com.swp391.eschoolmed.model.Parent;
-import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.model.*;
+import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.UserRepository;
 import jakarta.mail.MessagingException;
@@ -18,7 +18,11 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+
 
 @Service
 public class MailService {
@@ -39,6 +43,9 @@ public class MailService {
 
     @Autowired
     private ParentRepository parentRepository;
+
+    @Autowired
+    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
     @Async
     public void sendNewPassword(String receiverEmail, String fullName, int age, String tempPassword) {
@@ -99,6 +106,7 @@ public class MailService {
         Parent parent = new Parent();
         parent.setUser(user);
         parent.setFullName(fullName);
+        parent.setEmail(email);
         parent.setPhoneNumber("");
         parent.setAddress("");
         parent.setDateOfBirth("");
@@ -145,6 +153,55 @@ public class MailService {
             javaMailSender.send(message);
         }catch (MessagingException e){
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
+        List<Parent> parents = parentRepository.findAll();
+
+        for (Parent parent : parents) {
+            if (parent.getEmail() == null || parent.getEmail().isBlank()) {
+                System.out.printf("Bỏ qua parent %s (fullName: %s) vì thiếu email%n",
+                        parent.getParentId(), parent.getFullName());
+                continue;
+            }
+
+            for (ParentStudent ps : parent.getParentStudents()) {
+                Student student = ps.getStudent();
+
+                MedicalCheckupNotification notification = new MedicalCheckupNotification();
+                notification.setCheckupTitle(checkupTitle);
+                notification.setCheckupDate(checkupDate);
+                notification.setContent(content);
+                notification.setParent(parent);
+                notification.setStudent(student);
+                notification.setSentAt(LocalDateTime.now());
+                notification.setIsConfirmed(false);
+
+                medicalCheckupNotificationRepository.save(notification);
+
+                //tạo email gửi
+                try {
+                    MimeMessage message = javaMailSender.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                    helper.setTo(parent.getEmail());
+                    helper.setFrom(from);
+                    helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
+                    String confirmLink = "https://emed.com/parent/checkup/confirm?notificationId=" + notification.getId();
+                    Context context = new Context();
+                    context.setVariable("fullName", parent.getFullName());
+                    context.setVariable("content", content);
+                    context.setVariable("confirmLink", confirmLink);
+                    String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
+                    helper.setText(htmlContent, true);
+                    javaMailSender.send(message);
+                    System.out.printf("✅ Đã gửi email tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
+                } catch (Exception e) {
+                    System.err.printf("Không gửi được email cho %s - Lỗi: %s%n",
+                            parent.getEmail(), e.getMessage());
+                }
+            }
         }
     }
 }

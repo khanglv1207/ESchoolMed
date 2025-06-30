@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo kiểm tra y tế</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 20px;">
+
+<h2 style="color: #2d70d6;">[Emed] Thông báo kiểm tra y tế định kỳ</h2>
+
+<p>Kính gửi phụ huynh <strong th:text="${fullName}">Phụ huynh</strong>,</p>
+
+<p th:text="${content}">
+    Đây là nội dung kiểm tra y tế.
+</p>
+
+<p>
+    Vui lòng xác nhận đã nhận thông báo tại liên kết bên dưới:
+</p>
+
+<p>
+    <a th:href="${confirmLink}"
+       style="background-color: #2d70d6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+        Xác nhận đã đọc và đồng ý
+    </a>
+</p>
+
+<br>
+
+<p>Trân trọng,<br><strong>Hệ thống Emed</strong></p>
+
+</body>
+</html>
