@@ -22,6 +22,8 @@ public class Student {
     @Column(name = "class_id")
     private UUID class_id;
 
+    private String studentCode;
+
     @Column(name = "date_of_birth")
     private LocalDate date_of_birth;
 

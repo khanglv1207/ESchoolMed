@@ -42,7 +42,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile/**").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET,"/api/students/profile-student/**").hasAuthority("PARENT")
-
+                        .requestMatchers(HttpMethod.PUT,"/api/students/update-imported").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST,"/api/students/import-parent-students").permitAll()
                         // truy cập swagger
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()

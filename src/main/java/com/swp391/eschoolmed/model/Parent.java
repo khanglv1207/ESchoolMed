@@ -41,5 +41,7 @@ public class Parent {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<ParentStudent> parentStudents;
 
+    @Column(unique = true, length = 10)
+    private String code;
 
 }

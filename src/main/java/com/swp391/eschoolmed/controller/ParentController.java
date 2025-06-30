@@ -8,6 +8,7 @@ import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.service.ParentService;
+import com.swp391.eschoolmed.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,12 @@ public class ParentController {
     @Autowired
     private ParentService parentService;
 
-    @GetMapping("/parent-profile/{userId}")
-    ApiResponse<ParentProfileResponse> getParentProfile(@PathVariable UUID userId) {
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("/parent-profile")
+    public ApiResponse<ParentProfileResponse> getParentProfile(@RequestHeader("Authorization") String token) {
+        UUID userId = userService.extractUserIdFromToken(token);
         return ApiResponse.<ParentProfileResponse>builder()
                 .message("Thông tin của phụ huynh")
                 .result(parentService.getParentProfile(userId))
