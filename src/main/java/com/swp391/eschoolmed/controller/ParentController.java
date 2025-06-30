@@ -32,7 +32,7 @@ public class ParentController {
     }
 
 
-    @PostMapping("/update-profile")
+    @PostMapping("/update-profile-parent")
     public ApiResponse<Void> updateParentProfile(@RequestBody UpdateParentProfileRequest request){
         parentService.updateParentProfile(request);
         return ApiResponse.<Void>builder()

@@ -1,7 +1,7 @@
 package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
-import com.swp391.eschoolmed.model.Parent;
+import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
 import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
+
+import static com.swp391.eschoolmed.service.ParentService.getStudentProfileResponse;
 
 @Service
 public class StudentService {
@@ -48,7 +50,7 @@ public class StudentService {
         }
     }
 
-    public void studentProfile(StudentProfileRequest request) {
+    public void updateStudentProfile(StudentProfileRequest request) {
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         student.setFullName(request.getFullName());
@@ -58,6 +60,12 @@ public class StudentService {
 
         studentRepository.save(student);
 
+    }
 
+    public StudentProfileResponse getStudentProfile(UUID studentId) {
+        Student student = studentRepository.findStudentByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ học sinh"));
+
+        return getStudentProfileResponse(student);
     }
 }
