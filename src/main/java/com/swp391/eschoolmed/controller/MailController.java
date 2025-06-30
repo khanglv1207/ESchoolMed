@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.ChangePasswordRequest;
+import com.swp391.eschoolmed.dto.request.CheckupNoticeRequest;
 import com.swp391.eschoolmed.dto.request.CreateParentRequest;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.UserRepository;
@@ -47,5 +48,19 @@ public class MailController {
                 .result("OK")
                 .build();
     }
+
+    @PostMapping("/send-checkup-notice")
+    public ApiResponse<String> sendCheckupNotice(@RequestBody CheckupNoticeRequest request) {
+        mailService.sendMedicalCheckupNotices(
+                request.getCheckupTitle(),
+                request.getContent(),
+                request.getCheckupDate()
+        );
+        return ApiResponse.<String>builder()
+                .message("Đã gửi thông báo kiểm tra y tế đến phụ huynh thành công.")
+                .result("OK")
+                .build();
+    }
+
 
 }

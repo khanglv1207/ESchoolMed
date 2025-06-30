@@ -3,6 +3,7 @@ package com.swp391.eschoolmed.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -22,6 +23,9 @@ public class Parent {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column
+    private String email;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -30,4 +34,12 @@ public class Parent {
 
     @Column(name = "address")
     private String address;
+
+    @OneToMany(mappedBy = "parent")
+    private List<MedicalCheckupNotification> checkupNotifications;
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    private List<ParentStudent> parentStudents;
+
+
 }
