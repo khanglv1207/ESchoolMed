@@ -3,6 +3,8 @@ package com.swp391.eschoolmed.controller;
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.ParentProfileRequest;
 import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
+import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
+import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
 import com.swp391.eschoolmed.repository.StudentRepository;
 import com.swp391.eschoolmed.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/students")
@@ -32,14 +36,20 @@ public class StudentController {
     }
 
 
-    @PostMapping("/profile-student")
-    public ApiResponse<Void> profileStudent(@RequestBody StudentProfileRequest request){
-        studentService.studentProfile(request);
+    @PostMapping("/update-profile-student")
+    public ApiResponse<Void> updateStudentProfile(@RequestBody StudentProfileRequest request){
+        studentService.updateStudentProfile(request);
         return ApiResponse.<Void>builder()
                 .message("Cập nhật thông tin học sinh thành công.")
                 .result(null)
                 .build();
     }
 
-
+    @GetMapping("/profile-student/{studentId}")
+    ApiResponse<StudentProfileResponse> getStudentProfile(@PathVariable UUID studentId) {
+        return ApiResponse.<StudentProfileResponse>builder()
+                .message("Thông tin của học sinh")
+                .result(studentService.getStudentProfile(studentId))
+                .build();
+    }
 }

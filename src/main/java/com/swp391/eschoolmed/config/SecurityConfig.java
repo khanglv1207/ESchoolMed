@@ -38,8 +38,11 @@ public class SecurityConfig {
 
                         // user
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.POST, "/api/parents/update-profile").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile/**").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET,"/api/students/profile-student/**").hasAuthority("PARENT")
+
                         // truy cập swagger
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
@@ -80,7 +83,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
-        corsConfiguration.addAllowedOrigin("http://localhost:3002"); // Thêm dòng này!
+        corsConfiguration.addAllowedOrigin("http://localhost:3002");
         corsConfiguration.addAllowedOrigin("http://localhost:8080");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
