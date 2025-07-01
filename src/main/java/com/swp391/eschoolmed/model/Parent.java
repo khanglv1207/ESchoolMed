@@ -38,7 +38,7 @@ public class Parent {
     @OneToMany(mappedBy = "parent")
     private List<MedicalCheckupNotification> checkupNotifications;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<ParentStudent> parentStudents;
 
     @Column(unique = true, length = 10)

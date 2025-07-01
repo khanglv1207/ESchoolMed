@@ -1,14 +1,11 @@
 package com.swp391.eschoolmed.service.mail;
 
-import com.swp391.eschoolmed.exception.AppException;
-import com.swp391.eschoolmed.exception.ErrorCode;
-import com.swp391.eschoolmed.model.*;
-import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
-import com.swp391.eschoolmed.repository.ParentRepository;
-import com.swp391.eschoolmed.repository.ParentStudentRepository;
-import com.swp391.eschoolmed.repository.UserRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,11 +16,21 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.swp391.eschoolmed.exception.AppException;
+import com.swp391.eschoolmed.exception.ErrorCode;
+import com.swp391.eschoolmed.model.MedicalCheckupNotification;
+import com.swp391.eschoolmed.model.Parent;
+import com.swp391.eschoolmed.model.ParentStudent;
+import com.swp391.eschoolmed.model.Student;
+import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
+import com.swp391.eschoolmed.repository.ParentRepository;
+import com.swp391.eschoolmed.repository.ParentStudentRepository;
+import com.swp391.eschoolmed.repository.StudentRepository;
+import com.swp391.eschoolmed.repository.UserRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 
 @Service
@@ -51,6 +58,9 @@ public class MailService {
 
     @Autowired
     private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Async
 
@@ -83,41 +93,61 @@ public class MailService {
         user.setMustChangePassword(false);
         userRepository.save(user);
 
-        if ("parent".equalsIgnoreCase(user.getRole())) {
-            List<ParentStudent> matchingRecords = parentStudentRepository.findByParentEmail(user.getEmail());
-            if (matchingRecords.isEmpty()) {
-                throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
-            }
+        if (!"parent".equalsIgnoreCase(user.getRole())) return;
 
-            String parentCode = matchingRecords.get(0).getParentCode();
-
-            Optional<Parent> optionalParent = parentRepository.findByEmail(user.getEmail());
-            Parent parent;
-
-            if (optionalParent.isPresent()) {
-                // Nếu có rồi → cập nhật lại thông tin nếu cần
-                parent = optionalParent.get();
-                parent.setCode(parentCode); // đồng bộ lại mã nếu khác
-                parent.setUser(user);
-                parent.setFullName(user.getFullName());
-            } else {
-                // Nếu chưa có → tạo mới
-                parent = new Parent();
-                parent.setUser(user);
-                parent.setEmail(user.getEmail());
-                parent.setFullName(user.getFullName());
-                parent.setCode(parentCode);
-            }
-
-            parentRepository.save(parent);
-
-            // Gán parent_id vào các bản ghi ParentStudent
-            for (ParentStudent ps : matchingRecords) {
-                ps.setParent(parent);
-            }
-            parentStudentRepository.saveAll(matchingRecords);
+        List<ParentStudent> mappings = parentStudentRepository.findByParentEmail(user.getEmail());
+        if (mappings.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
         }
+
+        String parentCode = mappings.get(0).getParentCode();
+
+        Parent parent = parentRepository.findByEmail(user.getEmail())
+                .orElseGet(() -> {
+                    Parent p = new Parent();
+                    p.setUser(user);
+                    p.setEmail(user.getEmail());
+                    p.setFullName(user.getFullName());
+                    p.setCode(parentCode);
+                    return p;
+                });
+
+        parent.setUser(user);
+        parent.setFullName(user.getFullName());
+        parent.setCode(parentCode);
+        parentRepository.save(parent);
+
+        for (ParentStudent ps : mappings) {
+            ps.setParent(parent);
+
+            if (ps.getStudent() != null) {
+                UUID studentId = ps.getStudent().getStudentId();
+                Optional<Student> existingStudentOpt = studentRepository.findById(studentId);
+                Student student;
+                if (existingStudentOpt.isPresent()) {
+                    student = existingStudentOpt.get();
+                } else {
+                    student = new Student();
+                    student.setStudentId(UUID.randomUUID());
+                    student.setStudentCode(ps.getStudentCode());
+                    student.setFullName(ps.getStudentName());
+                    student.setGender(ps.getGender());
+                    student.setDate_of_birth(ps.getStudentDob());
+                    studentRepository.save(student);
+                }
+                ps.setStudent(student);
+            } else {
+                // Handle the case where student is null
+                System.err.println("ParentStudent with id " + ps.getId() + " has no student assigned.");
+            }
+        }
+
+        parentStudentRepository.saveAll(mappings);
     }
+
+
+
+
 
 
     public void createParentAccount(String email, String fullName) {
@@ -197,6 +227,21 @@ public class MailService {
     }
 
 
+    private String generateNextParentCode() {
+        String latestCode = parentRepository.findLatestCode(); // ví dụ: "PH000132"
+        int next = 1;
+
+        if (latestCode != null && latestCode.startsWith("PH")) {
+            try {
+                next = Integer.parseInt(latestCode.substring(2)) + 1;
+            } catch (NumberFormatException e) {
+                next = 1; // fallback nếu code bị lỗi
+            }
+        }
+
+        return String.format("PH%06d", next);
+    }
+
     public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
         List<Parent> parents = parentRepository.findAll();
 
@@ -243,21 +288,6 @@ public class MailService {
                 }
             }
         }
-    }
-
-    private String generateNextParentCode() {
-        String latestCode = parentRepository.findLatestCode(); // ví dụ: "PH000132"
-        int next = 1;
-
-        if (latestCode != null && latestCode.startsWith("PH")) {
-            try {
-                next = Integer.parseInt(latestCode.substring(2)) + 1;
-            } catch (NumberFormatException e) {
-                next = 1; // fallback nếu code bị lỗi
-            }
-        }
-
-        return String.format("PH%06d", next);
     }
 
 }

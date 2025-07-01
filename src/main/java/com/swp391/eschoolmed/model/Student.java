@@ -1,11 +1,15 @@
 package com.swp391.eschoolmed.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "students")
@@ -32,5 +36,8 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<MedicalCheckupNotification> checkupNotifications;
+
+    @OneToMany(mappedBy = "student")
+    private List<ParentStudent> parentStudents;
 
 }

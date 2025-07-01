@@ -12,8 +12,6 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
-import com.swp391.eschoolmed.exception.AppException;
-import com.swp391.eschoolmed.exception.ErrorCode;
 import com.swp391.eschoolmed.service.UserService;
 
 import lombok.RequiredArgsConstructor;

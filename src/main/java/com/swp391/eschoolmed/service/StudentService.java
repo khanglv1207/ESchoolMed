@@ -1,32 +1,31 @@
 package com.swp391.eschoolmed.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.UUID;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.swp391.eschoolmed.dto.request.ParentStudentUpdateRequest;
 import com.swp391.eschoolmed.dto.request.StudentProfileRequest;
 import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
-import com.swp391.eschoolmed.exception.AppException;
-import com.swp391.eschoolmed.exception.ErrorCode;
 import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.ParentStudent;
 import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.ParentStudentRepository;
 import com.swp391.eschoolmed.repository.StudentRepository;
-import com.swp391.eschoolmed.repository.UserRepository;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.UUID;
-
 import static com.swp391.eschoolmed.service.ParentService.getStudentProfileResponse;
 
 @Service
@@ -85,6 +84,9 @@ public class StudentService {
         record.setParentDob(request.getParentDob());
         record.setParentAddress(request.getParentAddress());
         record.setRelationship(request.getRelationship());
+        Student student = studentRepository.findById(request.getStudentId())
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh với id: " + request.getStudentId()));
+        record.setStudent(student);
         parentStudentRepository.save(record);
     }
 
@@ -101,7 +103,12 @@ public class StudentService {
                 rowIndex++;
 
                 try {
-                    String studentCode = getString(row.getCell(0));
+                    final String studentCode;
+                    String tempStudentCode = getString(row.getCell(0));
+                    if (tempStudentCode == null || tempStudentCode.isBlank()) {
+                        tempStudentCode = generateNextStudentCode();
+                    }
+                    studentCode = tempStudentCode;
                     String studentName = getString(row.getCell(1));
                     String className = getString(row.getCell(2));
                     LocalDate studentDob = getDate(row.getCell(3));
@@ -115,10 +122,6 @@ public class StudentService {
                     String relationship = getString(row.getCell(11));
                     String status = getString(row.getCell(12));
 
-                    // Nếu thiếu mã → tự sinh
-                    if (studentCode == null || studentCode.isBlank()) {
-                        studentCode = generateNextStudentCode();
-                    }
                     if (parentCode == null || parentCode.isBlank()) {
                         parentCode = generateNextParentCode();
                     }
@@ -137,6 +140,10 @@ public class StudentService {
                     ps.setParentAddress(parentAddress);
                     ps.setRelationship(relationship);
                     ps.setStatus(status != null ? status : "PENDING");
+
+                    Student student = studentRepository.findByStudentCode(studentCode)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh với mã: " + studentCode));
+                    ps.setStudent(student);
 
                     parentStudentRepository.save(ps);
 
