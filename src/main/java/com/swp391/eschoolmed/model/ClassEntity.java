@@ -16,6 +16,6 @@ public class ClassEntity {
     @Column(name = "class_id")
     private UUID classId;
 
-    @Column(name = "class_name")
+    @Column(name = "class_name")//
     private String className;
 }
