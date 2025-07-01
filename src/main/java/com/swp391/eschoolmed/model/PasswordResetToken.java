@@ -1,13 +1,15 @@
 package com.swp391.eschoolmed.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.scheduling.annotation.EnableAsync;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @Entity

@@ -5,19 +5,11 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
-import com.swp391.eschoolmed.model.PasswordResetToken;
-import com.swp391.eschoolmed.repository.PasswordResetTokenRepository;
-import com.swp391.eschoolmed.service.mail.MailService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,16 +24,15 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.swp391.eschoolmed.dto.request.RegisterRequest;
 import com.swp391.eschoolmed.dto.response.IntrospectResponse;
 import com.swp391.eschoolmed.dto.response.LoginResponse;
-import com.swp391.eschoolmed.dto.response.RegisterResponse;
 import com.swp391.eschoolmed.exception.AppException;
 import com.swp391.eschoolmed.exception.ErrorCode;
+import com.swp391.eschoolmed.model.PasswordResetToken;
 import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.repository.PasswordResetTokenRepository;
 import com.swp391.eschoolmed.repository.UserRepository;
-
-import javax.naming.Context;
+import com.swp391.eschoolmed.service.mail.MailService;
 
 @Service
 public class UserService {

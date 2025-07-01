@@ -1,10 +1,16 @@
 package com.swp391.eschoolmed.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "parents_students")
@@ -17,11 +23,11 @@ public class ParentStudent {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id")
+    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", nullable = false)
     private Parent parent;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", referencedColumnName = "student_id")
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
     private String relationship;

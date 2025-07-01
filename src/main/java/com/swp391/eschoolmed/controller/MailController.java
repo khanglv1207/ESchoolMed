@@ -1,19 +1,18 @@
 package com.swp391.eschoolmed.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.ChangePasswordRequest;
 import com.swp391.eschoolmed.dto.request.CheckupNoticeRequest;
 import com.swp391.eschoolmed.dto.request.CreateParentRequest;
-import com.swp391.eschoolmed.model.User;
-import com.swp391.eschoolmed.repository.UserRepository;
-import com.swp391.eschoolmed.service.UserService;
 import com.swp391.eschoolmed.service.mail.MailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.attribute.UserPrincipal;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/mail")

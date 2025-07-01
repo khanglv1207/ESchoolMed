@@ -1,8 +1,8 @@
 package com.swp391.eschoolmed.dto.request;
 
-import lombok.Data;
-
 import java.time.LocalDate;
+
+import lombok.Data;
 
 @Data
 public class CheckupNoticeRequest {

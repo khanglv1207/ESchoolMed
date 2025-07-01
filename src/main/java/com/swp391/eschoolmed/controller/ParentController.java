@@ -1,18 +1,21 @@
 package com.swp391.eschoolmed.controller;
 
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.swp391.eschoolmed.dto.ApiResponse;
-import com.swp391.eschoolmed.dto.request.ParentProfileRequest;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
 import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
-import com.swp391.eschoolmed.model.Parent;
-import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.service.ParentService;
 import com.swp391.eschoolmed.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/parents")
