@@ -1,9 +1,15 @@
 package com.swp391.eschoolmed.controller;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.model.MedicalCheckupNotification;
+import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +36,9 @@ public class StudentController {
     private StudentRepository studentRepository;
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
     @PostMapping(value = "/import-parent-students", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> importParentStudentExcel(@RequestParam("file") MultipartFile file) {
@@ -72,4 +81,28 @@ public class StudentController {
                 .result(studentService.getStudentProfile(studentId))
                 .build();
     }
+
+
+    // phụ huynh xác nhận làm danh sách chuẩn bị khám sức khỏe
+    @GetMapping("/parent-checkup-confirm")
+    public ResponseEntity<String> confirmCheckup(@RequestParam UUID notificationId) {
+        Optional<MedicalCheckupNotification> optional = medicalCheckupNotificationRepository.findById(notificationId);
+
+        if (optional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Thông báo không tồn tại!");
+        }
+
+        MedicalCheckupNotification notification = optional.get();
+        if (notification.getIsConfirmed()) {
+            return ResponseEntity.ok("Phụ huynh đã xác nhận rồi.");
+        }
+
+        notification.setIsConfirmed(true);
+        notification.setConfirmedAt(LocalDateTime.now());
+        medicalCheckupNotificationRepository.save(notification);
+
+        return ResponseEntity.ok("Xác nhận thành công! Học sinh sẽ được đưa vào danh sách kiểm tra.");
+    }
+
+
 }

@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/students/profile-student/**").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.PUT,"/api/students/update-imported").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST,"/api/students/import-parent-students").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")
                         // truy cập swagger
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
@@ -54,6 +56,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/nurses/checkup-result/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
 
                         .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
                 );

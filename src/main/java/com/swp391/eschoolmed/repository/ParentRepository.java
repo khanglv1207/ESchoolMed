@@ -25,4 +25,6 @@ public interface ParentRepository extends JpaRepository<Parent, UUID> {
 
     @Query("SELECT p FROM Parent p WHERE p.user.role = 'parent'")
     List<Parent> findAllRealParents();
+
+    Optional<Parent> findByUser(User user);
 }
