@@ -43,4 +43,14 @@ public class MedicalCheckupNotification {
 
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
+
+    @Column(columnDefinition = "TEXT")
+    private String resultSummary; // mô tả tổng quát kết quả
+
+    @Column
+    private Boolean isAbnormal; // có bất thường không
+
+    @Column
+    private String suggestion; // tư vấn hoặc hướng xử lý
+
 }

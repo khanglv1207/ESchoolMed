@@ -9,6 +9,7 @@ import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.ParentStudentRepository;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Builder
 @Service
 public class ParentService {
 
@@ -67,16 +69,14 @@ public class ParentService {
 
 
     static StudentProfileResponse getStudentProfileResponse(Student student) {
-        StudentProfileResponse s = new StudentProfileResponse();
-        s.setStudentId(student.getStudentId());
-        s.setFullName(student.getFullName());
-        s.setClass_id(student.getClass_id());
-        s.setDate_of_birth(student.getDate_of_birth());
-        s.setGender(student.getGender());
-        return s;
+        return StudentProfileResponse.builder()
+                .studentId(student.getStudentId())
+                .fullName(student.getFullName())
+                .class_id(student.getClass_id())
+                .date_of_birth(student.getDate_of_birth())
+                .gender(student.getGender())
+                .build();
     }
-
-
 
 }
 

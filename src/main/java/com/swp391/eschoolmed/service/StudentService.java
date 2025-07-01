@@ -49,6 +49,8 @@ public class StudentService {
     private ClassRepository classRepository;
 
 
+
+
     public void updateStudentProfile(UUID studentId, StudentProfileRequest request, String token) {
         UUID userId = userService.extractUserIdFromToken(token);
 
@@ -242,6 +244,18 @@ public class StudentService {
         }
         return String.format("PH%06d", next);
     }
+
+
+    public StudentProfileResponse toStudentProfileResponse(Student student) {
+        return StudentProfileResponse.builder()
+                .studentId(student.getStudentId())
+                .fullName(student.getFullName())
+                .class_id(student.getClass_id())
+                .date_of_birth(student.getDate_of_birth())
+                .gender(student.getGender())
+                .build();
+    }
+
 
 
 }
