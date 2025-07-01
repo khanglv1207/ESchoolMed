@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ import com.swp391.eschoolmed.model.User;
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, UUID> {
 
-    boolean existsByUser(User user);
+    Optional<Parent> findByCode(String code);
 
     Optional<Parent> findByUserId(UUID userId);
 
@@ -21,4 +22,7 @@ public interface ParentRepository extends JpaRepository<Parent, UUID> {
     String findLatestCode();
 
     Optional<Parent> findByEmail(String email);
+
+    @Query("SELECT p FROM Parent p WHERE p.user.role = 'parent'")
+    List<Parent> findAllRealParents();
 }

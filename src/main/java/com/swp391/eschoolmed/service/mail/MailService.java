@@ -93,61 +93,45 @@ public class MailService {
         user.setMustChangePassword(false);
         userRepository.save(user);
 
-        if (!"parent".equalsIgnoreCase(user.getRole())) return;
+        if ("parent".equalsIgnoreCase(user.getRole())) {
+            List<ParentStudent> matchingRecords = parentStudentRepository.findByParentEmail(user.getEmail());
 
-        List<ParentStudent> mappings = parentStudentRepository.findByParentEmail(user.getEmail());
-        if (mappings.isEmpty()) {
-            throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
-        }
-
-        String parentCode = mappings.get(0).getParentCode();
-
-        Parent parent = parentRepository.findByEmail(user.getEmail())
-                .orElseGet(() -> {
-                    Parent p = new Parent();
-                    p.setUser(user);
-                    p.setEmail(user.getEmail());
-                    p.setFullName(user.getFullName());
-                    p.setCode(parentCode);
-                    return p;
-                });
-
-        parent.setUser(user);
-        parent.setFullName(user.getFullName());
-        parent.setCode(parentCode);
-        parentRepository.save(parent);
-
-        for (ParentStudent ps : mappings) {
-            ps.setParent(parent);
-
-            if (ps.getStudent() != null) {
-                UUID studentId = ps.getStudent().getStudentId();
-                Optional<Student> existingStudentOpt = studentRepository.findById(studentId);
-                Student student;
-                if (existingStudentOpt.isPresent()) {
-                    student = existingStudentOpt.get();
-                } else {
-                    student = new Student();
-                    student.setStudentId(UUID.randomUUID());
-                    student.setStudentCode(ps.getStudentCode());
-                    student.setFullName(ps.getStudentName());
-                    student.setGender(ps.getGender());
-                    student.setDate_of_birth(ps.getStudentDob());
-                    studentRepository.save(student);
-                }
-                ps.setStudent(student);
-            } else {
-                // Handle the case where student is null
-                System.err.println("ParentStudent with id " + ps.getId() + " has no student assigned.");
+            if (matchingRecords.isEmpty()) {
+                throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
             }
+
+            String parentCode = matchingRecords.get(0).getParentCode();
+
+            Parent parent = parentRepository.findByEmail(user.getEmail())
+                    .orElseGet(() -> {
+                        Parent newParent = new Parent();
+                        newParent.setUser(user);
+                        newParent.setEmail(user.getEmail());
+                        newParent.setFullName(user.getFullName());
+                        newParent.setCode(parentCode);
+                        return newParent;
+                    });
+
+            parent.setUser(user);
+            parent.setFullName(user.getFullName());
+            parent.setCode(parentCode);
+            parentRepository.save(parent);
+
+            for (ParentStudent ps : matchingRecords) {
+                ps.setParent(parent);
+
+                if (ps.getStudent() == null && ps.getStudentCode() != null) {
+                    studentRepository.findByStudentCode(ps.getStudentCode())
+                            .ifPresentOrElse(
+                                    ps::setStudent,
+                                    () -> System.err.printf("Không tìm thấy studentCode: %s%n", ps.getStudentCode())
+                            );
+                }
+            }
+
+            parentStudentRepository.saveAll(matchingRecords);
         }
-
-        parentStudentRepository.saveAll(mappings);
     }
-
-
-
-
 
 
     public void createParentAccount(String email, String fullName) {
@@ -166,28 +150,49 @@ public class MailService {
         user.setMustChangePassword(true);
         userRepository.save(user);
 
-        Parent parent = new Parent();
-        parent.setCode(generateNextParentCode());
-        parent.setUser(user);
-        parent.setFullName(fullName);
-        parent.setEmail(email);
-        parent.setPhoneNumber("");
-        parent.setAddress("");
-        parent.setDateOfBirth("");
-        parentRepository.save(parent);
+        List<ParentStudent> matches = parentStudentRepository.findByParentEmail(email);
 
-        List<ParentStudent> mappings = parentStudentRepository.findAllByParentCode(parent.getCode());
-        for (ParentStudent mapping : mappings) {
-            mapping.setParent(parent);
+        Parent parent;
+        if (!matches.isEmpty()) {
+            String parentCode = matches.get(0).getParentCode();
+            // Tìm Parent đã có sẵn (nếu có)
+            parent = parentRepository.findByCode(parentCode)
+                    .orElseGet(() -> {
+                        Parent p = new Parent();
+                        p.setCode(parentCode); // reuse code
+                        return p;
+                    });
+
+            parent.setUser(user);
+            parent.setFullName(fullName);
+            parent.setEmail(email);
+            parent.setPhoneNumber("");
+            parent.setAddress("");
+            parent.setDateOfBirth("");
+            parentRepository.save(parent);
+
+            for (ParentStudent ps : matches) {
+                ps.setParent(parent);
+            }
+            parentStudentRepository.saveAll(matches);
+
+        } else {
+            // Nếu không có mapping nào → cho phép tạo Parent mới
+            parent = new Parent();
+            parent.setCode(generateNextParentCode());
+            parent.setUser(user);
+            parent.setFullName(fullName);
+            parent.setEmail(email);
+            parent.setPhoneNumber("");
+            parent.setAddress("");
+            parent.setDateOfBirth("");
+            parentRepository.save(parent);
         }
-        parentStudentRepository.saveAll(mappings);
-
-        // Gửi email thông báo
         try {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("email", email);
-            context.setVariable("tempPassword", tempPassword); // gửi password plaintext cho phụ huynh
+            context.setVariable("tempPassword", tempPassword);
 
             String text = templateEngine.process("account-created.html", context);
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -203,6 +208,7 @@ public class MailService {
             throw new RuntimeException("Gửi email thất bại: " + e.getMessage(), e);
         }
     }
+
 
     private String generateTempPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
@@ -243,30 +249,41 @@ public class MailService {
     }
 
     public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
-        List<Parent> parents = parentRepository.findAll();
+        List<Parent> parents = parentRepository.findAllRealParents();
 
         for (Parent parent : parents) {
             if (parent.getEmail() == null || parent.getEmail().isBlank()) {
-                System.out.printf("Bỏ qua parent %s (fullName: %s) vì thiếu email%n",
-                        parent.getParentId(), parent.getFullName());
+                System.out.printf("Bỏ qua parent %s vì thiếu email%n", parent.getFullName());
+                continue;
+            }
+
+            if (parent.getParentStudents() == null || parent.getParentStudents().isEmpty()) {
+                System.out.printf("Bỏ qua parent %s vì không có học sinh liên kết%n", parent.getFullName());
                 continue;
             }
 
             for (ParentStudent ps : parent.getParentStudents()) {
                 Student student = ps.getStudent();
 
-                MedicalCheckupNotification notification = new MedicalCheckupNotification();
-                notification.setCheckupTitle(checkupTitle);
-                notification.setCheckupDate(checkupDate);
-                notification.setContent(content);
-                notification.setParent(parent);
-                notification.setStudent(student);
-                notification.setSentAt(LocalDateTime.now());
-                notification.setIsConfirmed(false);
+                // Bỏ qua nếu student bị null (đang là lỗi chính của bạn)
+                if (student == null) {
+                    System.out.printf("⚠️ Bỏ qua parent %s vì học sinh liên kết bị null%n", parent.getFullName());
+                    continue;
+                }
+                // Tạo thông báo kiểm tra y tế
+                MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
+                        .checkupTitle(checkupTitle)
+                        .checkupDate(checkupDate)
+                        .content(content)
+                        .parent(parent)
+                        .student(student)
+                        .sentAt(LocalDateTime.now())
+                        .isConfirmed(false)
+                        .build();
 
                 medicalCheckupNotificationRepository.save(notification);
 
-                //tạo email gửi
+                // Gửi email
                 try {
                     MimeMessage message = javaMailSender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -280,14 +297,16 @@ public class MailService {
                     context.setVariable("confirmLink", confirmLink);
                     String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
                     helper.setText(htmlContent, true);
+
                     javaMailSender.send(message);
-                    System.out.printf("✅ Đã gửi email tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
+                    System.out.printf("Gửi thành công tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
+
                 } catch (Exception e) {
-                    System.err.printf("Không gửi được email cho %s - Lỗi: %s%n",
-                            parent.getEmail(), e.getMessage());
+                    System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parent.getEmail(), e.getMessage());
                 }
             }
         }
     }
+
 
 }

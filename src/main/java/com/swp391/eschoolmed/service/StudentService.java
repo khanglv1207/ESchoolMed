@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.model.ClassEntity;
+import com.swp391.eschoolmed.repository.ClassRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -43,7 +45,8 @@ public class StudentService {
     @Autowired
     private ParentStudentRepository  parentStudentRepository;
 
-
+    @Autowired
+    private ClassRepository classRepository;
 
 
     public void updateStudentProfile(UUID studentId, StudentProfileRequest request, String token) {
@@ -95,7 +98,7 @@ public class StudentService {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.iterator();
 
-            if (rowIterator.hasNext()) rowIterator.next(); // Bỏ header
+            if (rowIterator.hasNext()) rowIterator.next(); // Bỏ qua dòng tiêu đề
 
             int rowIndex = 1;
             while (rowIterator.hasNext()) {
@@ -103,36 +106,78 @@ public class StudentService {
                 rowIndex++;
 
                 try {
-                    final String studentCode;
+                    // Đọc và gán các giá trị từ file
                     String tempStudentCode = getString(row.getCell(0));
                     if (tempStudentCode == null || tempStudentCode.isBlank()) {
                         tempStudentCode = generateNextStudentCode();
                     }
-                    studentCode = tempStudentCode;
-                    String studentName = getString(row.getCell(1));
-                    String className = getString(row.getCell(2));
-                    LocalDate studentDob = getDate(row.getCell(3));
-                    String gender = getString(row.getCell(4));
-                    String parentCode = getString(row.getCell(5));
-                    String parentName = getString(row.getCell(6));
-                    String parentEmail = getString(row.getCell(7));
-                    String parentPhone = getString(row.getCell(8));
-                    LocalDate parentDob = getDate(row.getCell(9));
-                    String parentAddress = getString(row.getCell(10));
-                    String relationship = getString(row.getCell(11));
-                    String status = getString(row.getCell(12));
+                    final String studentCode = tempStudentCode;
 
-                    if (parentCode == null || parentCode.isBlank()) {
-                        parentCode = generateNextParentCode();
-                    }
+                    final String studentName = getString(row.getCell(1));
+                    final String className = getString(row.getCell(2));
+                    final LocalDate studentDob = getDate(row.getCell(3));
+                    final String gender = getString(row.getCell(4));
+                    final String parentCode = getString(row.getCell(5));
+                    final String parentName = getString(row.getCell(6));
+                    final String parentEmail = getString(row.getCell(7));
+                    final String parentPhone = getString(row.getCell(8));
+                    final LocalDate parentDob = getDate(row.getCell(9));
+                    final String parentAddress = getString(row.getCell(10));
+                    final String relationship = getString(row.getCell(11));
+                    final String status = getString(row.getCell(12));
 
+                    // Tạo hoặc lấy class_id
+                    UUID classId = classRepository.findByClassName(className)
+                            .map(ClassEntity::getClassId)
+                            .orElseGet(() -> {
+                                ClassEntity newClass = new ClassEntity();
+                                newClass.setClassId(UUID.randomUUID());
+                                newClass.setClassName(className);
+                                return classRepository.save(newClass).getClassId();
+                            });
+
+                    // Tạo hoặc lấy student
+                    Student student = studentRepository.findByStudentCode(studentCode)
+                            .orElseGet(() -> {
+                                Student s = new Student();
+                                s.setStudentId(UUID.randomUUID());
+                                s.setStudentCode(studentCode);
+                                s.setFullName(studentName);
+                                s.setDate_of_birth(studentDob);
+                                s.setGender(gender);
+                                s.setClass_id(classId);
+                                return studentRepository.save(s);
+                            });
+
+                    // Tạo hoặc lấy parent (chưa sinh user tại đây)
+                    final String finalParentCode = (parentCode == null || parentCode.isBlank())
+                            ? generateNextParentCode()
+                            : parentCode;
+
+                    Parent parent = parentRepository.findByEmail(parentEmail)
+                            .orElseGet(() -> {
+                                Parent p = new Parent();
+                                p.setParentId(null); // Không sinh ID vì sẽ gán khi đổi mật khẩu lần đầu
+                                p.setEmail(parentEmail);
+                                p.setFullName(parentName);
+                                p.setPhoneNumber(parentPhone);
+                                p.setAddress(parentAddress);
+                                p.setDateOfBirth(parentDob != null ? parentDob.toString() : null);
+                                p.setCode(finalParentCode);
+                                return parentRepository.save(p);
+                            });
+
+                    // Tạo bản ghi ParentStudent
                     ParentStudent ps = new ParentStudent();
+                    ps.setStudent(student);
                     ps.setStudentCode(studentCode);
                     ps.setStudentName(studentName);
                     ps.setClassName(className);
                     ps.setStudentDob(studentDob);
                     ps.setGender(gender);
-                    ps.setParentCode(parentCode);
+
+                    ps.setParent(parent);
+                    ps.setParentCode(finalParentCode);
                     ps.setParentName(parentName);
                     ps.setParentEmail(parentEmail);
                     ps.setParentPhone(parentPhone);
@@ -141,13 +186,8 @@ public class StudentService {
                     ps.setRelationship(relationship);
                     ps.setStatus(status != null ? status : "PENDING");
 
-                    Student student = studentRepository.findByStudentCode(studentCode)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh với mã: " + studentCode));
-                    ps.setStudent(student);
-
                     parentStudentRepository.save(ps);
-
-                    System.out.printf("✅ Dòng %d: Đã import học sinh %s (%s)%n", rowIndex, studentName, studentCode);
+                    System.out.printf("Dòng %d: Đã import học sinh %s (%s)%n", rowIndex, studentName, studentCode);
 
                 } catch (Exception e) {
                     System.err.printf("Lỗi tại dòng %d: %s%n", rowIndex, e.getMessage());
@@ -158,6 +198,8 @@ public class StudentService {
             throw new RuntimeException("Lỗi đọc file Excel: " + e.getMessage(), e);
         }
     }
+
+
 
 
     private String getString(Cell cell) {
