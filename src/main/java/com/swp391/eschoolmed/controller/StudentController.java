@@ -49,8 +49,6 @@ public class StudentController {
                 .build();
     }
 
-
-
     @PutMapping("/update-imported")
     public ApiResponse<Void> updateImportedRecord(@RequestBody ParentStudentUpdateRequest request) {
         studentService.updateImportedParentStudent(request);
@@ -59,8 +57,6 @@ public class StudentController {
                 .result(null)
                 .build();
     }
-
-
 
 
     @PostMapping("/update-profile-student/{studentId}")
@@ -103,6 +99,8 @@ public class StudentController {
 
         return ResponseEntity.ok("Xác nhận thành công! Học sinh sẽ được đưa vào danh sách kiểm tra.");
     }
+
+
 
 
 }

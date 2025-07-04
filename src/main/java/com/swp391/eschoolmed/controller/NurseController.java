@@ -29,7 +29,7 @@ public class NurseController {
     @GetMapping("/check-confirmStudent")
     public ResponseEntity<List<StudentProfileResponse>> getConfirmedStudents(@RequestParam UUID checkupId) {
         List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository
-                .findByCheckupTitleAndIsConfirmedTrue(String.valueOf(checkupId)); // hoặc checkupTitle tuỳ cách bạn lưu
+                .findByCheckupTitleAndIsConfirmedTrue(String.valueOf(checkupId));
 
         List<Student> students = notifications.stream()
                 .map(MedicalCheckupNotification::getStudent)

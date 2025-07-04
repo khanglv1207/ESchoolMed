@@ -9,21 +9,15 @@ import java.util.UUID;
 @Data
 @Builder
 public class ParentStudentResponse {
-    private UUID id;
-
-    private String studentCode;
+    private UUID studentId;
     private String studentName;
-    private String className;
     private LocalDate studentDob;
     private String gender;
+    private String classId;
 
-    private String parentCode;
     private String parentName;
     private String parentEmail;
     private String parentPhone;
-    private LocalDate parentDob;
-    private String parentAddress;
-
     private String relationship;
 
 }

@@ -18,12 +18,11 @@ import lombok.Data;
 public class ParentStudent {
 
     @Id
-    @GeneratedValue
     @Column(name = "id")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", nullable = true)
     private Parent parent;
 
     @ManyToOne

@@ -58,7 +58,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/nurses/checkup-result/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
-
+                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").hasAuthority("ADMIN")
                         .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
                 );
 
