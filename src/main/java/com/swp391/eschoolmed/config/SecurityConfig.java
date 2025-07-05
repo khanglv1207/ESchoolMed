@@ -40,9 +40,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile/**").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.GET,"/api/students/profile-student/**").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.PUT,"/api/students/update-imported").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.POST,"/api/students/import-parent-students").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/students/profile-student/**").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/students/update-imported").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-parent-students").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")
                         // truy cập swagger
@@ -54,7 +54,7 @@ public class SecurityConfig {
                         // admin
                         .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/nurses/checkup-result/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
@@ -64,11 +64,10 @@ public class SecurityConfig {
 
         http.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(
-                                jwtConfigurer -> jwtConfigurer
-                                        .decoder(customJwtDecoder)
-                                        .jwtAuthenticationConverter(converter()))
+                        jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(converter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
-
 
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -99,7 +98,5 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
-
-
 
 }
