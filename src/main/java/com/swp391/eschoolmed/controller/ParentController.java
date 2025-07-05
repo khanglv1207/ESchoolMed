@@ -55,11 +55,10 @@ public class ParentController {
     @GetMapping("/parent-profile")
     public ApiResponse<ParentProfileResponse> getParentProfile(@AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.<ParentProfileResponse>builder()
-                .message("Thông tin của phụ huynh")
+                .message("Thông tin phụ huynh")
                 .result(parentService.getParentProfileFromJwt(jwt))
                 .build();
     }
-
 
     @PostMapping("/update-profile-parent")
     public ApiResponse<Void> updateParentProfile(@RequestBody UpdateParentProfileRequest request){
@@ -82,26 +81,25 @@ public class ParentController {
     }
 
     @PostMapping("/medical-request")
-    public ApiResponse<MedicationRequest> sendMedicalRequest(@RequestBody MedicalRequest request,
-                                                             @AuthenticationPrincipal UserDetails userDetails){
-        if (userDetails == null) {
-            throw new RuntimeException("Người dùng chưa xác thực.");
-        }
-        String username = userDetails.getUsername();
-        parentService.sendMedicalRequest(request, username);
-        return ApiResponse.<MedicationRequest>builder()
+    public ApiResponse<MedicationRequestResponse> sendMedicalRequest(@RequestBody MedicalRequest request,
+                                                                     @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        MedicationRequestResponse response = parentService.sendMedicalRequestByUserId(request, userId);
+        return ApiResponse.<MedicationRequestResponse>builder()
                 .message("Gửi thuốc thành công.")
-                .result(null)
+                .result(response)
                 .build();
     }
 
-    @GetMapping("/medical-view")
-    public ApiResponse<List<MedicationRequestResponse>> getMedicationRequests(@AuthenticationPrincipal UserDetails userDetails) {
-        List<MedicationRequestResponse> result = parentService.getMedicationRequests(userDetails.getUsername());
-        return ApiResponse.<List<MedicationRequestResponse>>builder()
-                .message("Lấy danh sách đơn thuốc thành công.")
-                .result(result)
-                .build();
-    }
+
+
+//    @GetMapping("/medical-view")
+//    public ApiResponse<List<MedicationRequestResponse>> getMedicationRequests(@AuthenticationPrincipal UserDetails userDetails) {
+//        List<MedicationRequestResponse> result = parentService.getMedicationRequests(userDetails.getUsername());
+//        return ApiResponse.<List<MedicationRequestResponse>>builder()
+//                .message("Lấy danh sách đơn thuốc thành công.")
+//                .result(result)
+//                .build();
+//    }
 
 }

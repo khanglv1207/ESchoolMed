@@ -4,11 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -33,6 +29,10 @@ public class Student {
 
     @Column(name = "gender")
     private String gender;
+
+    @ManyToOne
+    @JoinColumn(name = "class_id", insertable = false, updatable = false)
+    private ClassEntity classEntity;
 
     @OneToMany(mappedBy = "student")
     private List<MedicalCheckupNotification> checkupNotifications;
