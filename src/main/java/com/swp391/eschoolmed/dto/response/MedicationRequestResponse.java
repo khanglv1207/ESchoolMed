@@ -14,8 +14,9 @@ public class MedicationRequestResponse {
     private String dosage;
     private String frequency;
     private String note;
-    private String status;
-    private String studentName;
-    private String parentName;
     private LocalDateTime requestDate;
+    private String status;
+
+    private String parentName;
+    private String studentName;
 }

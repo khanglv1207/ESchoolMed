@@ -110,58 +110,90 @@ public class ParentService {
         return medicationRequestRepository.save(medicationRequest);
     }
 
-
-
-    public List<MedicationRequestResponse> getMedicationRequests(String username) {
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+    public MedicationRequestResponse sendMedicalRequestByUserId(MedicalRequest request, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
 
         Parent parent = parentRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
 
-        List<MedicationRequest> requests = medicationRequestRepository.findAllByParent_ParentId(parent.getParentId());
+        boolean isLinked = parentStudentRepository
+                .findAllByParent_ParentId(parent.getParentId())
+                .stream()
+                .anyMatch(ps -> ps.getStudent().getStudentId().equals(request.getStudentId()));
 
-        return requests.stream().map(request -> MedicationRequestResponse.builder()
+        if (!isLinked) {
+            throw new RuntimeException("Học sinh không được liên kết với phụ huynh này.");
+        }
+
+        Student student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh."));
+
+        MedicationRequest medicationRequest = MedicationRequest.builder()
+                .requestId(UUID.randomUUID())
+                .parent(parent)
+                .student(student)
                 .medicationName(request.getMedicationName())
                 .dosage(request.getDosage())
                 .frequency(request.getFrequency())
                 .note(request.getNote())
-                .requestDate(request.getRequestDate())
-                .status(request.getStatus())
-                .studentName(request.getStudent().getFullName())
-                .build()
-        ).toList();
+                .requestDate(LocalDateTime.now())
+                .status("PENDING")
+                .build();
+
+        medicationRequestRepository.save(medicationRequest);
+
+        return MedicationRequestResponse.builder()
+                .requestId(medicationRequest.getRequestId())
+                .medicationName(medicationRequest.getMedicationName())
+                .dosage(medicationRequest.getDosage())
+                .frequency(medicationRequest.getFrequency())
+                .note(medicationRequest.getNote())
+                .requestDate(medicationRequest.getRequestDate())
+                .status(medicationRequest.getStatus())
+                .parentName(parent.getFullName())
+                .studentName(student.getFullName())
+                .build();
     }
 
     public ParentProfileResponse getParentProfileFromJwt(Jwt jwt) {
-        String userIdStr = jwt.getSubject();
-        UUID userId = UUID.fromString(userIdStr);
+        UUID userId = UUID.fromString(jwt.getSubject());
 
         Parent parent = parentRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh"));
 
-        List<ParentStudent> linkedStudents = parentStudentRepository
-                .findAllByParent_ParentId(parent.getParentId());
+        UUID parentId = parent.getParentId();
+
+        List<ParentStudent> linkedStudents = parentStudentRepository.findAllByParent_ParentId(parentId);
 
         List<ParentProfileResponse.ChildInfo> children = linkedStudents.stream().map(ps -> {
             Student student = ps.getStudent();
             return ParentProfileResponse.ChildInfo.builder()
                     .studentCode(student.getStudentCode())
                     .studentName(student.getFullName())
-                    .className(String.valueOf(student.getClass_id()))
+                    .className(student.getClassEntity() != null
+                            ? student.getClassEntity().getClassName()
+                            : "Chưa cập nhật")
                     .studentDob(student.getDate_of_birth())
                     .gender(student.getGender())
                     .build();
         }).collect(Collectors.toList());
+
+        String dobStr = parent.getDateOfBirth();
+        LocalDate dob = null;
+        if (dobStr != null && !dobStr.isBlank()) {
+            dob = LocalDate.parse(dobStr);
+        }
 
         return ParentProfileResponse.builder()
                 .parentName(parent.getFullName())
                 .email(parent.getUser().getEmail())
                 .phoneNumber(parent.getPhoneNumber())
                 .address(parent.getAddress())
-                .dateOfBirth(LocalDate.parse(parent.getDateOfBirth()))
+                .dateOfBirth(dob)
                 .children(children)
                 .build();
     }
+
 }
 
