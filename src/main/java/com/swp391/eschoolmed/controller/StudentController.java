@@ -70,14 +70,6 @@ public class StudentController {
                 .build();
     }
 
-    @GetMapping("/profile-student/{studentId}")
-    ApiResponse<StudentProfileResponse> getStudentProfile(@PathVariable UUID studentId) {
-        return ApiResponse.<StudentProfileResponse>builder()
-                .message("Thông tin của học sinh")
-                .result(studentService.getStudentProfile(studentId))
-                .build();
-    }
-
 
     // phụ huynh xác nhận làm danh sách chuẩn bị khám sức khỏe
     @GetMapping("/parent-checkup-confirm")

@@ -248,29 +248,24 @@ public class MailService {
         return String.format("PH%06d", next);
     }
 
+    // gửi thông báo kiểm tra sức khỏe
     public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
         List<Parent> parents = parentRepository.findAllRealParents();
-
         for (Parent parent : parents) {
             if (parent.getEmail() == null || parent.getEmail().isBlank()) {
                 System.out.printf("Bỏ qua parent %s vì thiếu email%n", parent.getFullName());
                 continue;
             }
-
             if (parent.getParentStudents() == null || parent.getParentStudents().isEmpty()) {
                 System.out.printf("Bỏ qua parent %s vì không có học sinh liên kết%n", parent.getFullName());
                 continue;
             }
-
             for (ParentStudent ps : parent.getParentStudents()) {
                 Student student = ps.getStudent();
-
-                // Bỏ qua nếu student bị null (đang là lỗi chính của bạn)
                 if (student == null) {
-                    System.out.printf("⚠️ Bỏ qua parent %s vì học sinh liên kết bị null%n", parent.getFullName());
+                    System.out.printf("Bỏ qua parent %s vì học sinh liên kết bị null%n", parent.getFullName());
                     continue;
                 }
-                // Tạo thông báo kiểm tra y tế
                 MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
                         .checkupTitle(checkupTitle)
                         .checkupDate(checkupDate)
@@ -280,10 +275,7 @@ public class MailService {
                         .sentAt(LocalDateTime.now())
                         .isConfirmed(false)
                         .build();
-
                 medicalCheckupNotificationRepository.save(notification);
-
-                // Gửi email
                 try {
                     MimeMessage message = javaMailSender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

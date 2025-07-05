@@ -38,13 +38,15 @@ public class SecurityConfig {
                         // user
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile/**").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.GET,"/api/students/profile-student/**").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.PUT,"/api/students/update-imported").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST,"/api/students/import-parent-students").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST,"/api/parents/medical-request").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET,"/api/parents/medical-view").hasAuthority("PARENT")
+
                         // truy cập swagger
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
@@ -60,6 +62,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/nurses/medication-requests/update").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/medication-requests/pending").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/nurses/medication-requests/").hasAuthority("ADMIN")
                         .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
                 );
 
@@ -100,6 +105,7 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
 
 
 

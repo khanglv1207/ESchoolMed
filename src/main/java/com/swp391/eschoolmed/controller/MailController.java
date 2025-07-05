@@ -50,11 +50,7 @@ public class MailController {
 
     @PostMapping("/send-checkup-notice")
     public ApiResponse<String> sendCheckupNotice(@RequestBody CheckupNoticeRequest request) {
-        mailService.sendMedicalCheckupNotices(
-                request.getCheckupTitle(),
-                request.getContent(),
-                request.getCheckupDate()
-        );
+        mailService.sendMedicalCheckupNotices(request.getCheckupTitle(), request.getContent(), request.getCheckupDate());
         return ApiResponse.<String>builder()
                 .message("Đã gửi thông báo kiểm tra y tế đến phụ huynh thành công.")
                 .result("OK")

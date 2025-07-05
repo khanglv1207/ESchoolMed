@@ -28,7 +28,6 @@ import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.repository.ParentStudentRepository;
 import com.swp391.eschoolmed.repository.StudentRepository;
-import static com.swp391.eschoolmed.service.ParentService.getStudentProfileResponse;
 
 @Service
 public class StudentService {
@@ -68,12 +67,6 @@ public class StudentService {
 
     }
 
-    public StudentProfileResponse getStudentProfile(UUID studentId) {
-        Student student = studentRepository.findStudentByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ học sinh"));
-
-        return getStudentProfileResponse(student);
-    }
 
 
     public void updateImportedParentStudent(ParentStudentUpdateRequest request) {
@@ -100,7 +93,7 @@ public class StudentService {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.iterator();
 
-            if (rowIterator.hasNext()) rowIterator.next(); // Bỏ qua dòng tiêu đề
+            if (rowIterator.hasNext()) rowIterator.next();
 
             int rowIndex = 1;
             while (rowIterator.hasNext()) {
@@ -108,7 +101,6 @@ public class StudentService {
                 rowIndex++;
 
                 try {
-                    // Đọc và gán các giá trị từ file
                     String tempStudentCode = getString(row.getCell(0));
                     if (tempStudentCode == null || tempStudentCode.isBlank()) {
                         tempStudentCode = generateNextStudentCode();
@@ -128,7 +120,6 @@ public class StudentService {
                     final String relationship = getString(row.getCell(11));
                     final String status = getString(row.getCell(12));
 
-                    // Tạo hoặc lấy class_id
                     UUID classId = classRepository.findByClassName(className)
                             .map(ClassEntity::getClassId)
                             .orElseGet(() -> {
@@ -138,7 +129,6 @@ public class StudentService {
                                 return classRepository.save(newClass).getClassId();
                             });
 
-                    // Tạo hoặc lấy student
                     Student student = studentRepository.findByStudentCode(studentCode)
                             .orElseGet(() -> {
                                 Student s = new Student();
@@ -151,7 +141,6 @@ public class StudentService {
                                 return studentRepository.save(s);
                             });
 
-                    // Tạo hoặc lấy parent (chưa sinh user tại đây)
                     final String finalParentCode = (parentCode == null || parentCode.isBlank())
                             ? generateNextParentCode()
                             : parentCode;
@@ -169,8 +158,8 @@ public class StudentService {
                                 return parentRepository.save(p);
                             });
 
-                    // Tạo bản ghi ParentStudent
                     ParentStudent ps = new ParentStudent();
+                    ps.setId(UUID.randomUUID());
                     ps.setStudent(student);
                     ps.setStudentCode(studentCode);
                     ps.setStudentName(studentName);

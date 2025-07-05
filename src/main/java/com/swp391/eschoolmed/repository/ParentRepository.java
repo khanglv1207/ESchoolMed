@@ -27,4 +27,7 @@ public interface ParentRepository extends JpaRepository<Parent, UUID> {
     List<Parent> findAllRealParents();
 
     Optional<Parent> findByUser(User user);
+
+
+    Optional<Parent> findByParentId(UUID parentId);
 }
