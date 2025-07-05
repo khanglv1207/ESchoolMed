@@ -12,4 +12,6 @@ import com.swp391.eschoolmed.model.Student;
 public interface StudentRepository extends JpaRepository<Student, UUID> {
     Optional<Student> findStudentByStudentId(UUID studentId);
     Optional<Student> findByStudentCode(String studentCode);
+
+    Optional<Object> findByStudentId(UUID studentId);
 }
