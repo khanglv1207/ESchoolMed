@@ -41,7 +41,7 @@ public class ParentController {
     private MedicationScheduleRepository medicationScheduleRepository;
 
 
-
+    // hiển thị thông tin phụ huynh và học sinh trong phần thông tin
     @GetMapping("/parent-profile")
     public ApiResponse<ParentProfileResponse> getParentProfile(@AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.<ParentProfileResponse>builder()
@@ -82,7 +82,7 @@ public class ParentController {
                 .build();
     }
 
-    // Lấy tất cả đơn thuốc của một học sinh ( phụ huynh)
+    // Lấy tất cả đơn thuốc của một học sinh
     @GetMapping("/student/{studentId}")
     public ApiResponse<List<MedicationRequestResponse>> getRequestsByStudent(@PathVariable UUID studentId) {
         List<MedicationRequestResponse> list = parentService.getRequestsByStudentId(studentId);

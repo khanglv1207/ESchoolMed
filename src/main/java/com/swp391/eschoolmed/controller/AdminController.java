@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
+import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
 import com.swp391.eschoolmed.model.ParentStudent;
 import com.swp391.eschoolmed.model.Student;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -39,6 +41,26 @@ public class AdminController {
                 .code(1000)
                 .build();
     }
+
+    @DeleteMapping("/delete-student-parent/{id}")
+    public ApiResponse<?> deleteStudentParent(@PathVariable UUID id) {
+        adminService.deleteStudentParent(id);
+        return ApiResponse.builder()
+                .message("Xoá thành công.")
+                .code(1000)
+                .build();
+    }
+
+
+    @PutMapping("/update-student-parent")
+    public ApiResponse<?> updateStudentParent(@RequestBody UpdateStudentParentRequest request) {
+        adminService.updateStudentAndParent(request);
+        return ApiResponse.builder()
+                .message("Cập nhật thành công.")
+                .code(1000)
+                .build();
+    }
+
 
 
 }

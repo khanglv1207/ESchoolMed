@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
+import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
@@ -96,5 +97,50 @@ public class AdminService {
     private String generateNextParentCode() {
         long count = parentRepository.count();
         return String.format("PH%04d", count + 1);
+    }
+
+    public void deleteStudentParent(UUID id) {
+        ParentStudent ps = parentStudentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi"));
+
+        UUID parentId = UUID.fromString(ps.getParentCode());
+        UUID studentId = UUID.fromString(ps.getStudentCode());
+
+        parentStudentRepository.delete(ps);
+
+        // Sau khi xoá liên kết, xoá luôn student & parent
+        parentRepository.deleteById(parentId);
+        studentRepository.deleteById(studentId);
+    }
+
+
+    public void updateStudentAndParent(UpdateStudentParentRequest request) {
+        ParentStudent ps = parentStudentRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy parent_student"));
+
+        ps.setRelationship(request.getRelationship());
+        ps.setStatus(request.getStatus());
+        parentStudentRepository.save(ps);
+
+        Student student = studentRepository.findById(UUID.fromString(request.getStudentCode()))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy student"));
+
+        student.setFullName(request.getStudentName());
+        student.setStudentCode(request.getStudentCode());
+        student.setDate_of_birth(request.getStudentDob());
+        student.setGender(request.getGender());
+        student.setClass_id(UUID.fromString(request.getClassName()));
+        studentRepository.save(student);
+
+        Parent parent = parentRepository.findById(UUID.fromString(request.getParentCode()))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy parent"));
+
+        parent.setFullName(request.getParentName());
+        parent.setPhoneNumber(request.getParentPhone());
+        parent.setEmail(request.getParentEmail());
+        parent.setCode(request.getParentCode());
+        parent.setAddress(request.getParentAddress());
+        parent.setDateOfBirth(String.valueOf(request.getParentDob()));
+        parentRepository.save(parent);
     }
 }
