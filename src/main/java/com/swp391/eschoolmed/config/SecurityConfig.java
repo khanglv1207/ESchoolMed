@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").hasAuthority("ADMIN")

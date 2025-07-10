@@ -43,7 +43,7 @@ public class AdminService {
                     .gender(s.getGender())
                     .classId(String.valueOf(s.getClass_id()))
                     .parentName(p.getFullName())
-                    .parentEmail(p.getUser().getEmail())
+                    .parentEmail(p.getEmail())
                     .parentPhone(p.getPhoneNumber())
                     .relationship(ps.getRelationship())
                     .build();
