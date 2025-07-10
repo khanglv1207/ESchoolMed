@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -28,14 +29,8 @@ public class MedicationRequest {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @Column(name = "medication_name")
-    private String medicationName;
-
-    @Column(name = "dosage")
-    private String dosage;
-
-    @Column(name = "frequency")
-    private String frequency;
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MedicationItem> items;
 
     @Column(name = "note")
     private String note;
