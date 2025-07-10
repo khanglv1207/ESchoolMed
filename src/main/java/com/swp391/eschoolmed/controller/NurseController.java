@@ -45,38 +45,6 @@ public class NurseController {
                 .build();
     }
 
-    @PutMapping("/medication-requests/update")
-    public ApiResponse<Void> updateMedicationRequestStatus(@RequestBody UpdateMedicationStatusRequest request) {
-        nurseService.updateMedicationStatus(request);
-        return ApiResponse.<Void>builder()
-                .message("Cập nhật trạng thái đơn thuốc thành công.")
-                .result(null)
-                .build();
-    }
-
-    // danh sách xử lý đơn thuốc
-    @GetMapping("/medication-requests/pending")
-    public ApiResponse<List<MedicationRequestResponse>> getPendingMedicationRequests() {
-        List<MedicationRequestResponse> responses = nurseService.getPendingMedicationRequests();
-        return ApiResponse.<List<MedicationRequestResponse>>builder()
-                .message("Lấy danh sách đơn thuốc đang chờ xử lý thành công.")
-                .result(responses)
-                .build();
-    }
-
-    // xử lý đơn thuốc
-    @PutMapping("/medication-requests/{requestId}/process")
-    public ApiResponse<Void> processMedicationRequest(
-            @PathVariable UUID requestId,
-            @RequestParam("status") String status // APPROVED hoặc REJECTED
-    ) {
-        nurseService.processMedicationRequest(requestId, status);
-        return ApiResponse.<Void>builder()
-                .message("Xử lý đơn thuốc thành công.")
-                .result(null)
-                .build();
-    }
-
 
     //Y tá lấy danh sách lịch uống thuốc hôm nay theo học sinh
     @GetMapping("/students/{studentId}/schedules")
