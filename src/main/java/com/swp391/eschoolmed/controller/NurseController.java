@@ -45,6 +45,14 @@ public class NurseController {
                 .build();
     }
 
+    @PutMapping("/medication-requests/update")
+    public ApiResponse<Void> updateMedicationRequestStatus(@RequestBody UpdateMedicationStatusRequest request) {
+        nurseService.updateMedicationStatus(request);
+        return ApiResponse.<Void>builder()
+                .message("Cập nhật trạng thái đơn thuốc thành công.")
+                .result(null)
+                .build();
+    }
 
     //Y tá lấy danh sách lịch uống thuốc hôm nay theo học sinh
     @GetMapping("/students/{studentId}/schedules")

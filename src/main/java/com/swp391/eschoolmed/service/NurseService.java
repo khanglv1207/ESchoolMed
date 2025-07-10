@@ -72,19 +72,6 @@ public class NurseService {
         ).toList();
     }
 
-    public void processMedicationRequest(UUID requestId, String status) {
-        MedicationRequest request = medicationRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn thuốc."));
-
-        if (!status.equalsIgnoreCase("APPROVED") && !status.equalsIgnoreCase("REJECTED")) {
-            throw new RuntimeException("Trạng thái không hợp lệ.");
-        }
-
-        request.setStatus(status.toUpperCase());
-        request.setProcessedTime(LocalDateTime.now());
-
-        medicationRequestRepository.save(request);
-    }
 
     public List<MedicationScheduleForNurse> getTodaySchedulesByStudent(UUID studentId) {
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
