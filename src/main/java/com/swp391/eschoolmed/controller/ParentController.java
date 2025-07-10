@@ -11,25 +11,18 @@ import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.MedicationRequest;
 import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.User;
-import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
-import com.swp391.eschoolmed.repository.UserRepository;
+import com.swp391.eschoolmed.repository.*;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
 import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
-import com.swp391.eschoolmed.repository.ParentRepository;
 import com.swp391.eschoolmed.service.ParentService;
 import com.swp391.eschoolmed.service.UserService;
 
@@ -38,19 +31,16 @@ import com.swp391.eschoolmed.service.UserService;
 public class ParentController {
 
     @Autowired
-    private ParentRepository parentRepository;
-
-    @Autowired
     private ParentService parentService;
 
     @Autowired
-    private UserService userService;
-
+    private MedicationItemRepository medicationItemRepository;
     @Autowired
-    private UserRepository userRepository;
-
+    private MedicationRequestRepository medicationRequestRepository;
     @Autowired
-    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
+    private MedicationScheduleRepository medicationScheduleRepository;
+
+
 
     @GetMapping("/parent-profile")
     public ApiResponse<ParentProfileResponse> getParentProfile(@AuthenticationPrincipal Jwt jwt) {
@@ -80,6 +70,7 @@ public class ParentController {
                 .build();
     }
 
+    // gửi thuốc
     @PostMapping("/medical-request")
     public ApiResponse<MedicationRequestResponse> sendMedicalRequest(@RequestBody MedicalRequest request,
                                                                      @AuthenticationPrincipal Jwt jwt) {
@@ -91,15 +82,19 @@ public class ParentController {
                 .build();
     }
 
+    // Lấy tất cả đơn thuốc của một học sinh ( phụ huynh)
+    @GetMapping("/student/{studentId}")
+    public ApiResponse<List<MedicationRequestResponse>> getRequestsByStudent(@PathVariable UUID studentId) {
+        List<MedicationRequestResponse> list = parentService.getRequestsByStudentId(studentId);
+        return ApiResponse.<List<MedicationRequestResponse>>builder()
+                .message("Lấy danh sách đơn thuốc thành công.")
+                .result(list)
+                .build();
+    }
 
 
-//    @GetMapping("/medical-view")
-//    public ApiResponse<List<MedicationRequestResponse>> getMedicationRequests(@AuthenticationPrincipal UserDetails userDetails) {
-//        List<MedicationRequestResponse> result = parentService.getMedicationRequests(userDetails.getUsername());
-//        return ApiResponse.<List<MedicationRequestResponse>>builder()
-//                .message("Lấy danh sách đơn thuốc thành công.")
-//                .result(result)
-//                .build();
-//    }
+
+
+
 
 }

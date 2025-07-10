@@ -4,6 +4,7 @@ import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.CheckupResultRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
 import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
+import com.swp391.eschoolmed.dto.response.MedicationScheduleForNurse;
 import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.Student;
@@ -32,6 +33,8 @@ public class NurseController {
 
     @Autowired
     private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
+
+
 
     @GetMapping("/check-confirmStudent")
     public ApiResponse<List<StudentProfileResponse>> getConfirmedStudents(@RequestParam UUID checkupId) {
@@ -71,6 +74,28 @@ public class NurseController {
         return ApiResponse.<Void>builder()
                 .message("Xử lý đơn thuốc thành công.")
                 .result(null)
+                .build();
+    }
+
+
+    //Y tá lấy danh sách lịch uống thuốc hôm nay theo học sinh
+    @GetMapping("/students/{studentId}/schedules")
+    public ApiResponse<List<MedicationScheduleForNurse>> getTodaySchedules(@PathVariable UUID studentId) {
+        List<MedicationScheduleForNurse> list = nurseService.getTodaySchedulesByStudent(studentId);
+        return ApiResponse.<List<MedicationScheduleForNurse>>builder()
+                .message("Lịch uống thuốc hôm nay của học sinh")
+                .result(list)
+                .build();
+    }
+
+
+    //Y tá đánh dấu đã uống
+    @PatchMapping("/schedules/{scheduleId}/mark-taken")
+    public ApiResponse<String> markScheduleAsTaken(@PathVariable UUID scheduleId) {
+        nurseService.markScheduleAsTaken(scheduleId);
+        return ApiResponse.<String>builder()
+                .message("Đã đánh dấu lịch uống là đã uống.")
+                .result("OK")
                 .build();
     }
 

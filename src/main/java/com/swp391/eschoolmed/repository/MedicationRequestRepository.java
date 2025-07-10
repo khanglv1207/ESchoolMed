@@ -11,6 +11,7 @@ import java.util.UUID;
 @Repository
 public interface MedicationRequestRepository extends JpaRepository<MedicationRequest, UUID> {
 
+    List<MedicationRequest> findByStudent_StudentId(UUID studentId);
     List<MedicationRequest> findAllByParent_ParentId(UUID parentId);
     List<MedicationRequest> findByStatus(String status);
 }
