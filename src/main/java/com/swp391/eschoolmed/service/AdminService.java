@@ -38,11 +38,12 @@ public class AdminService {
             Student s = ps.getStudent();
             Parent p = ps.getParent();
             return ParentStudentResponse.builder()
-                    .studentId(s.getStudentId())
+                    .StudentCode(s.getStudentCode())
                     .studentName(s.getFullName())
                     .studentDob(s.getDate_of_birth())
                     .gender(s.getGender())
-                    .classId(String.valueOf(s.getClass_id()))
+                    .classId(ps.getClassName())
+                    .ParentCode(ps.getParentCode())
                     .parentName(p.getFullName())
                     .parentEmail(p.getEmail())
                     .parentPhone(p.getPhoneNumber())

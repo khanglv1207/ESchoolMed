@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,8 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
 
     @Query("SELECT MAX(ps.studentCode) FROM ParentStudent ps WHERE ps.studentCode LIKE 'HS%'")
     String findLatestStudentCode();
+
+    Optional<ParentStudent> findByParent_ParentIdAndStudent_StudentId(UUID parentId, UUID studentId);
 
 }
 

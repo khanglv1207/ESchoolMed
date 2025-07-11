@@ -89,17 +89,13 @@ public class ParentService {
         Parent parent = parentRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
 
-        boolean isLinked = parentStudentRepository
-                .findAllByParent_ParentId(parent.getParentId())
-                .stream()
-                .anyMatch(ps -> ps.getStudent().getStudentId().equals(request.getStudentId()));
+        ParentStudent parentStudent = parentStudentRepository
+                .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
 
-        if (!isLinked) {
-            throw new RuntimeException("Học sinh không được liên kết với phụ huynh này.");
-        }
+        UUID parentStudentId = parentStudent.getId();
 
-        Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh."));
+        Student student = parentStudent.getStudent();
 
         MedicationRequest medicationRequest = MedicationRequest.builder()
                 .requestId(UUID.randomUUID())
@@ -110,7 +106,6 @@ public class ParentService {
                 .status("PENDING")
                 .build();
         medicationRequestRepository.save(medicationRequest);
-
 
         for (MedicalRequest.MedicationItemRequest itemReq : request.getMedications()) {
             MedicationItem item = MedicationItem.builder()
@@ -133,6 +128,7 @@ public class ParentService {
                 medicationScheduleRepository.save(schedule);
             }
         }
+
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -141,6 +137,7 @@ public class ParentService {
                 .note(request.getNote())
                 .build();
     }
+
 
     public ParentProfileResponse getParentProfileFromJwt(Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
