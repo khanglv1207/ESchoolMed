@@ -54,15 +54,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
                         // admin
-                        .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()//tạo tk cho ph
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")// add danh sách hs
+                        .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").hasAuthority("ADMIN")// gửi thông báo ktra y tế
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").hasAuthority("ADMIN")// xác nhận danh sách học sinh khám sức khỏe
+                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll()// hiển thị danh sách hs ph
+                        .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").hasAuthority("ADMIN")// tạo hs ph
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").hasAuthority("ADMIN")//Y tá lấy danh sách lịch uống thuốc hôm nay theo học sinh
+                        .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").hasAuthority("ADMIN")//Y tá đánh dấu đã uống
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin/delete-student-parent/**").hasAuthority("ADMIN")// xóa hs ph theo id
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/update-student-parent").hasAuthority("ADMIN")// update hs ph
                         .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
                 );
 

@@ -23,6 +23,7 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    // hiển thị danh sách hs ph
     @GetMapping("/get-all-student-parent")
     public ApiResponse<List<ParentStudentResponse>> getAllParentStudent(){
         List<ParentStudentResponse> responses = adminService.getAllParentStudent();
@@ -32,6 +33,7 @@ public class AdminController {
                 .build();
     }
 
+    // tạo hs ph
     @PostMapping("/create-student-parent")
     public ApiResponse<?> createStudentParent(@RequestBody CreateStudentParentRequest request) {
         adminService.createStudentAndParent(request);
@@ -42,6 +44,7 @@ public class AdminController {
                 .build();
     }
 
+    // xóa hs ph theo id
     @DeleteMapping("/delete-student-parent/{id}")
     public ApiResponse<?> deleteStudentParent(@PathVariable UUID id) {
         adminService.deleteStudentParent(id);
@@ -51,7 +54,7 @@ public class AdminController {
                 .build();
     }
 
-
+    // update hs ph
     @PutMapping("/update-student-parent")
     public ApiResponse<?> updateStudentParent(@RequestBody UpdateStudentParentRequest request) {
         adminService.updateStudentAndParent(request);

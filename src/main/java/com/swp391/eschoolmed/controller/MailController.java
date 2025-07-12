@@ -31,6 +31,7 @@ public class MailController {
         mailService.sendNewPassword(receiverEmail, fullName, age, tempPassword);
     }
 
+    // đổi mk lần đầu
     @PostMapping("/change-password-first-time")
     public ApiResponse<Void> changePasswordFirstTime(@RequestBody ChangePasswordRequest request) {
         mailService.changePasswordFirstTime(request.getUserId(), request.getNewPassword());
@@ -39,6 +40,7 @@ public class MailController {
                 .build();
     }
 
+    //tạo tk cho ph
     @PostMapping("/create-parent")
     ApiResponse<String> createParent(@RequestBody CreateParentRequest request) {
         mailService.createParentAccount(request.getEmail(), request.getFullName());
@@ -48,6 +50,7 @@ public class MailController {
                 .build();
     }
 
+    // gửi thông báo ktra y tế
     @PostMapping("/send-checkup-notice")
     public ApiResponse<String> sendCheckupNotice(@RequestBody CheckupNoticeRequest request) {
         mailService.sendMedicalCheckupNotices(request.getCheckupTitle(), request.getContent(), request.getCheckupDate());
