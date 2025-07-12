@@ -1,9 +1,6 @@
 package com.swp391.eschoolmed.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -22,11 +19,15 @@ public class Student {
     private String fullName;
 
     @Column(name = "class_id")
-    private UUID class_id;
+    private UUID classId;
 
     @Column(name = "date_of_birth")
-    private LocalDate date_of_birth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "gender")
     private String gender;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private User parent;
 }
