@@ -35,22 +35,13 @@ public class NurseController {
     private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
 
-
+    // xác nhận danh sách học sinh khám sức khỏe
     @GetMapping("/check-confirmStudent")
     public ApiResponse<List<StudentProfileResponse>> getConfirmedStudents(@RequestParam UUID checkupId) {
         List<StudentProfileResponse> students = nurseService.confirmStudent(checkupId);
         return ApiResponse.<List<StudentProfileResponse>>builder()
                 .message("Danh sách học sinh đã xác nhận khám sức khỏe")
                 .result(students)
-                .build();
-    }
-
-    @PutMapping("/medication-requests/update")
-    public ApiResponse<Void> updateMedicationRequestStatus(@RequestBody UpdateMedicationStatusRequest request) {
-        nurseService.updateMedicationStatus(request);
-        return ApiResponse.<Void>builder()
-                .message("Cập nhật trạng thái đơn thuốc thành công.")
-                .result(null)
                 .build();
     }
 
@@ -63,7 +54,6 @@ public class NurseController {
                 .result(list)
                 .build();
     }
-
 
     //Y tá đánh dấu đã uống
     @PatchMapping("/schedules/{scheduleId}/mark-taken")

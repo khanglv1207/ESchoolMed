@@ -42,12 +42,14 @@ public class AdminService {
                     .studentName(s.getFullName())
                     .studentDob(s.getDate_of_birth())
                     .gender(s.getGender())
-                    .classId(ps.getClassName())
+                    .className(ps.getClassName())
                     .ParentCode(ps.getParentCode())
                     .parentName(p.getFullName())
                     .parentEmail(p.getEmail())
                     .parentPhone(p.getPhoneNumber())
                     .relationship(ps.getRelationship())
+                    .parentAddress(p.getAddress())
+                    .parentDob(s.getDate_of_birth())
                     .build();
         }).collect(Collectors.toList());
     }
@@ -104,12 +106,9 @@ public class AdminService {
         ParentStudent ps = parentStudentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi"));
 
-        UUID parentId = UUID.fromString(ps.getParentCode());
-        UUID studentId = UUID.fromString(ps.getStudentCode());
-
+        UUID parentId = ps.getParent().getParentId();
+        UUID studentId = ps.getStudent().getStudentId();
         parentStudentRepository.delete(ps);
-
-        // Sau khi xoá liên kết, xoá luôn student & parent
         parentRepository.deleteById(parentId);
         studentRepository.deleteById(studentId);
     }
@@ -123,19 +122,17 @@ public class AdminService {
         ps.setStatus(request.getStatus());
         parentStudentRepository.save(ps);
 
-        Student student = studentRepository.findById(UUID.fromString(request.getStudentCode()))
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy student"));
-
+        Student student = ps.getStudent();
         student.setFullName(request.getStudentName());
         student.setStudentCode(request.getStudentCode());
         student.setDate_of_birth(request.getStudentDob());
         student.setGender(request.getGender());
-        student.setClass_id(UUID.fromString(request.getClassName()));
+        ClassEntity clazz = classRepository.findByClassName(request.getClassName())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
+        student.setClass_id(clazz.getClassId());
         studentRepository.save(student);
 
-        Parent parent = parentRepository.findById(UUID.fromString(request.getParentCode()))
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy parent"));
-
+        Parent parent = ps.getParent();
         parent.setFullName(request.getParentName());
         parent.setPhoneNumber(request.getParentPhone());
         parent.setEmail(request.getParentEmail());
@@ -144,4 +141,5 @@ public class AdminService {
         parent.setDateOfBirth(String.valueOf(request.getParentDob()));
         parentRepository.save(parent);
     }
+
 }
