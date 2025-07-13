@@ -1,21 +1,37 @@
 package com.swp391.eschoolmed.service.mail;
 
-import com.swp391.eschoolmed.exception.AppException;
-import com.swp391.eschoolmed.exception.ErrorCode;
-import com.swp391.eschoolmed.model.User;
-import com.swp391.eschoolmed.repository.UserRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.UUID;
+import com.swp391.eschoolmed.exception.AppException;
+import com.swp391.eschoolmed.exception.ErrorCode;
+import com.swp391.eschoolmed.model.MedicalCheckupNotification;
+import com.swp391.eschoolmed.model.Parent;
+import com.swp391.eschoolmed.model.ParentStudent;
+import com.swp391.eschoolmed.model.Student;
+import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
+import com.swp391.eschoolmed.repository.ParentRepository;
+import com.swp391.eschoolmed.repository.ParentStudentRepository;
+import com.swp391.eschoolmed.repository.StudentRepository;
+import com.swp391.eschoolmed.repository.UserRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
 
 @Service
 public class MailService {
@@ -31,13 +47,30 @@ public class MailService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ParentRepository parentRepository;
+
+    @Autowired
+    private ParentStudentRepository parentStudentRepository;
+
+    @Autowired
+    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
     @Async
+
     public void sendNewPassword(String receiverEmail, String fullName, int age, String tempPassword) {
         try {
             Context context = new Context();
             context.setVariable("name", fullName);
             context.setVariable("age", age);
             context.setVariable("password", tempPassword);
+
             String text = templateEngine.process("greeting.html", context);
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -50,32 +83,111 @@ public class MailService {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void changePasswordFirstTime(UUID userId, String newPassword) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setPasswordHash(newPassword);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);
         userRepository.save(user);
+
+        if ("parent".equalsIgnoreCase(user.getRole())) {
+            List<ParentStudent> matchingRecords = parentStudentRepository.findByParentEmail(user.getEmail());
+
+            if (matchingRecords.isEmpty()) {
+                throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
+            }
+
+            String parentCode = matchingRecords.get(0).getParentCode();
+
+            Parent parent = parentRepository.findByEmail(user.getEmail())
+                    .orElseGet(() -> {
+                        Parent newParent = new Parent();
+                        newParent.setUser(user);
+                        newParent.setEmail(user.getEmail());
+                        newParent.setFullName(user.getFullName());
+                        newParent.setCode(parentCode);
+                        return newParent;
+                    });
+
+            parent.setUser(user);
+            parent.setFullName(user.getFullName());
+            parent.setCode(parentCode);
+            parentRepository.save(parent);
+
+            for (ParentStudent ps : matchingRecords) {
+                ps.setParent(parent);
+
+                if (ps.getStudent() == null && ps.getStudentCode() != null) {
+                    studentRepository.findByStudentCode(ps.getStudentCode())
+                            .ifPresentOrElse(
+                                    ps::setStudent,
+                                    () -> System.err.printf("Không tìm thấy studentCode: %s%n", ps.getStudentCode())
+                            );
+                }
+            }
+
+            parentStudentRepository.saveAll(matchingRecords);
+        }
     }
 
-    public void createParentAccount(String email, String fullName, int age) {
+
+    public void createParentAccount(String email, String fullName) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
         String tempPassword = generateTempPassword();
+        String encodedPassword = passwordEncoder.encode(tempPassword);
 
         User user = new User();
         user.setEmail(email);
         user.setFullName(fullName);
-        user.setPasswordHash(tempPassword);
+        user.setPasswordHash(encodedPassword);
         user.setRole("parent");
         user.setMustChangePassword(true);
         userRepository.save(user);
 
+        List<ParentStudent> matches = parentStudentRepository.findByParentEmail(email);
+
+        Parent parent;
+        if (!matches.isEmpty()) {
+            String parentCode = matches.get(0).getParentCode();
+            // Tìm Parent đã có sẵn (nếu có)
+            parent = parentRepository.findByCode(parentCode)
+                    .orElseGet(() -> {
+                        Parent p = new Parent();
+                        p.setCode(parentCode); // reuse code
+                        return p;
+                    });
+
+            parent.setUser(user);
+            parent.setFullName(fullName);
+            parent.setEmail(email);
+            parent.setPhoneNumber("");
+            parent.setAddress("");
+            parent.setDateOfBirth("");
+            parentRepository.save(parent);
+
+            for (ParentStudent ps : matches) {
+                ps.setParent(parent);
+            }
+            parentStudentRepository.saveAll(matches);
+
+        } else {
+            // Nếu không có mapping nào → cho phép tạo Parent mới
+            parent = new Parent();
+            parent.setCode(generateNextParentCode());
+            parent.setUser(user);
+            parent.setFullName(fullName);
+            parent.setEmail(email);
+            parent.setPhoneNumber("");
+            parent.setAddress("");
+            parent.setDateOfBirth("");
+            parentRepository.save(parent);
+        }
         try {
             Context context = new Context();
             context.setVariable("fullName", fullName);
@@ -97,25 +209,96 @@ public class MailService {
         }
     }
 
+
     private String generateTempPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    // public void sendOtp(String receiverEmail, String otpCode) {
-    // try {
-    // Context context = new Context();
-    // context.setVariable("otp",otpCode);
-    // String text = templateEngine.process("otp.html", context);
-    // MimeMessage message = javaMailSender.createMimeMessage();
-    // MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-    // helper.setPriority(1);
-    // helper.setSubject("OTP của bạn");
-    // helper.setFrom(from);
-    // helper.setTo(receiverEmail);
-    // helper.setText(text, true);
-    // javaMailSender.send(message);
-    // }catch (MessagingException e){
-    // throw new RuntimeException(e);
-    // }
-    // }
+    public void sendOtpEmail(String email, String otp) {
+        try {
+            Context context = new Context();
+            context.setVariable("otpCode",otp);
+            String text = templateEngine.process("otp.html", context);
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setPriority(1);
+            helper.setSubject("Mã otp để reset password");
+            helper.setFrom(from);
+            helper.setTo(email);
+            helper.setText(text, true);
+            javaMailSender.send(message);
+        }catch (MessagingException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private String generateNextParentCode() {
+        String latestCode = parentRepository.findLatestCode(); // ví dụ: "PH000132"
+        int next = 1;
+
+        if (latestCode != null && latestCode.startsWith("PH")) {
+            try {
+                next = Integer.parseInt(latestCode.substring(2)) + 1;
+            } catch (NumberFormatException e) {
+                next = 1; // fallback nếu code bị lỗi
+            }
+        }
+
+        return String.format("PH%06d", next);
+    }
+
+    // gửi thông báo kiểm tra sức khỏe
+    public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
+        List<Parent> parents = parentRepository.findAllRealParents();
+        for (Parent parent : parents) {
+            if (parent.getEmail() == null || parent.getEmail().isBlank()) {
+                System.out.printf("Bỏ qua parent %s vì thiếu email%n", parent.getFullName());
+                continue;
+            }
+            if (parent.getParentStudents() == null || parent.getParentStudents().isEmpty()) {
+                System.out.printf("Bỏ qua parent %s vì không có học sinh liên kết%n", parent.getFullName());
+                continue;
+            }
+            for (ParentStudent ps : parent.getParentStudents()) {
+                Student student = ps.getStudent();
+                if (student == null) {
+                    System.out.printf("Bỏ qua parent %s vì học sinh liên kết bị null%n", parent.getFullName());
+                    continue;
+                }
+                MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
+                        .checkupTitle(checkupTitle)
+                        .checkupDate(checkupDate)
+                        .content(content)
+                        .parent(parent)
+                        .student(student)
+                        .sentAt(LocalDateTime.now())
+                        .isConfirmed(false)
+                        .build();
+                medicalCheckupNotificationRepository.save(notification);
+                try {
+                    MimeMessage message = javaMailSender.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                    helper.setTo(parent.getEmail());
+                    helper.setFrom(from);
+                    helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
+                    String confirmLink = "https://emed.com/parent/checkup/confirm?notificationId=" + notification.getId();
+                    Context context = new Context();
+                    context.setVariable("fullName", parent.getFullName());
+                    context.setVariable("content", content);
+                    context.setVariable("confirmLink", confirmLink);
+                    String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
+                    helper.setText(htmlContent, true);
+
+                    javaMailSender.send(message);
+                    System.out.printf("Gửi thành công tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
+
+                } catch (Exception e) {
+                    System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parent.getEmail(), e.getMessage());
+                }
+            }
+        }
+    }
+
+
 }

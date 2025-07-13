@@ -15,19 +15,28 @@ public class Student {
     @Column(name = "student_id")
     private UUID studentId;
 
+    @Column(name = "student_code")
+    private String studentCode;
+
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "class_id")
-    private UUID classId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", insertable = false, updatable = false)
+    private Parent parent;
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
+    // Giữ lại class_id nếu bạn cần thao tác thủ công
+    @Column(name = "class_id")
+    private UUID class_id;
+
+    // Liên kết với bảng lớp học (ClassEntity)
+    @ManyToOne(fetch = FetchType.LAZY) // hoặc EAGER nếu bạn muốn tự động load
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id", insertable = false, updatable = false)
+    private ClassEntity classEntity;
+
+    @Column(name = "Date_of_birth")
+    private LocalDate Date_of_birth;
 
     @Column(name = "gender")
     private String gender;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private User parent;
 }

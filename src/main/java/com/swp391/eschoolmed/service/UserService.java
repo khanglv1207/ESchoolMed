@@ -3,17 +3,13 @@ package com.swp391.eschoolmed.service;
 import java.sql.Date;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
-import com.swp391.eschoolmed.service.mail.MailService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,16 +24,15 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.swp391.eschoolmed.dto.request.RegisterRequest;
 import com.swp391.eschoolmed.dto.response.IntrospectResponse;
 import com.swp391.eschoolmed.dto.response.LoginResponse;
-import com.swp391.eschoolmed.dto.response.RegisterResponse;
 import com.swp391.eschoolmed.exception.AppException;
 import com.swp391.eschoolmed.exception.ErrorCode;
+import com.swp391.eschoolmed.model.PasswordResetToken;
 import com.swp391.eschoolmed.model.User;
+import com.swp391.eschoolmed.repository.PasswordResetTokenRepository;
 import com.swp391.eschoolmed.repository.UserRepository;
-
-import javax.naming.Context;
+import com.swp391.eschoolmed.service.mail.MailService;
 
 @Service
 public class UserService {
@@ -49,6 +44,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository; // dua repo vao service
+    @Autowired
+    private PasswordResetTokenRepository tokenRepository;
+    @Autowired
+    private MailService mailService;
 
     public LoginResponse login(String email, String password) throws JOSEException {
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
@@ -57,14 +56,11 @@ public class UserService {
                     "Vui lòng nhập đầy đủ email và mật khẩu");
         }
 
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty() || !optionalUser.get().getPasswordHash().equals(password)) {
-            throw new ResponseStatusException(
-                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
-                    ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage());
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
+                        ErrorCode.USERNAME_OR_PASSWORD_ERROR.getMessage()));
 
-        User user = optionalUser.get();
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new ResponseStatusException(
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR.getStatusCode(),
@@ -76,6 +72,10 @@ public class UserService {
         response.setEmail(email);
         response.setToken(generateToken(user));
         response.setFirstLogin(user.isMustChangePassword());
+        response.setRole(user.getRole());
+
+        System.out.println("Generated Token: " + response.getToken());
+
         return response;
     }
 
@@ -118,4 +118,60 @@ public class UserService {
         return jwsObject.serialize();
     }
 
+    public UUID extractUserIdFromToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String subject = signedJWT.getJWTClaimsSet().getSubject();
+            return UUID.fromString(subject);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+    }
+
+    // nhập email reset password
+    public void requestPasswordRequest(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+        PasswordResetToken token = new PasswordResetToken();
+        token.setEmail(email);
+        token.setOtpCode(otp);
+        token.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+        tokenRepository.save(token);
+
+        mailService.sendOtpEmail(email,otp);
+    }
+
+
+
+    // xác thuc otp
+    public void verifyOtp(String email, String otpCode) {
+        PasswordResetToken token = tokenRepository.findByEmailAndOtpCode(email, otpCode)
+                .orElseThrow(() -> new AppException(ErrorCode.ERROR_OTP));
+
+        if(token.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.EXPIRY_OTP);
+        }
+        token.setVerified(true);
+        tokenRepository.save(token);
+    }
+
+    //reset password
+    public void resetPassword(String email, String newPassword) {
+        PasswordResetToken token = tokenRepository.findTopByEmailOrderByExpiryTimeDesc(email)
+                .orElseThrow(() -> new AppException(ErrorCode.OTP_NOT_FOUND));
+
+        if (!token.isVerified()) {
+            throw new AppException(ErrorCode.OTP_NOT_VERIFY);
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        tokenRepository.delete(token);
+        userRepository.save(user);
+    }
 }
+

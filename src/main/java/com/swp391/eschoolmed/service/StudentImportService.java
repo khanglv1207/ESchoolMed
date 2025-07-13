@@ -33,10 +33,10 @@ public class StudentImportService {
                 Student student = new Student();
                 student.setStudentId(UUID.randomUUID());
                 student.setFullName(row.getCell(0).getStringCellValue());
-                student.setClassId(UUID.fromString(row.getCell(1).getStringCellValue())); // ✅ đã sửa
+                student.setClass_id(UUID.fromString(row.getCell(1).getStringCellValue()));
 
                 Date dob = row.getCell(2).getDateCellValue();
-                student.setDateOfBirth(dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                student.setDate_of_birth(dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
                 student.setGender(row.getCell(3).getStringCellValue());
 

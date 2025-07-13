@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.model.Parent;
 import org.springframework.stereotype.Service;
 import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.model.MedicalIncident;
