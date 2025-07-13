@@ -17,7 +17,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect   # ✅ Thêm dòng này
+    database-platform: org.hibernate.dialect.PostgreSQLDialect   #Thêm dòng này
     properties:
       hibernate:
         format_sql: true
