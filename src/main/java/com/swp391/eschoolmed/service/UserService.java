@@ -5,9 +5,13 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.dto.request.UpdateUserRequest;
+import com.swp391.eschoolmed.dto.response.GetAllUserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -173,5 +177,56 @@ public class UserService {
         tokenRepository.delete(token);
         userRepository.save(user);
     }
+
+    public List<GetAllUserResponse> getAllUser() {
+    List<User> users = userRepository.findAll();
+    List<GetAllUserResponse> responses = new ArrayList<>();
+    for (User user : users) {
+        GetAllUserResponse userResponse = new GetAllUserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setFullName(user.getFullName());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setRole(user.getRole());
+        userResponse.setPasswordHash(user.getPasswordHash());
+        userResponse.setMustChangePassword(user.isMustChangePassword());
+        responses.add(userResponse);
+    }
+    return responses;
+    }
+
+    public GetAllUserResponse updateUser(UUID id, UpdateUserRequest request) {
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        if (request.getPasswordHash() != null) {
+            user.setPasswordHash(request.getPasswordHash());
+            user.setMustChangePassword(true);
+        }
+        user.setRole(request.getRole());
+
+        User saved = userRepository.save(user);
+        return toDto(saved);
+    }
+
+    public void deleteUser(UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        userRepository.deleteById(id);
+    }
+
+    private GetAllUserResponse toDto(User u) {
+        GetAllUserResponse dto = new GetAllUserResponse();
+        dto.setId(u.getId());
+        dto.setFullName(u.getFullName());
+        dto.setEmail(u.getEmail());
+        dto.setPasswordHash(u.getPasswordHash());
+        dto.setRole(u.getRole());
+        dto.setMustChangePassword(u.isMustChangePassword());
+        return dto;
+    }
+
+
 }
 

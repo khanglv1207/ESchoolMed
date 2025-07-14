@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/get-all-user").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/update-user/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/delete-user/**").permitAll()
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
