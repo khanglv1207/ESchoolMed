@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/Emed1
     username: postgres
-    password: 1234
+    password: 12345
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
