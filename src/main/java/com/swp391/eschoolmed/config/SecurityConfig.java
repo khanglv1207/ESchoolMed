@@ -28,34 +28,43 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                // cho phép tat cả
-                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
+                        // cho phép tat cả
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/mail/receive_email").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/request-password-reset").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/verify-otp").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/reset-password").permitAll()
 
-                // user
+                        // user
+                        .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/api/students/update-imported").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/students/import-parent-students").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.POST,"/api/parents/medical-request").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET,"/api/parents/student/**").hasAuthority("PARENT")
 
-                .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time")
-                .hasAuthority("PARENT")
+                        // truy cập swagger
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
-                // truy cập swagger
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui.html").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
-
-                // truy cập các page
-                .requestMatchers("/home", "/login", "/register", "/health-declaration",
-                        "/contact", "/vaccination", "/medical-checkup", "/import-students")
-                .permitAll()
-                .requestMatchers("/static/**", "/images/**", "/css/**", "/js/**").permitAll()
-
-                // admin
-                .requestMatchers("/create-parent-account", "/admin-dashboard").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/students/import-student").hasAuthority("ADMIN")
-
-                .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
-        );
+                        // admin
+                        .requestMatchers("/create-parent-account", "/admin-dashboard").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").permitAll()
+                        .anyRequest().authenticated() // tat ca cac request toi API khac deu can JWT
+                );
 
         http.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(
@@ -83,7 +92,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
-        corsConfiguration.addAllowedOrigin("http://localhost:3002"); // Thêm dòng này!
+        corsConfiguration.addAllowedOrigin("http://localhost:3002");
         corsConfiguration.addAllowedOrigin("http://localhost:8080");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
@@ -94,4 +103,8 @@ public class SecurityConfig {
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
+
+
+
 }
