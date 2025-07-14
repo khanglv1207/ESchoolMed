@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/Emed1
     username: postgres
-    password: 12345
+    password: 1234
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -17,6 +17,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect   #Thêm dòng này
     properties:
       hibernate:
         format_sql: true

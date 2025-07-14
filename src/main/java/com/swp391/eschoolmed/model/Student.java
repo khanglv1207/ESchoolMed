@@ -1,11 +1,10 @@
 package com.swp391.eschoolmed.model;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "students")
@@ -16,28 +15,28 @@ public class Student {
     @Column(name = "student_id")
     private UUID studentId;
 
+    @Column(name = "student_code")
+    private String studentCode;
+
     @Column(name = "full_name")
     private String fullName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", insertable = false, updatable = false)
+    private Parent parent;
+
+    // Giữ lại class_id nếu bạn cần thao tác thủ công
     @Column(name = "class_id")
     private UUID class_id;
 
-    private String studentCode;
+    // Liên kết với bảng lớp học (ClassEntity)
+    @ManyToOne(fetch = FetchType.LAZY) // hoặc EAGER nếu bạn muốn tự động load
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id", insertable = false, updatable = false)
+    private ClassEntity classEntity;
 
-    @Column(name = "date_of_birth")
-    private LocalDate date_of_birth;
+    @Column(name = "Date_of_birth")
+    private LocalDate Date_of_birth;
 
     @Column(name = "gender")
     private String gender;
-
-    @ManyToOne
-    @JoinColumn(name = "class_id", insertable = false, updatable = false)
-    private ClassEntity classEntity;
-
-    @OneToMany(mappedBy = "student")
-    private List<MedicalCheckupNotification> checkupNotifications;
-
-    @OneToMany(mappedBy = "student")
-    private List<ParentStudent> parentStudents;
-
 }
