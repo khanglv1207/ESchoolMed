@@ -40,10 +40,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
-                        // Static resources
-                        .requestMatchers("/home", "/login", "/register", "/health-declaration",
-                                "/contact", "/vaccination", "/medical-checkup", "/import-students").permitAll()
-                        .requestMatchers("/static/**", "/images/**", "/css/**", "/js/**").permitAll()
 
                         // Parent-specific endpoints
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
@@ -72,6 +68,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/get-all-user").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/update-user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/delete-user/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/confirm-students/").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/nurse/update-medication-status/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/medication-requests/pending").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/today-schedules/").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/nurse/mark-schedule-as-taken/").permitAll()
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
