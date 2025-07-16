@@ -25,7 +25,6 @@ public class ParentProfileResponse {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ChildInfo {
-        private String studentCode;
         private String studentName;
         private String className;
         private LocalDate studentDob;

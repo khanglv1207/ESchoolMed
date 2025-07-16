@@ -44,11 +44,12 @@ public class SecurityConfig {
                         // Parent-specific endpoints
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")// hiển thị thông tin hồ sơ
                         .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")// hiển thị kq sau khi khám
                         .requestMatchers(HttpMethod.POST, "/api/parents/medical-request").hasAuthority("PARENT") // gửi thuốc
                         .requestMatchers(HttpMethod.GET, "/api/parents/student/**").hasAuthority("PARENT")
+
 
                         // Student/Parent import & update (permitted for all - caution advised)
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").permitAll()
@@ -62,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").permitAll() // gửi mail thông báo ktra
                         .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll() // lấy danh sách studetn parent
                         .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/get-all-user").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/get-all-user").permitAll()// lấy danh sách tài khoản
                         .requestMatchers(HttpMethod.PUT, "/api/users/update-user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/delete-user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/nurse/confirmed-students").permitAll() //Xác nhận danh sách học sinh theo ID cuộc kiểm tra sức khỏe

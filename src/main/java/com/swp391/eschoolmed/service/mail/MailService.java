@@ -282,7 +282,7 @@ public class MailService {
                     helper.setTo(parent.getEmail());
                     helper.setFrom(from);
                     helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
-                    String confirmLink = "https://emed.com/parent/checkup/confirm?notificationId=" + notification.getId();
+                    String confirmLink = "http://localhost:3000/medical-checkup" + notification.getId();
                     Context context = new Context();
                     context.setVariable("fullName", parent.getFullName());
                     context.setVariable("content", content);

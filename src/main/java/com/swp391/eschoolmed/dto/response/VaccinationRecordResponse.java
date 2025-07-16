@@ -7,7 +7,7 @@ import java.util.UUID;
 public class VaccinationRecordResponse {
     private Long id;
     private UUID studentId;
-    private String studentName; // hoặc bỏ nếu không cần
+    private String studentName;
     private Long vaccineId;
     private String vaccineName;
     private LocalDate vaccinationDate;
