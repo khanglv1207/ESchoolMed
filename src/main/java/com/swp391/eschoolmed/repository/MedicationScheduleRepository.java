@@ -14,17 +14,15 @@ import java.util.UUID;
 @Repository
 public interface MedicationScheduleRepository extends JpaRepository<MedicationSchedule, UUID> {
 
-    // Lấy lịch uống thuốc theo item_id
     List<MedicationSchedule> findByItem_ItemId(UUID itemId);
 
-    // Lấy tất cả lịch uống thuốc theo studentId (truy ngược qua MedicationItem → MedicationRequest → Student)
+    List<MedicationSchedule> findAllByItem_Request_Student_StudentId(UUID studentId);
     @Query("""
         SELECT s FROM MedicationSchedule s
         WHERE s.item.request.student.studentId = :studentId
     """)
     List<MedicationSchedule> findAllByStudentId(@Param("studentId") UUID studentId);
 
-    // Lấy các lịch chưa uống cho 1 học sinh vào 1 ngày
     @Query("""
         SELECT s FROM MedicationSchedule s
         WHERE s.item.request.student.studentId = :studentId
@@ -35,6 +33,8 @@ public interface MedicationScheduleRepository extends JpaRepository<MedicationSc
             @Param("studentId") UUID studentId,
             @Param("from") LocalDateTime from
     );
+
+    List<MedicationSchedule> findAllByItem_Request_Student_StudentIdIn(List<UUID> studentIds);
 
 
 }

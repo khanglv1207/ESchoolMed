@@ -12,10 +12,9 @@ import java.util.UUID;
 @Builder
 public class MedicationRequestResponse {
     private UUID requestId;
-    private String note;
-    private String status;
     private LocalDateTime requestDate;
-    private String studentName;
     private String parentName;
-    private List<MedicationItem> medications;
+    private String studentName;
+    private String status;
+    private String note;
 }

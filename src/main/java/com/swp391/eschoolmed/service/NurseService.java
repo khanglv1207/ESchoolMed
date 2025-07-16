@@ -99,7 +99,6 @@ public class NurseService {
                         .status(request.getStatus())
                         .parentName(request.getParent().getFullName())
                         .studentName(request.getStudent().getFullName())
-                        .medications(request.getItems())
                         .build()
         ).toList();
     }

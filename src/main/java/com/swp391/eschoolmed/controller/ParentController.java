@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
 import com.swp391.eschoolmed.dto.response.CheckupResultResponse;
 import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
+import com.swp391.eschoolmed.dto.response.MedicationScheduleResponse;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.MedicationRequest;
 import com.swp391.eschoolmed.model.Parent;
@@ -15,6 +16,7 @@ import com.swp391.eschoolmed.repository.*;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -76,6 +78,7 @@ public class ParentController {
 
     // gửi thuốc
     @PostMapping("/medical-request")
+    @PreAuthorize("hasAuthority('PARENT')")
     public ApiResponse<MedicationRequestResponse> sendMedicalRequest(@RequestBody MedicalRequest request,
                                                                      @AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
@@ -87,12 +90,13 @@ public class ParentController {
     }
 
     // Lấy tất cả đơn thuốc của một học sinh
-    @GetMapping("/student/{studentId}")
-    public ApiResponse<List<MedicationRequestResponse>> getRequestsByStudent(@PathVariable UUID studentId) {
-        List<MedicationRequestResponse> list = parentService.getRequestsByStudentId(studentId);
-        return ApiResponse.<List<MedicationRequestResponse>>builder()
-                .message("Lấy danh sách đơn thuốc thành công.")
-                .result(list)
+    @GetMapping("/schedules")
+    public ApiResponse<List<MedicationScheduleResponse>> getSchedulesForParent(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<MedicationScheduleResponse> schedules = parentService.getSchedulesForLoggedInParent(userId);
+        return ApiResponse.<List<MedicationScheduleResponse>>builder()
+                .message("Lấy lịch uống thuốc thành công.")
+                .result(schedules)
                 .build();
     }
 

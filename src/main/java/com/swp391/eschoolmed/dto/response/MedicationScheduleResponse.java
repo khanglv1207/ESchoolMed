@@ -10,6 +10,7 @@ import java.util.UUID;
 @Builder
 public class MedicationScheduleResponse {
     private UUID scheduleId;
+    private String medicationName;
     private String timeOfDay;
     private String instruction;
     private boolean hasTaken;

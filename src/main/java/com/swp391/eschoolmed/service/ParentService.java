@@ -2,10 +2,7 @@ package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
-import com.swp391.eschoolmed.dto.response.CheckupResultResponse;
-import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
-import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
-import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
+import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
 import jakarta.transaction.Transactional;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +39,7 @@ public class ParentService {
     private StudentRepository studentRepository;
 
     @Autowired
-    private MedicationRequestRepository  medicationRequestRepository;
+    private MedicationRequestRepository medicationRequestRepository;
     @Autowired
     private MedicationScheduleRepository medicationScheduleRepository;
     @Autowired
@@ -94,8 +92,6 @@ public class ParentService {
     }
 
 
-
-
     @Transactional
     public MedicationRequestResponse sendMedicalRequestByUserId(MedicalRequest request, UUID userId) {
         User user = userRepository.findById(userId)
@@ -108,8 +104,6 @@ public class ParentService {
                 .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
 
-        UUID parentStudentId = parentStudent.getId();
-
         Student student = parentStudent.getStudent();
 
         MedicationRequest medicationRequest = MedicationRequest.builder()
@@ -120,6 +114,7 @@ public class ParentService {
                 .requestDate(LocalDateTime.now())
                 .status("PENDING")
                 .build();
+
         medicationRequestRepository.save(medicationRequest);
 
         for (MedicalRequest.MedicationItemRequest itemReq : request.getMedications()) {
@@ -130,20 +125,23 @@ public class ParentService {
                     .dosage(itemReq.getDosage())
                     .note(itemReq.getNote())
                     .build();
+
             medicationItemRepository.save(item);
 
-            for (String timeOfDay : itemReq.getSchedule()) {
+            for (String timeOfDayRaw : itemReq.getSchedule()) {
+                String mappedTimeOfDay = mapTimeOfDay(timeOfDayRaw);
+
                 MedicationSchedule schedule = MedicationSchedule.builder()
                         .scheduleId(UUID.randomUUID())
                         .item(item)
-                        .timeOfDay(timeOfDay)
+                        .timeOfDay(mappedTimeOfDay)
                         .instruction(itemReq.getNote())
                         .hasTaken(false)
                         .build();
+
                 medicationScheduleRepository.save(schedule);
             }
         }
-
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -193,18 +191,46 @@ public class ParentService {
                 .build();
     }
 
-    public List<MedicationRequestResponse> getRequestsByStudentId(UUID studentId) {
-        List<MedicationRequest> requests = medicationRequestRepository.findByStudent_StudentId(studentId);
+    @Transactional
+    public List<MedicationScheduleResponse> getSchedulesForLoggedInParent(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
 
-        return requests.stream().map(request -> MedicationRequestResponse.builder()
-                .requestId(request.getRequestId())
-                .note(request.getNote())
-                .requestDate(request.getRequestDate())
-                .status(request.getStatus())
-                .parentName(request.getParent().getFullName())
-                .studentName(request.getStudent().getFullName())
+        Parent parent = parentRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
+
+        List<ParentStudent> links = parentStudentRepository.findAllByParent_ParentId(parent.getParentId());
+        List<UUID> studentIds = links.stream()
+                .map(link -> link.getStudent().getStudentId())
+                .collect(Collectors.toList());
+
+        if (studentIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<MedicationSchedule> schedules = medicationScheduleRepository
+                .findAllByItem_Request_Student_StudentIdIn(studentIds);
+
+        return schedules.stream().map(schedule -> MedicationScheduleResponse.builder()
+                .scheduleId(schedule.getScheduleId())
+                .medicationName(schedule.getItem().getMedicationName())
+                .timeOfDay(schedule.getTimeOfDay())
+                .instruction(schedule.getInstruction())
+                .hasTaken(schedule.getHasTaken())
+                .takenTime(schedule.getTakenTime())
                 .build()
         ).collect(Collectors.toList());
+    }
+
+
+    private String mapTimeOfDay(String time) {
+        return switch (time.trim().toLowerCase()) {
+            case "sáng" -> "morning";
+            case "trưa" -> "noon";
+            case "chiều" -> "evening";
+            case "tối" -> "night";
+            default -> throw new IllegalArgumentException("Thời điểm uống thuốc không hợp lệ: " + time);
+        };
     }
 
 }
