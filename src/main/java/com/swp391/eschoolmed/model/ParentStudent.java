@@ -29,6 +29,7 @@ public class ParentStudent {
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
+    @Column(name = "relationship")
     private String relationship;
 
     @Column(name = "student_code")

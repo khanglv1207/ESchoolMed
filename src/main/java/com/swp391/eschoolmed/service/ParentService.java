@@ -162,10 +162,11 @@ public class ParentService {
 
         List<ParentStudent> linkedStudents = parentStudentRepository.findAllByParent_ParentId(parentId);
 
+        String relationship = linkedStudents.isEmpty() ? null : linkedStudents.get(0).getRelationship();
+
         List<ParentProfileResponse.ChildInfo> children = linkedStudents.stream().map(ps -> {
             Student student = ps.getStudent();
             return ParentProfileResponse.ChildInfo.builder()
-                    .studentCode(student.getStudentCode())
                     .studentName(student.getFullName())
                     .className(student.getClassEntity() != null
                             ? student.getClassEntity().getClassName()
@@ -175,21 +176,19 @@ public class ParentService {
                     .build();
         }).collect(Collectors.toList());
 
-        String dobStr = parent.getDateOfBirth();
-        LocalDate dob = null;
-        if (dobStr != null && !dobStr.isBlank()) {
-            dob = LocalDate.parse(dobStr);
-        }
+        LocalDate dob = parent.getDateOfBirth();
 
         return ParentProfileResponse.builder()
                 .parentName(parent.getFullName())
                 .email(parent.getUser().getEmail())
                 .phoneNumber(parent.getPhoneNumber())
                 .address(parent.getAddress())
+                .relationship(relationship)
                 .dateOfBirth(dob)
                 .children(children)
                 .build();
     }
+
 
     @Transactional
     public List<MedicationScheduleResponse> getSchedulesForLoggedInParent(UUID userId) {

@@ -16,7 +16,7 @@ public class ParentProfileResponse {
     private String email;
     private String phoneNumber;
     private String address;
-    private String gender;
+    private String relationship;
     private LocalDate dateOfBirth;
 
     private List<ChildInfo> children;

@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.dto.request;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import lombok.Data;
@@ -11,5 +12,5 @@ public class ParentProfileRequest {
     private String email;
     private String phoneNumber;
     private String address;
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
 }
