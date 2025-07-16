@@ -46,8 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/students/parent-checkup-confirm").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.POST, "/api/parents/medical-request").hasAuthority("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")// hiển thị kq sau khi khám
+                        .requestMatchers(HttpMethod.POST, "/api/parents/medical-request").hasAuthority("PARENT") // gửi thuốc
                         .requestMatchers(HttpMethod.GET, "/api/parents/student/**").hasAuthority("PARENT")
 
                         // Student/Parent import & update (permitted for all - caution advised)
@@ -58,21 +58,20 @@ public class SecurityConfig {
                         // Admin/Nurse-specific endpoints (permitted for now - can be restricted later)
                         .requestMatchers("/create-parent-account", "/admin-dashboard").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/nurses/check-confirmStudent").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/students/import-student").permitAll()// add danh sách học sinh
+                        .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").permitAll() // gửi mail thông báo ktra
+                        .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll() // lấy danh sách studetn parent
                         .requestMatchers(HttpMethod.POST, "/api/admin/create-student-parent").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/nurses/students/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/nurses/schedules/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/get-all-user").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/update-user/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/delete-user/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/nurse/confirm-students/").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/nurse/update-medication-status/").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/nurse/medication-requests/pending").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/nurse/today-schedules/").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/nurse/mark-schedule-as-taken/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/confirmed-students").permitAll() //Xác nhận danh sách học sinh theo ID cuộc kiểm tra sức khỏe
+                        .requestMatchers(HttpMethod.PUT, "/api/nurse/update-medication-status/").permitAll()//Cập nhật trạng thái đơn thuốc
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/medication-requests/pending").permitAll()//Lấy danh sách đơn thuốc đang chờ xác nhận
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/today-schedules/").permitAll()//Lấy lịch uống thuốc hôm nay của học sinh
+                        .requestMatchers(HttpMethod.PUT, "/api/nurse/mark-schedule-as-taken/").permitAll()//Đánh dấu lịch đã uống thuốc
+                        .requestMatchers(HttpMethod.POST, "/api/nurse/health-checkup").permitAll()//lưu thông tin sau khi khám
+
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

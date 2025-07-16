@@ -1,22 +1,19 @@
-package com.swp391.eschoolmed.dto.response;
+package com.swp391.eschoolmed.dto.request;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
-@Builder
-public class CheckupResultResponse {
+public class CreateHealthCheckupRequest {
+    private UUID checkupId;
     private UUID studentId;
-    private String studentName;
-    private String className;
-    private boolean hasChecked;
+    private UUID nurseId;
+    private LocalDate checkupDate;
     private Double heightCm;
     private Double weightKg;
     private String visionLeft;
     private String visionRight;
     private String notes;
 }
-

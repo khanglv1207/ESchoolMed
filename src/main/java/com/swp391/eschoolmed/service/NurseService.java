@@ -1,18 +1,13 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
-import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
-import com.swp391.eschoolmed.dto.response.MedicationScheduleForNurse;
-import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
-import com.swp391.eschoolmed.model.MedicalCheckupNotification;
-import com.swp391.eschoolmed.model.MedicationItem;
-import com.swp391.eschoolmed.model.MedicationRequest;
-import com.swp391.eschoolmed.model.MedicationSchedule;
-import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
-import com.swp391.eschoolmed.repository.MedicationRequestRepository;
-import com.swp391.eschoolmed.repository.MedicationScheduleRepository;
+import com.swp391.eschoolmed.dto.response.*;
+import com.swp391.eschoolmed.model.*;
+import com.swp391.eschoolmed.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,14 +28,51 @@ public class NurseService {
     private MedicationRequestRepository medicationRequestRepository;
     @Autowired
     private MedicationScheduleRepository medicationScheduleRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private HealthCheckupRepository healthCheckupRepository;
+    @Autowired
+    private NurseRepository nurseRepository;
+    @Autowired
+    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
-    public List<StudentProfileResponse> confirmStudent(UUID checkupId) {
-        List<MedicalCheckupNotification> notifications = notificationRepository.findByCheckupTitle(String.valueOf(checkupId));
-        return notifications.stream()
-                .map(MedicalCheckupNotification::getStudent)
-                .map(studentService::toStudentProfileResponse)
-                .collect(Collectors.toList());
+
+    public List<ConfirmedStudentResponse> getConfirmedStudents() {
+        List<MedicalCheckupNotification> notifications = notificationRepository.findByIsConfirmedTrue();
+
+        return notifications.stream().map(n -> ConfirmedStudentResponse.builder()
+                .notificationId(n.getId())
+                .studentName(n.getStudentName())
+                .className(n.getClassName())
+                .gender(n.getGender())
+                .isConfirmed(n.getIsConfirmed())
+                .build()
+        ).toList();
     }
+
+    public void createHealthCheckup(CreateHealthCheckupRequest request) {
+        Student student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+        Nurse nurse = nurseRepository.findById(request.getNurseId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy y tá"));
+        MedicalCheckupNotification notification = medicalCheckupNotificationRepository.findById(request.getCheckupId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo khám sức khỏe"));
+
+        HealthCheckup checkup = new HealthCheckup();
+        checkup.setNotification(notification);
+        checkup.setStudent(student);
+        checkup.setNurse(nurse);
+        checkup.setCheckupDate(request.getCheckupDate());
+        checkup.setHeightCm(request.getHeightCm());
+        checkup.setWeightKg(request.getWeightKg());
+        checkup.setVisionLeft(request.getVisionLeft());
+        checkup.setVisionRight(request.getVisionRight());
+        checkup.setNotes(request.getNotes());
+
+        healthCheckupRepository.save(checkup);
+    }
+
 
     public void updateMedicationStatus(UpdateMedicationStatusRequest request) {
 
@@ -103,6 +135,7 @@ public class NurseService {
         schedule.setTakenTime(LocalDateTime.now());
         medicationScheduleRepository.save(schedule);
     }
+
 
 }
 

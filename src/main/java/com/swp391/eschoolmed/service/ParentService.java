@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,8 @@ public class ParentService {
     private MedicationScheduleRepository medicationScheduleRepository;
     @Autowired
     private MedicationItemRepository medicationItemRepository;
+    @Autowired
+    private HealthCheckupRepository healthCheckupRepository;
 
     public void updateParentProfile(UpdateParentProfileRequest request) {
         Parent parent = parentRepository.findByUserId(request.getUserid())
@@ -57,29 +60,41 @@ public class ParentService {
         parentRepository.save(parent);
     }
 
-    public List<CheckupResultResponse> getCheckupResult(String username) {
-        User parentUser = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + username));
+    public List<CheckupResultResponse> getCheckupResult(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
 
-        Parent parent = parentRepository.findByUser(parentUser)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin phụ huynh."));
+        Parent parent = parentRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
 
-        List<MedicalCheckupNotification> notifications =
-                medicalCheckupNotificationRepository.findByParent(parent);
+        List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository.findByParent(parent);
 
         return notifications.stream()
                 .filter(MedicalCheckupNotification::getIsConfirmed)
-                .map(notification -> CheckupResultResponse.builder()
-                        .studentName(notification.getStudent().getFullName())
-                        .checkupDate(notification.getCheckupDate())
-                        .checkupTitle(notification.getCheckupTitle())
-                        .resultSummary(notification.getResultSummary())
-                        .isAbnormal(notification.getIsAbnormal())
-                        .suggestion(notification.getSuggestion())
-                        .build())
-                .toList();
+                .map(notification -> {
+                    Student student = notification.getStudent();
 
+                    Optional<HealthCheckup> optionalCheckup = healthCheckupRepository.findByNotification(notification);
+
+                    HealthCheckup checkup = optionalCheckup.orElse(null);
+
+                    return CheckupResultResponse.builder()
+                            .studentId(student.getStudentId())
+                            .studentName(student.getFullName())
+                            .className(student.getClassEntity() != null ? student.getClassEntity().getClassName() : null)
+                            .hasChecked(checkup != null)
+                            .heightCm(checkup != null ? checkup.getHeightCm() : null)
+                            .weightKg(checkup != null ? checkup.getWeightKg() : null)
+                            .visionLeft(checkup != null ? checkup.getVisionLeft() : null)
+                            .visionRight(checkup != null ? checkup.getVisionRight() : null)
+                            .notes(checkup != null ? checkup.getNotes() : null)
+                            .build();
+                })
+                .toList();
     }
+
+
+
 
     @Transactional
     public MedicationRequestResponse sendMedicalRequestByUserId(MedicalRequest request, UUID userId) {

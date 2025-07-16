@@ -45,12 +45,26 @@ public class MedicalCheckupNotification {
     private LocalDateTime confirmedAt;
 
     @Column(columnDefinition = "TEXT")
-    private String resultSummary; // mô tả tổng quát kết quả
+    private String resultSummary;
 
     @Column
-    private Boolean isAbnormal; // có bất thường không
+    private Boolean isAbnormal;
 
     @Column
-    private String suggestion; // tư vấn hoặc hướng xử lý
+    private String suggestion;
+
+    @Column(name = "student_name")
+    private String studentName;
+
+    @Column(name = "class_name" )
+    private String className;
+
+    @Column(name = "gender")
+    private String gender;
+
+    @Column(name = "nurse_id")
+    private UUID nurseId;
+
+
 
 }
