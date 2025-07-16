@@ -148,12 +148,12 @@ public class StudentService {
                     Parent parent = parentRepository.findByEmail(parentEmail)
                             .orElseGet(() -> {
                                 Parent p = new Parent();
-                                p.setParentId(null); // Không sinh ID vì sẽ gán khi đổi mật khẩu lần đầu
+                                p.setParentId(UUID.randomUUID());
                                 p.setEmail(parentEmail);
                                 p.setFullName(parentName);
                                 p.setPhoneNumber(parentPhone);
                                 p.setAddress(parentAddress);
-                                p.setDateOfBirth(parentDob != null ? parentDob.toString() : null);
+                                p.setDateOfBirth(parentDob);
                                 p.setCode(finalParentCode);
                                 return parentRepository.save(p);
                             });
@@ -189,6 +189,7 @@ public class StudentService {
             throw new RuntimeException("Lỗi đọc file Excel: " + e.getMessage(), e);
         }
     }
+
 
 
 

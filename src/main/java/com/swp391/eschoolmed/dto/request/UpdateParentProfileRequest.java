@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.dto.request;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -11,6 +12,6 @@ public class UpdateParentProfileRequest {
     private String email;
     private String phoneNumber;
     private String address;
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
 
 }

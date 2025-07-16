@@ -3,6 +3,7 @@ package com.swp391.eschoolmed.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +13,6 @@ import java.util.UUID;
 public class Parent {
 
     @Id
-    @GeneratedValue
     @Column(name = "parent_id")
     private UUID parentId;
 
@@ -30,7 +30,7 @@ public class Parent {
     private String phoneNumber;
 
     @Column(name = "date_of_birth")
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "address")
     private String address;

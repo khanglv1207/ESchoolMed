@@ -100,21 +100,11 @@ public class MailService {
                 throw new RuntimeException("Không tìm thấy parent_code tương ứng với email: " + user.getEmail());
             }
 
-            String parentCode = matchingRecords.get(0).getParentCode();
-
             Parent parent = parentRepository.findByEmail(user.getEmail())
-                    .orElseGet(() -> {
-                        Parent newParent = new Parent();
-                        newParent.setUser(user);
-                        newParent.setEmail(user.getEmail());
-                        newParent.setFullName(user.getFullName());
-                        newParent.setCode(parentCode);
-                        return newParent;
-                    });
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy Parent tương ứng với email: " + user.getEmail()));
 
             parent.setUser(user);
             parent.setFullName(user.getFullName());
-            parent.setCode(parentCode);
             parentRepository.save(parent);
 
             for (ParentStudent ps : matchingRecords) {
@@ -132,6 +122,7 @@ public class MailService {
             parentStudentRepository.saveAll(matchingRecords);
         }
     }
+
 
 
     public void createParentAccount(String email, String fullName) {
@@ -168,7 +159,7 @@ public class MailService {
             parent.setEmail(email);
             parent.setPhoneNumber("");
             parent.setAddress("");
-            parent.setDateOfBirth("");
+            parent.setDateOfBirth(null);
             parentRepository.save(parent);
 
             for (ParentStudent ps : matches) {
@@ -185,7 +176,7 @@ public class MailService {
             parent.setEmail(email);
             parent.setPhoneNumber("");
             parent.setAddress("");
-            parent.setDateOfBirth("");
+            parent.setDateOfBirth(null);
             parentRepository.save(parent);
         }
         try {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class AdminService {
         student.setStudentId(studentId);
         student.setStudentCode(generateNextStudentCode());
         student.setFullName(request.getStudentName());
-        student.setDate_of_birth(LocalDate.parse(request.getStudentDob()));
+        student.setDate_of_birth(request.getStudentDob());
         student.setGender(request.getGender());
 
         Optional<ClassEntity> clazz = classRepository.findByClassName(request.getClassName());
@@ -72,17 +73,22 @@ public class AdminService {
 
         studentRepository.save(student);
 
+        Parent parent = new Parent();
+        UUID parentId = UUID.randomUUID();
+        parent.setParentId(parentId);
+        parent.setCode(generateNextParentCode());
+        parent.setEmail(request.getParentEmail());
+        parent.setFullName(request.getParentName());
+        parent.setDateOfBirth(request.getParentDob());
+        parent.setPhoneNumber(request.getParentPhone());
+        parent.setAddress(request.getParentAddress());
+        parentRepository.save(parent);
+
         ParentStudent ps = new ParentStudent();
         ps.setId(UUID.randomUUID());
         ps.setStudent(student);
+        ps.setParent(parent);
         ps.setRelationship(request.getRelationship());
-
-        ps.setParentName(request.getParentName());
-        ps.setParentEmail(request.getParentEmail());
-        ps.setParentPhone(request.getParentPhone());
-        ps.setParentAddress(request.getParentAddress());
-        ps.setParentDob(LocalDate.parse(request.getParentDob()));
-        ps.setParentCode(generateNextParentCode());
 
         ps.setStudentCode(student.getStudentCode());
         ps.setStudentName(student.getFullName());
@@ -90,8 +96,17 @@ public class AdminService {
         ps.setGender(student.getGender());
         ps.setClassName(request.getClassName());
 
+        ps.setParentCode(parent.getCode());
+        ps.setParentName(parent.getFullName());
+        ps.setParentEmail(parent.getEmail());
+        ps.setParentPhone(parent.getPhoneNumber());
+        ps.setParentDob(parent.getDateOfBirth());
+        ps.setParentAddress(parent.getAddress());
+
         parentStudentRepository.save(ps);
     }
+
+
     private String generateNextStudentCode() {
         long count = studentRepository.count();
         return String.format("HS%04d", count + 1);
@@ -138,7 +153,7 @@ public class AdminService {
         parent.setEmail(request.getParentEmail());
         parent.setCode(request.getParentCode());
         parent.setAddress(request.getParentAddress());
-        parent.setDateOfBirth(String.valueOf(request.getParentDob()));
+        parent.setDateOfBirth(request.getParentDob());
         parentRepository.save(parent);
     }
 
