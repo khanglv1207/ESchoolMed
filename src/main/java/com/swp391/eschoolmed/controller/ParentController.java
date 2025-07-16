@@ -61,14 +61,18 @@ public class ParentController {
 
     // hiển thị thông tin sau khi khám
     @GetMapping("/checkup-result")
-    public ApiResponse<List<CheckupResultResponse>> getCheckupResults(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        List<CheckupResultResponse> results = parentService.getCheckupResult(userDetails.getUsername());
+    public ApiResponse<List<CheckupResultResponse>> getCheckupResult(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+
+        List<CheckupResultResponse> responses = parentService.getCheckupResult(userId);
+
         return ApiResponse.<List<CheckupResultResponse>>builder()
-                .message("Danh sách sức khỏe sau khi khám")
-                .result(results)
+                .code(1000)
+                .message("Lấy kết quả khám sức khỏe thành công.")
+                .result(responses)
                 .build();
     }
+
 
     // gửi thuốc
     @PostMapping("/medical-request")

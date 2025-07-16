@@ -1,0 +1,11 @@
+package com.swp391.eschoolmed.repository;
+
+import com.swp391.eschoolmed.model.Nurse;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface NurseRepository extends JpaRepository<Nurse, UUID> {
+
+    boolean existsByEmail(String email);
+}
