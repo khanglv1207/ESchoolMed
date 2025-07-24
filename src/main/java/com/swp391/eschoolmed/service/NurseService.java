@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
+import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
 import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
@@ -133,6 +134,37 @@ public class NurseService {
         schedule.setHasTaken(true);
         schedule.setTakenTime(LocalDateTime.now());
         medicationScheduleRepository.save(schedule);
+    }
+
+    public List<GetAllNurseResponse> getAllNurses() {
+        List<Nurse> nurses = nurseRepository.findAll();
+        return nurses.stream().map(nurse -> GetAllNurseResponse.builder()
+                .nurseId(nurse.getNurseId())
+                .fullName(nurse.getFullName())
+                .email(nurse.getEmail())
+                .phone(nurse.getPhone())
+                .specialization(nurse.getSpecialization())
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    public void updateNurse(UpdateNurseRequest request) {
+        Nurse nurse = nurseRepository.findById(request.getNurseId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy y tá"));
+
+        nurse.setFullName(request.getFullName());
+        nurse.setEmail(request.getEmail());
+        nurse.setPhone(request.getPhone());
+        nurse.setSpecialization(request.getSpecialization());
+
+        nurseRepository.save(nurse);
+    }
+
+    public void deleteNurse(UUID nurseId) {
+        if (!nurseRepository.existsById(nurseId)) {
+            throw new RuntimeException("Không tìm thấy y tá để xóa");
+        }
+        nurseRepository.deleteById(nurseId);
     }
 
 

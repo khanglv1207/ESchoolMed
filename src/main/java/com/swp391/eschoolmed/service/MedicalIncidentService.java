@@ -53,7 +53,7 @@ public class MedicalIncidentService {
         res.setIncidentType(incident.getIncidentType());
         res.setDescription(incident.getDescription());
         res.setOccurredAt(incident.getOccurredAt());
-        res.setStaffName(incident.getStaff().getFullName()); // ✅ Đã sửa ở đây
+        res.setStaffName(incident.getStaff().getFullName());
         return res;
     }
 

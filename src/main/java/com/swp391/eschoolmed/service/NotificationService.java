@@ -9,13 +9,13 @@ import com.swp391.eschoolmed.model.MedicalIncident;
 public class NotificationService {
 
     public void notifyParent(Student student, MedicalIncident incident) {
-        String parentEmail = student.getParent().getEmail(); // nếu có liên kết parent
+        String parentEmail = student.getParent().getEmail();
         String message = String.format("Thông báo y tế: học sinh %s gặp sự cố: %s - %s",
                 student.getFullName(), incident.getIncidentType(), incident.getDescription());
 
         System.out.println("Gửi thông báo tới phụ huynh " + parentEmail + ": " + message);
 
-        // Bạn có thể tích hợp: FCM, EmailService, Twilio...
+
     }
 }
 

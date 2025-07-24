@@ -3,11 +3,10 @@ package com.swp391.eschoolmed.controller;
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
-import com.swp391.eschoolmed.dto.response.ConfirmedStudentResponse;
-import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
-import com.swp391.eschoolmed.dto.response.MedicationScheduleForNurse;
-import com.swp391.eschoolmed.dto.response.StudentProfileResponse;
+import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
+import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
+import com.swp391.eschoolmed.model.Nurse;
 import com.swp391.eschoolmed.service.NurseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,36 @@ public class NurseController {
     @Autowired
     private NurseService nurseService;
 
+    // lấy danh sách y tá
+   @GetMapping("/get-all-nurse")
+   public ApiResponse<List<GetAllNurseResponse>> getAllNurses(){
+       List<GetAllNurseResponse> responses = nurseService.getAllNurses();
+       return ApiResponse.<List<GetAllNurseResponse>> builder()
+               .message("Lấy danh sách y tá thành công")
+               .result(responses)
+               .build();
+    }
+
+    //update
+    @PutMapping("/update-nurse")
+    public ApiResponse<String> updateNurse(@RequestBody UpdateNurseRequest request) {
+        nurseService.updateNurse(request);
+        return ApiResponse.<String>builder()
+                .message("Cập nhật y tá thành công")
+                .result("OK")
+                .build();
+    }
+
+    // xóa
+    @DeleteMapping("/delete-nurse/{id}")
+    public ApiResponse<String> deleteNurse(@PathVariable("id") UUID nurseId) {
+        nurseService.deleteNurse(nurseId);
+        return ApiResponse.<String>builder()
+                .message("Xóa y tá thành công")
+                .result("OK")
+                .build();
+    }
+
     //Xác nhận danh sách học sinh theo ID cuộc kiểm tra sức khỏe
     @GetMapping("/confirmed-students")
     public ApiResponse<List<ConfirmedStudentResponse>> getConfirmedStudents() {
@@ -34,6 +63,9 @@ public class NurseController {
                 .result(result)
                 .build();
     }
+
+
+
 
     //lưu thông tin sau khi khám
     @PostMapping("/health-checkup")

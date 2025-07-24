@@ -71,7 +71,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/nurse/today-schedules/").permitAll()//Lấy lịch uống thuốc hôm nay của học sinh
                         .requestMatchers(HttpMethod.PUT, "/api/nurse/mark-schedule-as-taken/").permitAll()//Đánh dấu lịch đã uống thuốc
                         .requestMatchers(HttpMethod.POST, "/api/nurse/health-checkup").permitAll()//lưu thông tin sau khi khám
-
+                        .requestMatchers(HttpMethod.POST, "/api/nurse/get-all-nurse").permitAll()//lấy danh sách y tá
+                        .requestMatchers(HttpMethod.POST, "/api/nurse/update-nurse").permitAll()//sửa thông tin y tá
+                        .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
