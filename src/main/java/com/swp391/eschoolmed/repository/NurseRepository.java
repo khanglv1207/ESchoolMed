@@ -8,6 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NurseRepository extends JpaRepository<Nurse, UUID> {
-    List<GetAllNurseResponse> findAll(UUID id);
     boolean existsByEmail(String email);
 }

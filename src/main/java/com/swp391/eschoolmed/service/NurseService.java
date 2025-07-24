@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static javax.swing.text.html.parser.DTDConstants.ID;
+
 @Service
 public class NurseService {
 
@@ -138,14 +140,15 @@ public class NurseService {
 
     public List<GetAllNurseResponse> getAllNurses() {
         List<Nurse> nurses = nurseRepository.findAll();
-        return nurses.stream().map(nurse -> GetAllNurseResponse.builder()
-                .nurseId(nurse.getNurseId())
-                .fullName(nurse.getFullName())
-                .email(nurse.getEmail())
-                .phone(nurse.getPhone())
-                .specialization(nurse.getSpecialization())
-                .build()
-        ).collect(Collectors.toList());
+        return nurses.stream()
+                .map(nurse -> GetAllNurseResponse.builder()
+                        .nurseId(nurse.getNurseId())
+                        .fullName(nurse.getFullName())
+                        .email(nurse.getEmail())
+                        .phone(nurse.getPhone())
+                        .specialization(nurse.getSpecialization())
+                        .build())
+                .toList();
     }
 
     public void updateNurse(UpdateNurseRequest request) {
