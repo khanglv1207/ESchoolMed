@@ -123,7 +123,6 @@ public class ParentService {
             if (schedules == null || schedules.isEmpty()) {
                 throw new IllegalArgumentException("Bạn phải chọn ít nhất một buổi uống thuốc (ví dụ: Sáng hoặc Chiều) cho thuốc: " + itemReq.getMedicationName());
             }
-
             MedicationItem item = MedicationItem.builder()
                     .itemId(UUID.randomUUID())
                     .request(medicationRequest)
