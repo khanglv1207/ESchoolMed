@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.dto.request.ConfirmCheckupRequest;
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
 import com.swp391.eschoolmed.dto.response.*;
@@ -230,6 +231,17 @@ public class ParentService {
             case "tối" -> "night";
             default -> throw new IllegalArgumentException("Thời điểm uống thuốc không hợp lệ: " + time);
         };
+    }
+
+    public void confirmCheckup(ConfirmCheckupRequest request) {
+        MedicalCheckupNotification notification = medicalCheckupNotificationRepository
+                .findById(request.getNotificationId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đợt kiểm tra"));
+
+        notification.setIsConfirmed(request.isConfirmed());
+        notification.setConfirmedAt(LocalDateTime.now());
+
+        medicalCheckupNotificationRepository.save(notification);
     }
 
 }

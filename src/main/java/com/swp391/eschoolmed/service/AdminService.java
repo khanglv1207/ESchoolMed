@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
+import com.swp391.eschoolmed.dto.request.MedicalCheckupCreateRequest;
 import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
 import com.swp391.eschoolmed.model.*;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class AdminService {
     private ParentStudentRepository parentStudentRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
     @Autowired
     private ParentRepository parentRepository;
@@ -157,4 +159,33 @@ public class AdminService {
         parentRepository.save(parent);
     }
 
+
+    public void createMedicalCheckup(MedicalCheckupCreateRequest request) {
+        for (UUID studentId : request.getStudentIds()) {
+            Student student = studentRepository.findById(studentId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+
+            Parent parent = parentStudentRepository
+                    .findFirstByStudent_StudentId(student.getStudentId())
+                    .map(ParentStudent::getParent)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
+
+            MedicalCheckupNotification notification = new MedicalCheckupNotification();
+            notification.setId(UUID.randomUUID());
+            notification.setCheckupTitle(request.getCheckupTitle());
+            notification.setCheckupDate(request.getCheckupDate());
+            notification.setContent(request.getContent());
+
+            notification.setStudent(student);
+            notification.setStudentName(student.getFullName());
+            notification.setClassName(student.getClassEntity().getClassName());
+            notification.setGender(student.getGender());
+
+            notification.setParent(parent);
+            notification.setSentAt(LocalDateTime.now());
+            notification.setIsConfirmed(null);
+
+            medicalCheckupNotificationRepository.save(notification);
+        }
+    }
 }

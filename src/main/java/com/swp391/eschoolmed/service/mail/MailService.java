@@ -146,11 +146,10 @@ public class MailService {
         Parent parent;
         if (!matches.isEmpty()) {
             String parentCode = matches.get(0).getParentCode();
-            // Tìm Parent đã có sẵn (nếu có)
             parent = parentRepository.findByCode(parentCode)
                     .orElseGet(() -> {
                         Parent p = new Parent();
-                        p.setCode(parentCode); // reuse code
+                        p.setCode(parentCode);
                         return p;
                     });
 
@@ -168,7 +167,6 @@ public class MailService {
             parentStudentRepository.saveAll(matches);
 
         } else {
-            // Nếu không có mapping nào → cho phép tạo Parent mới
             parent = new Parent();
             parent.setCode(generateNextParentCode());
             parent.setUser(user);
@@ -225,14 +223,14 @@ public class MailService {
 
 
     private String generateNextParentCode() {
-        String latestCode = parentRepository.findLatestCode(); // ví dụ: "PH000132"
+        String latestCode = parentRepository.findLatestCode();
         int next = 1;
 
         if (latestCode != null && latestCode.startsWith("PH")) {
             try {
                 next = Integer.parseInt(latestCode.substring(2)) + 1;
             } catch (NumberFormatException e) {
-                next = 1; // fallback nếu code bị lỗi
+                next = 1;
             }
         }
 
@@ -240,56 +238,36 @@ public class MailService {
     }
 
     // gửi thông báo kiểm tra sức khỏe
-    public void sendMedicalCheckupNotices(String checkupTitle, String content, LocalDate checkupDate) {
-        List<Parent> parents = parentRepository.findAllRealParents();
-        for (Parent parent : parents) {
-            if (parent.getEmail() == null || parent.getEmail().isBlank()) {
-                System.out.printf("Bỏ qua parent %s vì thiếu email%n", parent.getFullName());
+    public void sendMedicalCheckupNotices() {
+        List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository
+                .findAllBySentAtIsNotNullAndIsConfirmedIsNull();
+        for (MedicalCheckupNotification notification : notifications) {
+            Parent parent = notification.getParent();
+            if (parent == null || parent.getEmail() == null || parent.getEmail().isBlank()) {
+                System.out.printf("Bỏ qua thông báo vì thiếu phụ huynh hoặc email: %s%n", notification.getId());
                 continue;
             }
-            if (parent.getParentStudents() == null || parent.getParentStudents().isEmpty()) {
-                System.out.printf("Bỏ qua parent %s vì không có học sinh liên kết%n", parent.getFullName());
-                continue;
-            }
-            for (ParentStudent ps : parent.getParentStudents()) {
-                Student student = ps.getStudent();
-                if (student == null) {
-                    System.out.printf("Bỏ qua parent %s vì học sinh liên kết bị null%n", parent.getFullName());
-                    continue;
-                }
-                MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
-                        .checkupTitle(checkupTitle)
-                        .checkupDate(checkupDate)
-                        .content(content)
-                        .parent(parent)
-                        .student(student)
-                        .sentAt(LocalDateTime.now())
-                        .isConfirmed(false)
-                        .build();
-                medicalCheckupNotificationRepository.save(notification);
-                try {
-                    MimeMessage message = javaMailSender.createMimeMessage();
-                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-                    helper.setTo(parent.getEmail());
-                    helper.setFrom(from);
-                    helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
-                    String confirmLink = "http://localhost:3000/medical-checkup" + notification.getId();
-                    Context context = new Context();
-                    context.setVariable("fullName", parent.getFullName());
-                    context.setVariable("content", content);
-                    context.setVariable("confirmLink", confirmLink);
-                    String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
-                    helper.setText(htmlContent, true);
-
-                    javaMailSender.send(message);
-                    System.out.printf("Gửi thành công tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
-
-                } catch (Exception e) {
-                    System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parent.getEmail(), e.getMessage());
-                }
+            try {
+                MimeMessage message = javaMailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                helper.setTo(parent.getEmail());
+                helper.setFrom(from);
+                helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
+                String confirmLink = "http://localhost:3000/medical-checkup/" + notification.getId();
+                Context context = new Context();
+                context.setVariable("fullName", parent.getFullName());
+                context.setVariable("content", notification.getContent());
+                context.setVariable("confirmLink", confirmLink);
+                String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
+                helper.setText(htmlContent, true);
+                javaMailSender.send(message);
+                System.out.printf("Đã gửi email tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
+            } catch (Exception e) {
+                System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parent.getEmail(), e.getMessage());
             }
         }
     }
+
 
 
 }

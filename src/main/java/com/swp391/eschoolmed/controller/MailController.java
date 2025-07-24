@@ -1,12 +1,7 @@
 package com.swp391.eschoolmed.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.ChangePasswordRequest;
@@ -20,8 +15,6 @@ public class MailController {
 
     @Autowired
     private MailService mailService;
-
-
 
     @GetMapping("/receive_email")
     void receiveEmail(@RequestParam String receiverEmail,
@@ -51,9 +44,9 @@ public class MailController {
     }
 
     // gửi thông báo ktra y tế
-    @PostMapping("/send-checkup-notice")
-    public ApiResponse<String> sendCheckupNotice(@RequestBody CheckupNoticeRequest request) {
-        mailService.sendMedicalCheckupNotices(request.getCheckupTitle(), request.getContent(), request.getCheckupDate());
+    @PutMapping("/send-checkup-notices")
+    public ApiResponse<String> sendCheckupNotices() {
+        mailService.sendMedicalCheckupNotices(); // không truyền gì cả
         return ApiResponse.<String>builder()
                 .message("Đã gửi thông báo kiểm tra y tế đến phụ huynh thành công.")
                 .result("OK")
