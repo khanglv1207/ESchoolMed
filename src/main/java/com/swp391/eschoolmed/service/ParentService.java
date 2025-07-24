@@ -119,6 +119,10 @@ public class ParentService {
         medicationRequestRepository.save(medicationRequest);
 
         for (MedicalRequest.MedicationItemRequest itemReq : request.getMedications()) {
+            List<String> schedules = itemReq.getSchedule();
+            if (schedules == null || schedules.isEmpty()) {
+                throw new IllegalArgumentException("Bạn phải chọn ít nhất một buổi uống thuốc (ví dụ: Sáng hoặc Chiều) cho thuốc: " + itemReq.getMedicationName());
+            }
             MedicationItem item = MedicationItem.builder()
                     .itemId(UUID.randomUUID())
                     .request(medicationRequest)
@@ -129,7 +133,9 @@ public class ParentService {
 
             medicationItemRepository.save(item);
 
-            for (String timeOfDayRaw : itemReq.getSchedule()) {
+            for (String timeOfDayRaw : schedules) {
+                if (timeOfDayRaw == null || timeOfDayRaw.isBlank()) continue;
+
                 String mappedTimeOfDay = mapTimeOfDay(timeOfDayRaw);
 
                 MedicationSchedule schedule = MedicationSchedule.builder()
@@ -143,6 +149,7 @@ public class ParentService {
                 medicationScheduleRepository.save(schedule);
             }
         }
+
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -151,6 +158,7 @@ public class ParentService {
                 .note(request.getNote())
                 .build();
     }
+
 
 
     public ParentProfileResponse getParentProfileFromJwt(Jwt jwt) {
