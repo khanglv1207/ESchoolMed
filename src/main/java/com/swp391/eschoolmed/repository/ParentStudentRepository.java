@@ -22,5 +22,7 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
 
     Optional<ParentStudent> findByParent_ParentIdAndStudent_StudentId(UUID parentId, UUID studentId);
 
+    Optional<ParentStudent> findFirstByStudent_StudentId(UUID studentId);
+
 }
 

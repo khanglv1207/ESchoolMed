@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.dto.request.ConfirmCheckupRequest;
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
 import com.swp391.eschoolmed.dto.response.CheckupResultResponse;
 import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
@@ -34,14 +35,6 @@ public class ParentController {
 
     @Autowired
     private ParentService parentService;
-
-    @Autowired
-    private MedicationItemRepository medicationItemRepository;
-    @Autowired
-    private MedicationRequestRepository medicationRequestRepository;
-    @Autowired
-    private MedicationScheduleRepository medicationScheduleRepository;
-
 
     // hiển thị thông tin phụ huynh và học sinh trong phần thông tin
     @GetMapping("/parent-profile")
@@ -100,6 +93,15 @@ public class ParentController {
                 .build();
     }
 
+    //ph xác nhận tham gia
+    @PutMapping("/confirm-checkup")
+    public ApiResponse<?> confirmMedicalCheckup(@RequestBody ConfirmCheckupRequest request) {
+        parentService.confirmCheckup(request);
+        return ApiResponse.builder()
+                .message("Phản hồi của phụ huynh đã được ghi nhận.")
+                .code(1000)
+                .build();
+    }
 
 
 

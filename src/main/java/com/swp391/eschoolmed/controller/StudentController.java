@@ -71,26 +71,6 @@ public class StudentController {
     }
 
 
-    // phụ huynh xác nhận làm danh sách chuẩn bị khám sức khỏe
-    @GetMapping("/parent-checkup-confirm")
-    public ResponseEntity<String> confirmCheckup(@RequestParam UUID notificationId) {
-        Optional<MedicalCheckupNotification> optional = medicalCheckupNotificationRepository.findById(notificationId);
-
-        if (optional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Thông báo không tồn tại!");
-        }
-
-        MedicalCheckupNotification notification = optional.get();
-        if (notification.getIsConfirmed()) {
-            return ResponseEntity.ok("Phụ huynh đã xác nhận rồi.");
-        }
-
-        notification.setIsConfirmed(true);
-        notification.setConfirmedAt(LocalDateTime.now());
-        medicalCheckupNotificationRepository.save(notification);
-
-        return ResponseEntity.ok("Xác nhận thành công! Học sinh sẽ được đưa vào danh sách kiểm tra.");
-    }
 
 
 

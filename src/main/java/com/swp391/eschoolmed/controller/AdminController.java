@@ -2,6 +2,7 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
+import com.swp391.eschoolmed.dto.request.MedicalCheckupCreateRequest;
 import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
 import com.swp391.eschoolmed.model.ParentStudent;
@@ -63,6 +64,17 @@ public class AdminController {
                 .code(1000)
                 .build();
     }
+
+    // tạo lịch kiểm tra y tế
+    @PostMapping("/create-checkup")
+    public ApiResponse<?> createMedicalCheckup(@RequestBody MedicalCheckupCreateRequest request) {
+        adminService.createMedicalCheckup(request);
+        return ApiResponse.builder()
+                .message("Tạo đợt kiểm tra y tế thành công.")
+                .code(1000)
+                .build();
+    }
+
 
 
 
