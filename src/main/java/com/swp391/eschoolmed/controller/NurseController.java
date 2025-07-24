@@ -65,8 +65,6 @@ public class NurseController {
     }
 
 
-
-
     //lưu thông tin sau khi khám
     @PostMapping("/health-checkup")
     public ApiResponse<String> createHealthCheckup(@RequestBody CreateHealthCheckupRequest request) {
