@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.ConfirmCheckupRequest;
+import com.swp391.eschoolmed.dto.request.HealthProfileRequest;
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
 import com.swp391.eschoolmed.dto.response.*;
@@ -47,6 +48,8 @@ public class ParentService {
     private MedicationItemRepository medicationItemRepository;
     @Autowired
     private HealthCheckupRepository healthCheckupRepository;
+    @Autowired
+    private HealthProfileRepository healthProfileRepository;
 
     public void updateParentProfile(UpdateParentProfileRequest request) {
         Parent parent = parentRepository.findByUserId(request.getUserid())
@@ -251,6 +254,72 @@ public class ParentService {
 
         medicalCheckupNotificationRepository.save(notification);
     }
+
+    @Transactional
+    public void createOrUpdateHealthProfile(UUID userId, HealthProfileRequest request) {
+        Parent parent = parentRepository.findByUser_id(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
+
+        List<ParentStudent> parentStudents = parentStudentRepository.findByParent_ParentId(parent.getParentId());
+        if (parentStudents.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy học sinh liên kết với phụ huynh.");
+        }
+        Student student = parentStudents.get(0).getStudent();
+        Optional<HealthProfile> optionalProfile = healthProfileRepository.findByStudent_StudentId(student.getStudentId());
+
+        HealthProfile profile;
+        if (optionalProfile.isPresent()) {
+            profile = optionalProfile.get();
+            profile.setAllergies(request.getAllergies());
+            profile.setChronicDiseases(request.getChronicDiseases());
+            profile.setMedicalHistory(request.getMedicalHistory());
+            profile.setEyesight(request.getEyesight());
+            profile.setHearing(request.getHearing());
+            profile.setVaccinationRecord(request.getVaccinationRecord());
+        } else {
+            profile = HealthProfile.builder()
+                    .student(student)
+                    .allergies(request.getAllergies())
+                    .chronicDiseases(request.getChronicDiseases())
+                    .medicalHistory(request.getMedicalHistory())
+                    .eyesight(request.getEyesight())
+                    .hearing(request.getHearing())
+                    .vaccinationRecord(request.getVaccinationRecord())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+        }
+
+        healthProfileRepository.save(profile);
+    }
+
+    @Transactional
+    public HealthProfileResponse getLatestHealthProfile(UUID userId) {
+        Parent parent = parentRepository.findByUser_id(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
+
+        List<ParentStudent> parentStudents = parentStudentRepository.findByParent_ParentId(parent.getParentId());
+        if (parentStudents.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy học sinh liên kết.");
+        }
+        Student student = parentStudents.get(0).getStudent();
+
+        HealthProfile profile = healthProfileRepository
+                .findFirstByStudent_StudentIdOrderByUpdatedAtDesc(student.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Chưa có hồ sơ sức khỏe."));
+
+        return HealthProfileResponse.builder()
+                .studentName(student.getFullName())
+                .allergies(profile.getAllergies())
+                .chronicDiseases(profile.getChronicDiseases())
+                .medicalHistory(profile.getMedicalHistory())
+                .eyesight(profile.getEyesight())
+                .hearing(profile.getHearing())
+                .vaccinationRecord(profile.getVaccinationRecord())
+                .build();
+    }
+
+
+
 
 }
 

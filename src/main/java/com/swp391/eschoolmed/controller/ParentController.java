@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.swp391.eschoolmed.dto.request.ConfirmCheckupRequest;
+import com.swp391.eschoolmed.dto.request.HealthProfileRequest;
 import com.swp391.eschoolmed.dto.request.MedicalRequest;
-import com.swp391.eschoolmed.dto.response.CheckupResultResponse;
-import com.swp391.eschoolmed.dto.response.MedicationRequestResponse;
-import com.swp391.eschoolmed.dto.response.MedicationScheduleResponse;
+import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.MedicationRequest;
 import com.swp391.eschoolmed.model.Parent;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.UpdateParentProfileRequest;
-import com.swp391.eschoolmed.dto.response.ParentProfileResponse;
 import com.swp391.eschoolmed.service.ParentService;
 import com.swp391.eschoolmed.service.UserService;
 
@@ -102,6 +100,30 @@ public class ParentController {
                 .code(1000)
                 .build();
     }
+
+    //ph khai báo sức khỏe
+    @PostMapping("/health-profile")
+    public ResponseEntity<ApiResponse<String>> createOrUpdateHealthProfile(@RequestBody HealthProfileRequest request,
+                                                                           @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        parentService.createOrUpdateHealthProfile(userId, request);
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .message("Khai báo sức khỏe thành công")
+                .result("OK")
+                .build());
+    }
+
+    // hiển thị tt khai báo sưc khỏe
+    @GetMapping("/health-declaration/latest")
+    public ApiResponse<HealthProfileResponse> getLatestHealthDeclaration(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        HealthProfileResponse response = parentService.getLatestHealthProfile(userId);
+        return ApiResponse.<HealthProfileResponse>builder()
+                .message("Lấy khai báo sức khỏe mới nhất thành công.")
+                .result(response)
+                .build();
+    }
+
 
 
 
