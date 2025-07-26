@@ -16,5 +16,5 @@ public class HealthProfileResponse {
     private String eyesight;
     private String hearing;
     private String vaccinationRecord;
-
+    private LocalDateTime updatedAt;
 }
