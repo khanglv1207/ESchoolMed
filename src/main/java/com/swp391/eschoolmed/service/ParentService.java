@@ -315,6 +315,7 @@ public class ParentService {
                 .eyesight(profile.getEyesight())
                 .hearing(profile.getHearing())
                 .vaccinationRecord(profile.getVaccinationRecord())
+                .updatedAt(profile.getUpdatedAt())
                 .build();
     }
 
