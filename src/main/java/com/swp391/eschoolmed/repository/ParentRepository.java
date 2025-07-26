@@ -23,11 +23,8 @@ public interface ParentRepository extends JpaRepository<Parent, UUID> {
 
     Optional<Parent> findByEmail(String email);
 
-    @Query("SELECT p FROM Parent p WHERE p.user.role = 'parent'")
-    List<Parent> findAllRealParents();
-
     Optional<Parent> findByUser(User user);
 
+    Optional<Parent> findByUser_id(UUID id);
 
-    Optional<Parent> findByParentId(UUID parentId);
 }
