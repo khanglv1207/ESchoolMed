@@ -1,9 +1,8 @@
 package com.swp391.eschoolmed.service.mail;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.List;
-import java.util.Optional;
+
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import com.swp391.eschoolmed.exception.ErrorCode;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.Parent;
 import com.swp391.eschoolmed.model.ParentStudent;
-import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.model.User;
 import com.swp391.eschoolmed.repository.MedicalCheckupNotificationRepository;
 import com.swp391.eschoolmed.repository.ParentRepository;

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo sự cố y tế</title>
+</head>
+<body>
+<p>Chào anh/chị <b th:text="${fullName}"></b>,</p>
+<p>Chúng tôi xin thông báo về một sự cố y tế liên quan đến con của anh/chị:</p>
+<p th:utext="${content}"></p>
+<p>Trân trọng,<br/>Phòng y tế trường học</p>
+</body>
+</html>
