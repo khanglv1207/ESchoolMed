@@ -6,10 +6,24 @@ import java.util.UUID;
 
 @Data
 public class CreateMedicalIncidentRequest {
-    private UUID studentId;
-    private String incidentType;
-    private String description;
+    private String studentCode;
+    private String className;
+
     private LocalDateTime occurredAt;
-    private UUID staffId;
+    private String incidentType;
+    private String incidentDescription;
+
+    private String initialTreatment;
+    private String initialResponder;
+
+    private boolean handledByParent;
+    private boolean handledByStaff;
+    private boolean monitoredBySchool;
+
+    private String currentStatus;
+    private String imageUrl;
+
+    private UUID nurseId;
+    private UUID parentStudentId;
 }
 

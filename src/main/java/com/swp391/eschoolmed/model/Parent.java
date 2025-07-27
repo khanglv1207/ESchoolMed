@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,4 +45,14 @@ public class Parent {
     @Column(unique = true, length = 10)
     private String code;
 
+    @OneToMany(mappedBy = "parent")
+    private Collection<MedicalIncidentNotification> medicalIncidentNotification;
+
+    public Collection<MedicalIncidentNotification> getMedicalIncidentNotification() {
+        return medicalIncidentNotification;
+    }
+
+    public void setMedicalIncidentNotification(Collection<MedicalIncidentNotification> medicalIncidentNotification) {
+        this.medicalIncidentNotification = medicalIncidentNotification;
+    }
 }

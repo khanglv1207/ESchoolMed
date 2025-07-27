@@ -75,6 +75,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/nurse/get-all-nurse").permitAll()//lấy danh sách y tá
                         .requestMatchers(HttpMethod.POST, "/api/nurse/update-nurse").permitAll()//sửa thông tin y tá
                         .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
+                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").permitAll()//tạo sự cố y tế
+                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").permitAll()// gửi thông báo sự cố đến ph
+
+
+
+
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
