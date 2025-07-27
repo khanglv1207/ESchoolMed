@@ -109,7 +109,10 @@ public class ParentService {
                 .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
 
         Student student = parentStudent.getStudent();
-
+        List<MedicalRequest.MedicationItemRequest> medicationItems = request.getMedications();
+        if (medicationItems == null || medicationItems.isEmpty()) {
+            throw new IllegalArgumentException("Phải có ít nhất một loại thuốc trong đơn.");
+        }
         MedicationRequest medicationRequest = MedicationRequest.builder()
                 .requestId(UUID.randomUUID())
                 .parent(parent)
@@ -121,11 +124,13 @@ public class ParentService {
 
         medicationRequestRepository.save(medicationRequest);
 
-        for (MedicalRequest.MedicationItemRequest itemReq : request.getMedications()) {
+        for (MedicalRequest.MedicationItemRequest itemReq : medicationItems) {
             List<String> schedules = itemReq.getSchedule();
+
             if (schedules == null || schedules.isEmpty()) {
-                throw new IllegalArgumentException("Bạn phải chọn ít nhất một buổi uống thuốc (ví dụ: Sáng hoặc Chiều) cho thuốc: " + itemReq.getMedicationName());
+                throw new IllegalArgumentException("Bạn phải chọn ít nhất một buổi uống thuốc (VD: Sáng, Chiều) cho thuốc: " + itemReq.getMedicationName());
             }
+
             MedicationItem item = MedicationItem.builder()
                     .itemId(UUID.randomUUID())
                     .request(medicationRequest)
@@ -152,7 +157,6 @@ public class ParentService {
                 medicationScheduleRepository.save(schedule);
             }
         }
-
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -161,6 +165,7 @@ public class ParentService {
                 .note(request.getNote())
                 .build();
     }
+
 
 
 
