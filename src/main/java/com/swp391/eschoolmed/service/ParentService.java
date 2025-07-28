@@ -102,7 +102,7 @@ public class ParentService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng."));
 
         Parent parent = parentRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh."));
 
         ParentStudent parentStudent = parentStudentRepository
                 .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), request.getStudentId())
@@ -166,6 +166,33 @@ public class ParentService {
                 .build();
     }
 
+    public List<ParentStudentResponse> getStudentsOfLoggedInParent(UUID userId) {
+        Parent parent = parentRepository.findByUser_id(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh."));
+        List<ParentStudent> parentStudentList = parentStudentRepository.findAllByParent_ParentId(parent.getParentId());
+
+        if (parentStudentList.isEmpty()) {
+            throw new RuntimeException("Không có học sinh nào được liên kết với tài khoản này.");
+        }
+        return parentStudentList.stream()
+                .map(ps -> ParentStudentResponse.builder()
+                        .StudentCode(ps.getStudentCode())
+                        .studentName(ps.getStudentName())
+                        .studentDob(ps.getStudentDob())
+                        .gender(ps.getGender())
+                        .className(ps.getClassName())
+
+                        .ParentCode(ps.getParentCode())
+                        .parentName(ps.getParentName())
+                        .parentEmail(ps.getParentEmail())
+                        .parentPhone(ps.getParentPhone())
+                        .relationship(ps.getRelationship())
+                        .parentDob(ps.getParentDob())
+                        .parentAddress(ps.getParentAddress())
+                        .build()
+                )
+                .toList();
+    }
 
 
 
