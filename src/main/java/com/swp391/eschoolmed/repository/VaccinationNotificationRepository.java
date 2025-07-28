@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VaccinationNotificationRepository extends JpaRepository<VaccinationNotification, UUID> {
-    List<VaccinationResult> findAllByFinalizedFalse();
+
 
 }
