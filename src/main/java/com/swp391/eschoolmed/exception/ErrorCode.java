@@ -20,6 +20,7 @@ public enum ErrorCode {
     OTP_NOT_FOUND(1009,"Không tìm thấy otp" ,HttpStatus.NOT_FOUND ),
     OTP_NOT_VERIFY(1010,"Chưa xác thực đươc otp" ,HttpStatus.BAD_REQUEST );
 
+
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

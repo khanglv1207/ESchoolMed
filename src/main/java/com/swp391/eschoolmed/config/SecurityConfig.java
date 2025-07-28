@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/swagger-ui/index.html").permitAll()
 
 
-                        // Parent-specific endpoints
+                        // Parent
                         .requestMatchers(HttpMethod.POST, "/api/mail/change-password-first-time").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/parents/update-profile-parent").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")// hiển thị thông tin hồ sơ
@@ -51,7 +51,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/parents/health-profile").hasAuthority("PARENT")//ph khai báo sức khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/health-declaration/latest").hasAuthority("PARENT")// hiển thị tt khai báo sưc khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/students").hasAuthority("PARENT")
-
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/confirm-vaccination").hasAuthority("PARENT")// ph đồng ý hoặc từ chối
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination-result").hasAuthority("PARENT")// hiển thị kq tiêm chủng cho ph
 
                         // Student/Parent import & update (permitted for all - caution advised)
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").permitAll()
@@ -80,6 +81,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").permitAll()//tạo sự cố y tế
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").permitAll()// gửi thông báo sự cố đến ph
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-notification").permitAll()// gửi lịch tiêm
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-results").permitAll()// gửi kq tiêm
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination/pending").permitAll()// lấy danh sách tiêm
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/vaccination/result").permitAll()// ghi nhận kq tiêm
+
 
 
 
