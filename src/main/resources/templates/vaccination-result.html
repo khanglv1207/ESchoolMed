@@ -1,0 +1,14 @@
+<p>Chào {{parentName}},</p>
+
+<p>Đây là kết quả tiêm chủng cho học sinh <strong>{{studentName}}</strong>:</p>
+
+<ul>
+    <li>Vaccine: {{vaccine}}</li>
+    <li>Ngày tiêm: {{date}}</li>
+    <li>Ghi chú phản ứng: {{reactionNote}}</li>
+    <li>Cần nhắc tiêm bổ sung:
+        <strong th:text="${needsBooster} ? 'Có' : 'Không'"></strong>
+    </li>
+</ul>
+
+<p>Trân trọng,<br/>eSchoolMed</p>

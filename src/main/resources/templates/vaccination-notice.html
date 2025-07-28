@@ -1,0 +1,12 @@
+<p>Xin chào <b th:text="${fullName}">phụ huynh</b>,</p>
+
+<p>Học sinh <b th:text="${studentName}"></b> được đề xuất tiêm vaccine: <b th:text="${vaccineName}"></b>.</p>
+
+<p>Ngày tiêm dự kiến: <span th:text="${scheduledDate}"></span><br/>
+    Địa điểm: <span th:text="${location}"></span></p>
+
+<p>Vui lòng đăng nhập vào hệ thống tại đường dẫn sau để xác nhận hoặc từ chối:</p>
+
+<a th:href="${confirmationPage}">Xác nhận tiêm chủng tại đây</a>
+
+<p>Trân trọng,<br/>Trường E-SchoolMed</p>
