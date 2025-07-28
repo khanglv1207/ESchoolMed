@@ -26,7 +26,7 @@ public class ParentStudent {
     private Parent parent;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id", referencedColumnName = "student_id")
     private Student student;
 
     @Column(name = "relationship")

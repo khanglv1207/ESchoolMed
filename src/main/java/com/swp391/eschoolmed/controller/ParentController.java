@@ -43,6 +43,17 @@ public class ParentController {
                 .build();
     }
 
+    // lấy danh sách học sinh của phụ huynh đang đăng nhập
+    @GetMapping("/students")
+    public ApiResponse<List<ParentStudentResponse>> getLinkedStudents(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<ParentStudentResponse> responses = parentService.getStudentsOfLoggedInParent(userId);
+        return ApiResponse.<List<ParentStudentResponse>>builder()
+                .message("Lấy danh sách học sinh thành công.")
+                .result(responses)
+                .build();
+    }
+
     @PostMapping("/update-profile-parent")
     public ApiResponse<Void> updateParentProfile(@RequestBody UpdateParentProfileRequest request){
         parentService.updateParentProfile(request);
