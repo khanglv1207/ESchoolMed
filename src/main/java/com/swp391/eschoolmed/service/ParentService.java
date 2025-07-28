@@ -104,19 +104,26 @@ public class ParentService {
         Parent parent = parentRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh."));
 
-        ParentStudent parentStudent = parentStudentRepository
-                .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
+        if (request.getStudentCode() == null || request.getStudentCode().isBlank()) {
+            throw new IllegalArgumentException("Thiếu mã học sinh (studentCode).");
+        }
 
-        Student student = parentStudent.getStudent();
+        Student student = studentRepository.findByStudentCode(request.getStudentCode())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh với mã: " + request.getStudentCode()));
+
+        ParentStudent parentStudent = parentStudentRepository
+                .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), student.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
         List<MedicalRequest.MedicationItemRequest> medicationItems = request.getMedications();
         if (medicationItems == null || medicationItems.isEmpty()) {
             throw new IllegalArgumentException("Phải có ít nhất một loại thuốc trong đơn.");
         }
+
         MedicationRequest medicationRequest = MedicationRequest.builder()
                 .requestId(UUID.randomUUID())
                 .parent(parent)
                 .student(student)
+                .studentCode(student.getStudentCode())
                 .note(request.getNote())
                 .requestDate(LocalDateTime.now())
                 .status("PENDING")
@@ -157,6 +164,7 @@ public class ParentService {
                 medicationScheduleRepository.save(schedule);
             }
         }
+
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -165,6 +173,7 @@ public class ParentService {
                 .note(request.getNote())
                 .build();
     }
+
 
     public List<ParentStudentResponse> getStudentsOfLoggedInParent(UUID userId) {
         Parent parent = parentRepository.findByUser_id(userId)

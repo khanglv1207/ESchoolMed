@@ -20,7 +20,7 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
     @Query("SELECT MAX(ps.studentCode) FROM ParentStudent ps WHERE ps.studentCode LIKE 'HS%'")
     String findLatestStudentCode();
 
-    Optional<ParentStudent> findByParent_ParentIdAndStudent_StudentId(UUID parentId, UUID studentId);
+    Optional<ParentStudent> findByParent_ParentIdAndStudent_StudentId(UUID parentParentId, UUID studentStudentId);
 
     Optional<ParentStudent> findFirstByStudent_StudentId(UUID studentId);
 

@@ -29,6 +29,9 @@ public class MedicationRequest {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @Column(name = "student_code")
+    private String studentCode;
+
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MedicationItem> items;
 
