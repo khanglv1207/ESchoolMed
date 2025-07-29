@@ -23,16 +23,12 @@ public class DocumentController {
     private DocumentService documentService;
 
     // tạo bài viết
-    @PostMapping("/create_document")
+    @PostMapping
     @PreAuthorize("hasAuthority('PARENT') or hasAuthority('ADMIN')")
     public ApiResponse<String> createBlog(@RequestBody CreateDocumentRequest request,
                                           @AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
-        Document doc = new Document();
-        doc.setUserId(userId);
-        doc.setTitle(request.getTitle());
-        doc.setContent(request.getContent());
-        documentService.create(doc);
+        documentService.createDocument(request, userId);
         return ApiResponse.<String>builder()
                 .message("Tạo bài viết thành công.")
                 .result("OK")
@@ -42,9 +38,7 @@ public class DocumentController {
     // hiển thị bài biết
     @GetMapping("/get_all_blog")
     public ApiResponse<List<DocumentResponse>> getAllBlogs() {
-        List<DocumentResponse> result = documentService.getAll().stream()
-                .map(documentService::toResponse)
-                .toList();
+        List<DocumentResponse> result = documentService.getAllDocuments();
         return ApiResponse.<List<DocumentResponse>>builder()
                 .message("Lấy danh sách bài viết thành công.")
                 .result(result)
@@ -54,10 +48,10 @@ public class DocumentController {
     // lấy 1 bài viết
     @GetMapping("/get/{id}")
     public ApiResponse<DocumentResponse> getBlogById(@PathVariable Long id) {
-        Document doc = documentService.getById(id);
+        DocumentResponse doc = documentService.getDocumentById(id);
         return ApiResponse.<DocumentResponse>builder()
                 .message("Lấy bài viết thành công.")
-                .result(documentService.toResponse(doc))
+                .result(doc)
                 .build();
     }
 
@@ -68,7 +62,7 @@ public class DocumentController {
                                           @RequestBody UpdateDocumentRequest request,
                                           @AuthenticationPrincipal Jwt jwt) throws AccessDeniedException {
         Long userId = Long.parseLong(jwt.getSubject());
-        documentService.updateIfOwner(id, request, userId);
+        documentService.updateDocument(id, request, userId);
         return ApiResponse.<String>builder()
                 .message("Cập nhật bài viết thành công.")
                 .result("OK")
@@ -81,7 +75,7 @@ public class DocumentController {
     public ApiResponse<String> deleteBlog(@PathVariable Long id,
                                           @AuthenticationPrincipal Jwt jwt) throws AccessDeniedException {
         Long userId = Long.parseLong(jwt.getSubject());
-        documentService.deleteIfOwner(id, userId);
+        documentService.deleteDocument(id, userId);
         return ApiResponse.<String>builder()
                 .message("Xóa bài viết thành công.")
                 .result("OK")
@@ -92,12 +86,7 @@ public class DocumentController {
     @PreAuthorize("hasAuthority('PARENT') or hasAuthority('ADMIN')")
     public ApiResponse<List<DocumentResponse>> getMyDocuments(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
-
-        List<DocumentResponse> docs = documentService.getAll().stream()
-                .filter(doc -> doc.getUserId().equals(userId))
-                .map(documentService::toResponse)
-                .toList();
-
+        List<DocumentResponse> docs = documentService.getDocumentsByUser(userId);
         return ApiResponse.<List<DocumentResponse>>builder()
                 .message("Lấy bài viết của bạn thành công.")
                 .result(docs)
