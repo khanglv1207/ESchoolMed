@@ -86,10 +86,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination/pending").permitAll()// lấy danh sách tiêm
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/vaccination/result").permitAll()// ghi nhận kq tiêm
 
-
-
-
-
+                        // blog
+                        .requestMatchers(HttpMethod.POST, "/api/blogs/create_document").permitAll()// tạo bài viết
+                        .requestMatchers(HttpMethod.GET, "/api/blogs/get_all_blog").permitAll()// lấy tất cả bài viết
+                        .requestMatchers(HttpMethod.GET, "/api/blogs/get/").permitAll()// lấy 1 bài viết
+                        .requestMatchers(HttpMethod.PUT, "/api/blogs/update_document/").permitAll()// sửa
+                        .requestMatchers(HttpMethod.DELETE, "/api/blogs/delete_document/").permitAll()// xóa
+                        .requestMatchers(HttpMethod.GET, "/api/blogs/my-documents").permitAll()// lấy bài viết theo userid
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()
