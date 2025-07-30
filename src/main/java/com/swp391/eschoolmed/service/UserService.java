@@ -134,7 +134,7 @@ public class UserService {
 
     // nhập email reset password
     public void requestPasswordRequest(String email) {
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         String otp = String.format("%06d", new Random().nextInt(1000000));
