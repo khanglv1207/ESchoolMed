@@ -7,7 +7,11 @@ import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
 import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 import com.swp391.eschoolmed.model.Nurse;
+import com.swp391.eschoolmed.model.VaccineType;
+import com.swp391.eschoolmed.repository.StudentRepository;
+import com.swp391.eschoolmed.repository.VaccineTypeRepository;
 import com.swp391.eschoolmed.service.NurseService;
+import com.swp391.eschoolmed.service.VaccinationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,12 @@ public class NurseController {
 
     @Autowired
     private NurseService nurseService;
+
+    @Autowired
+    private VaccineTypeRepository vaccineTypeRepository;
+
+    @Autowired
+    private StudentRepository  studentRepository;
 
     // lấy danh sách y tá
    @GetMapping("/get-all-nurse")
@@ -118,4 +128,5 @@ public class NurseController {
                 .result("OK")
                 .build();
     }
+
 }

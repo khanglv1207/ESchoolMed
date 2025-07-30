@@ -2,6 +2,8 @@ package com.swp391.eschoolmed.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -25,12 +27,10 @@ public class Student {
     @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", insertable = false, updatable = false)
     private Parent parent;
 
-    // Giữ lại class_id nếu bạn cần thao tác thủ công
     @Column(name = "class_id")
     private UUID class_id;
 
-    // Liên kết với bảng lớp học (ClassEntity)
-    @ManyToOne(fetch = FetchType.LAZY) // hoặc EAGER nếu bạn muốn tự động load
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id", referencedColumnName = "class_id", insertable = false, updatable = false)
     private ClassEntity classEntity;
 
@@ -39,4 +39,9 @@ public class Student {
 
     @Column(name = "gender")
     private String gender;
+
+    @OneToOne(mappedBy = "student", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private HealthProfile healthProfile;
 }

@@ -1,14 +1,13 @@
 package com.swp391.eschoolmed.service;
 
+import com.swp391.eschoolmed.dto.request.CreateVaccineTypeRequest;
 import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
 import com.swp391.eschoolmed.model.*;
-import com.swp391.eschoolmed.repository.VaccinationConfirmationRepository;
-import com.swp391.eschoolmed.repository.VaccinationNotificationRepository;
-import com.swp391.eschoolmed.repository.VaccinationResultRepository;
+import com.swp391.eschoolmed.repository.*;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,30 +16,80 @@ import org.springframework.stereotype.Service;
 import javax.naming.Context;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VaccinationService {
 
     @Autowired
-    private VaccinationConfirmationRepository  vaccinationConfirmationRepository;
+    private VaccinationConfirmationRepository vaccinationConfirmationRepository;
 
     @Autowired
-    private VaccinationNotificationRepository  vaccinationNotificationRepository;
+    private VaccinationNotificationRepository vaccinationNotificationRepository;
 
     @Autowired
-    private VaccinationResultRepository   vaccinationResultRepository;
+    private VaccinationResultRepository vaccinationResultRepository;
 
-    public void confirmVaccination(UUID parentId, VaccinationConfirmationRequest request) {
+    @Autowired
+    private VaccineTypeRepository vaccineTypeRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private ParentStudentRepository  parentStudentRepository;
+    @Autowired
+    private ParentRepository parentRepository;
+
+
+
+    public List<StudentNeedVaccinationResponse> findEligibleStudentsForNotification(String vaccineName) {
+        VaccineType vaccineType = vaccineTypeRepository.findByNameIgnoreCaseTrimmed(vaccineName)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại vaccine: " + vaccineName));
+
+        List<Student> students = studentRepository.findEligibleStudentsByVaccine(vaccineName);
+
+        return students.stream()
+                .filter(student -> !vaccinationNotificationRepository.existsByStudentAndVaccineType(student, vaccineType))
+                .map(student -> StudentNeedVaccinationResponse.builder()
+                        .studentId(student.getStudentId())
+                        .fullName(student.getFullName())
+                        .className(student.getClassEntity().getClassName())
+                        .vaccineName(vaccineType.getName())
+                        .build()
+                ).toList();
+    }
+
+    public void createVaccineType(CreateVaccineTypeRequest request) {
+        if (vaccineTypeRepository.findByNameIgnoreCaseTrimmed(request.getName()).isPresent()) {
+            throw new RuntimeException("Loại vaccine đã tồn tại");
+        }
+
+        VaccineType vaccineType = new VaccineType();
+        vaccineType.setName(request.getName());
+        vaccineType.setDescription(request.getDescription());
+        vaccineType.setDosesRequired(request.getDosesRequired());
+        vaccineType.setIntervalDays(request.getIntervalDays());
+
+        vaccineTypeRepository.save(vaccineType);
+    }
+
+    public void confirmVaccination(UUID userId, VaccinationConfirmationRequest request) {
         VaccinationConfirmation confirmation = vaccinationConfirmationRepository.findById(request.getConfirmationId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy xác nhận tiêm chủng."));
 
-        UUID confirmationParentId = confirmation.getStudent()
-                .getParent()
-                .getUser()
-                .getId();
-        if (!confirmationParentId.equals(parentId)) {
+        Student student = confirmation.getStudent();
+        if (student == null) {
+            throw new IllegalStateException("Xác nhận không gắn với học sinh.");
+        }
+        ParentStudent parentStudent = parentStudentRepository.findFirstByStudent_StudentId(student.getStudentId())
+                .orElseThrow(() -> new IllegalStateException("Không tìm thấy phụ huynh của học sinh."));
+
+        Parent parent = parentStudent.getParent();
+        if (parent == null || parent.getUser() == null) {
+            throw new IllegalStateException("Thông tin người dùng phụ huynh không hợp lệ.");
+        }
+        UUID confirmationUserId = parent.getUser().getId();
+        if (!confirmationUserId.equals(userId)) {
             throw new SecurityException("Bạn không có quyền xác nhận thông tin này.");
         }
         if (confirmation.getStatus() != ConfirmationStatus.PENDING) {
@@ -52,14 +101,13 @@ public class VaccinationService {
         vaccinationConfirmationRepository.save(confirmation);
     }
 
+
     public List<StudentNeedVaccinationResponse> getStudentsNeedVaccination() {
         List<VaccinationConfirmation> confirmations = vaccinationConfirmationRepository
                 .findByStatusAndVaccinationResultIsNull(ConfirmationStatus.ACCEPTED);
-
         return confirmations.stream().map(conf -> {
             Student student = conf.getStudent();
             VaccineType vaccine = conf.getNotification().getVaccineType();
-
             return StudentNeedVaccinationResponse.builder()
                     .confirmationId(conf.getId())
                     .studentId(student.getStudentId())
@@ -71,45 +119,67 @@ public class VaccinationService {
         }).toList();
     }
 
-    public void recordVaccinationResult(VaccinationResultRequest request) {
-        VaccinationConfirmation confirmation = vaccinationConfirmationRepository.findById(request.getConfirmationId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy yêu cầu xác nhận."));
-        if (confirmation.getVaccinationResult() != null) {
-            throw new IllegalStateException("Đã ghi nhận kết quả tiêm.");
+    public void createVaccinationResult(VaccinationResultRequest request) {
+        VaccinationConfirmation confirmation = vaccinationConfirmationRepository
+                .findById(request.getConfirmationId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy xác nhận tiêm."));
+
+        Optional<VaccinationResult> existing = vaccinationResultRepository.findByConfirmation(confirmation);
+        if (existing.isPresent()) {
+            throw new IllegalStateException("Kết quả đã được nhập cho xác nhận này.");
         }
+
         VaccinationResult result = VaccinationResult.builder()
+                .confirmation(confirmation)
                 .actualVaccinationDate(request.getVaccinationDate())
-                .reactionNote(request.getNotes())
                 .hasReaction(request.isHasReaction())
                 .followUpNeeded(request.isFollowUpNeeded())
                 .needsBooster(request.isNeedsBooster())
+                .reactionNote(request.getNotes())
+                .successful(true)
+                .finalized(false)
+                .updatedAt(LocalDateTime.now())
                 .build();
-        confirmation.setVaccinationResult(result);
-        vaccinationConfirmationRepository.save(confirmation);
+
+        vaccinationResultRepository.save(result);
     }
 
+    public List<VaccinationResultResponse> getVaccinationResultsForParent(UUID userId) {
+        Parent parent = parentRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
 
-    public List<VaccinationResultResponse> getVaccinationResultsByParent(UUID parentId) {
+        List<ParentStudent> parentStudents = parentStudentRepository.findByParent_ParentId(parent.getParentId());
+        List<UUID> studentIds = parentStudents.stream()
+                .map(ps -> ps.getStudent().getStudentId())
+                .collect(Collectors.toList());
+
+        if (studentIds.isEmpty()) return Collections.emptyList();
+
         List<VaccinationResult> results = vaccinationResultRepository
-                .findAllByConfirmation_Student_Parent_UserId(parentId);
+                .findAllByConfirmation_Student_StudentIdIn(studentIds);
 
-        return results.stream().map(result -> {
-            VaccinationConfirmation conf = result.getConfirmation();
-            Student student = conf.getStudent();
+        return results.stream()
+                .map(result -> {
+                    VaccinationConfirmation conf = result.getConfirmation();
+                    Student student = conf.getStudent();
 
-            return VaccinationResultResponse.builder()
-                    .confirmationId(conf.getId())
-                    .studentName(student.getFullName())
-                    .className(student.getClass().getName())
-                    .vaccineName(conf.getNotification().getVaccineType().getName())
-                    .vaccinationDate(result.getActualVaccinationDate())
-                    .hasReaction(result.getReactionNote() != null && !result.getReactionNote().isBlank())
-                    .reactionNote(result.getReactionNote())
-                    .needsBooster(result.isNeedsBooster())
-                    .finalized(result.isFinalized())
-                    .build();
-        }).toList();
+                    return VaccinationResultResponse.builder()
+                            .confirmationId(conf.getId())
+                            .studentName(student.getFullName())
+                            .className(student.getClass_id().getClass().getName())
+                            .vaccineName(conf.getNotification().getVaccineType().getName())
+                            .vaccinationDate(result.getActualVaccinationDate())
+                            .hasReaction(result.getReactionNote() != null && !result.getReactionNote().isBlank())
+                            .reactionNote(result.getReactionNote())
+                            .needsBooster(result.isNeedsBooster())
+                            .finalized(result.isFinalized())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
+
+
+
 
 
 }

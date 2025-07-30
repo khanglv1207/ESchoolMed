@@ -1,14 +1,30 @@
-<p>Chào {{parentName}},</p>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả tiêm chủng</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 20px;">
 
-<p>Đây là kết quả tiêm chủng cho học sinh <strong>{{studentName}}</strong>:</p>
+<h2 style="color: #2d70d6;">[Emed] Kết quả tiêm chủng</h2>
 
-<ul>
-    <li>Vaccine: {{vaccine}}</li>
-    <li>Ngày tiêm: {{date}}</li>
-    <li>Ghi chú phản ứng: {{reactionNote}}</li>
-    <li>Cần nhắc tiêm bổ sung:
-        <strong th:text="${needsBooster} ? 'Có' : 'Không'"></strong>
-    </li>
-</ul>
+<p>Kính gửi phụ huynh <strong th:text="${parentName}">Phụ huynh</strong>,</p>
 
-<p>Trân trọng,<br/>eSchoolMed</p>
+<p>Học sinh <strong th:text="${studentName}">Tên học sinh</strong> đã được tiêm vaccine:
+    <strong th:text="${vaccine}">Tên vaccine</strong>.</p>
+
+<p>
+    <strong>Ngày tiêm thực tế:</strong> <span th:text="${date}">01/08/2025</span><br/>
+    <strong>Ghi chú phản ứng:</strong> <span th:text="${reactionNote}">Không có</span><br/>
+    <strong>Có cần tiêm nhắc lại:</strong>
+    <span th:text="${needsBooster} ? 'Có' : 'Không'">Không</span>
+</p>
+
+<p>Xin cảm ơn quý phụ huynh đã phối hợp!</p>
+
+<br>
+
+<p>Trân trọng,<br><strong>Hệ thống E-SchoolMed</strong></p>
+
+</body>
+</html>
