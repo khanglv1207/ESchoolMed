@@ -14,6 +14,8 @@ import com.swp391.eschoolmed.model.User;
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, UUID> {
 
+    Optional<Parent> findByUser_Id(UUID userId);
+
     Optional<Parent> findByCode(String code);
 
     Optional<Parent> findByUserId(UUID userId);
@@ -26,5 +28,7 @@ public interface ParentRepository extends JpaRepository<Parent, UUID> {
     Optional<Parent> findByUser(User user);
 
     Optional<Parent> findByUser_id(UUID id);
+
+
 
 }

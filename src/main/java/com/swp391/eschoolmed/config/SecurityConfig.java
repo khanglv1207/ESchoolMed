@@ -81,10 +81,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").permitAll()//tạo sự cố y tế
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").permitAll()// gửi thông báo sự cố đến ph
-                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-notification").permitAll()// gửi lịch tiêm
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-notices").permitAll()// gửi lịch tiêm
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-results").permitAll()// gửi kq tiêm
-                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination/pending").permitAll()// lấy danh sách tiêm
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/students-need-vaccination").permitAll()// lấy danh sách hs sau khi ph xác nhận
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/vaccination/result").permitAll()// ghi nhận kq tiêm
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/create-vaccine-typer").permitAll()// them loại vaccin
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations//students-to-vaccinate").permitAll()// lấy ds hoọc sinh tiêm loại vaccin:
 
                         // blog
                         .requestMatchers(HttpMethod.POST, "/api/blogs/create_document").permitAll()// tạo bài viết

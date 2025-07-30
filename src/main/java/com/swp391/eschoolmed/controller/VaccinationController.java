@@ -1,22 +1,22 @@
 package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
-import com.swp391.eschoolmed.dto.request.CreateVaccinationRecordRequest;
-import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
+import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
-import com.swp391.eschoolmed.dto.response.VaccinationRecordResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
+import com.swp391.eschoolmed.model.VaccinationNotification;
 import com.swp391.eschoolmed.service.VaccinationService;
 
 import com.swp391.eschoolmed.service.mail.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.access.AccessDeniedException;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,23 +30,63 @@ public class VaccinationController {
     @Autowired
     private MailService mailService;
 
-    // gửi lịch tiêm
-    @PostMapping("/send-notification")
-    public ApiResponse<Void> sendVaccinationNotices(@RequestBody SendVaccinationNoticeRequest request) {
+    // thêm vaccin
+    @PostMapping("/create-vaccine-type")
+    public ApiResponse<?> createVaccineType(@RequestBody CreateVaccineTypeRequest request) {
+        vaccinationService.createVaccineType(request);
+        return ApiResponse.builder()
+                .message("Tạo loại vaccine thành công.")
+                .code(1000)
+                .build();
+    }
+    // lấy ds hoọc sinh tiêm loại vaccin:
+    @GetMapping("/students-to-vaccinate")
+    public ApiResponse<List<StudentNeedVaccinationResponse>> getStudentsToVaccinate(
+            @RequestParam String vaccineName,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        // ADMIN kiểm tra quyền
+        String role = jwt.getClaimAsString("scope");
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            throw new AccessDeniedException("Bạn không có quyền thực hiện thao tác này.");
+        }
+
+        // Dùng HÀM MỚI
+        List<StudentNeedVaccinationResponse> students = vaccinationService
+                .findEligibleStudentsForNotification(vaccineName);
+
+        return ApiResponse.<List<StudentNeedVaccinationResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách học sinh đủ điều kiện gửi thông báo thành công.")
+                .result(students)
+                .build();
+    }
+
+
+    // Gửi thông báo tiêm chủng đến phụ huynh các học sinh cần tiêm
+    @PostMapping("/send-vaccination-notices")
+    public ApiResponse<Void> sendVaccinationNotices(
+            @RequestBody VaccinationNotificationRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String role = jwt.getClaimAsString("scope");
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            throw new AccessDeniedException("Bạn không có quyền gửi thông báo tiêm chủng.");
+        }
+
         mailService.sendVaccinationNotices(request);
         return ApiResponse.<Void>builder()
-                .message("Đã gửi thông báo tiêm chủng đến phụ huynh")
+                .code(1000)
+                .message("Đã gửi thông báo tiêm chủng thành công.")
                 .build();
     }
 
     // ph đồng ý hoặc từ chối
     @PostMapping("/confirm-vaccination")
     public ApiResponse<Void> confirmVaccination(@RequestBody VaccinationConfirmationRequest request,
-                                                @AuthenticationPrincipal Jwt jwt
-    ) {
-        UUID parentId = UUID.fromString(jwt.getSubject());
-
-        vaccinationService.confirmVaccination(parentId, request);
+                                                @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        vaccinationService.confirmVaccination(userId, request);
 
         return ApiResponse.<Void>builder()
                 .code(1000)
@@ -54,8 +94,9 @@ public class VaccinationController {
                 .build();
     }
 
+
     //y tá lấy danh sách cần tiêm
-    @GetMapping("/vaccination/pending")
+    @GetMapping("/students-need-vaccination")
     public ApiResponse<List<StudentNeedVaccinationResponse>> getPendingVaccinations() {
         List<StudentNeedVaccinationResponse> result = vaccinationService.getStudentsNeedVaccination();
         return ApiResponse.<List<StudentNeedVaccinationResponse>>builder()
@@ -67,11 +108,11 @@ public class VaccinationController {
 
     // ghi nhận kết quả tiêm
     @PostMapping("/vaccination/result")
-    public ApiResponse<Void> recordResult(@RequestBody VaccinationResultRequest request) {
-        vaccinationService.recordVaccinationResult(request);
+    public ApiResponse<Void> createVaccinationResult(@RequestBody VaccinationResultRequest request) {
+        vaccinationService.createVaccinationResult(request);
         return ApiResponse.<Void>builder()
                 .code(1000)
-                .message("Ghi nhận kết quả tiêm thành công.")
+                .message("Lưu kết quả tiêm thành công.")
                 .build();
     }
 
@@ -85,11 +126,12 @@ public class VaccinationController {
                 .build();
     }
 
-    // hiển thị danh sách tiêm chủng cho ph
+    // hiển thị kq tiêm chủng cho ph
     @GetMapping("/vaccination-result")
-    public ApiResponse<List<VaccinationResultResponse>> getVaccinationResults(@AuthenticationPrincipal Jwt jwt) {
+    public ApiResponse<List<VaccinationResultResponse>> getVaccinationResult(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        List<VaccinationResultResponse> responses = vaccinationService.getVaccinationResultsByParent(userId);
+
+        List<VaccinationResultResponse> responses = vaccinationService.getVaccinationResultsForParent(userId);
 
         return ApiResponse.<List<VaccinationResultResponse>>builder()
                 .code(1000)
@@ -97,6 +139,8 @@ public class VaccinationController {
                 .result(responses)
                 .build();
     }
+
+
 
 
 

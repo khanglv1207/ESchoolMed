@@ -32,4 +32,8 @@ public class VaccinationNotification {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.swp391.eschoolmed.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,6 +29,9 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
 
     Optional<ParentStudent> findByStudentCodeAndParentCode(String studentCode, String parentCode);
 
+    List<ParentStudent> findByStudent_StudentId(UUID studentId);
+
+    List<ParentStudent> findByStudent(Student student);
 
 
 

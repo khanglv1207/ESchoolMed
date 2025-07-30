@@ -19,9 +19,13 @@ public class VaccinationConfirmation {
     @Column(name = "confirmation_id")
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "notification_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_id", referencedColumnName = "notification_id")
     private VaccinationNotification notification;
+
+    @OneToOne
+    @JoinColumn(name = "confirmation_id", unique = true)
+    private VaccinationConfirmation confirmation;
 
     @ManyToOne
     @JoinColumn(name = "student_id")

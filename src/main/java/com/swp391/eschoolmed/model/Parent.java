@@ -48,11 +48,4 @@ public class Parent {
     @OneToMany(mappedBy = "parent")
     private Collection<MedicalIncidentNotification> medicalIncidentNotification;
 
-    public Collection<MedicalIncidentNotification> getMedicalIncidentNotification() {
-        return medicalIncidentNotification;
-    }
-
-    public void setMedicalIncidentNotification(Collection<MedicalIncidentNotification> medicalIncidentNotification) {
-        this.medicalIncidentNotification = medicalIncidentNotification;
-    }
 }

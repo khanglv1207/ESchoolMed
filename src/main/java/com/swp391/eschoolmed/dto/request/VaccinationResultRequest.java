@@ -11,8 +11,8 @@ public class VaccinationResultRequest {
     private UUID confirmationId;
     private LocalDateTime vaccinationDate;
     private String notes;
-    private boolean hasReaction; // phản ứng sau tiêm
-    private boolean followUpNeeded; // cần theo dõi sau tiêm
-    private boolean needsBooster; // cần nhắc tiêm lại
+    private boolean hasReaction;
+    private boolean followUpNeeded;
+    private boolean needsBooster;
 }
 

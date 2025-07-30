@@ -17,15 +17,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthProfile {
+
     @Id
     @GeneratedValue
     @Column(name = "profile_id")
     private UUID profileId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "student_id", nullable = false)
-
     private Student student;
+
     private String allergies;
     private String chronicDiseases;
     private String medicalHistory;
