@@ -7,8 +7,6 @@ import java.util.UUID;
 
 @Data
 public class UpdateStudentParentRequest {
-    private UUID id;
-
     private String studentCode;
     private String studentName;
     private String className;

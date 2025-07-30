@@ -18,6 +18,7 @@ import lombok.Data;
 public class ParentStudent {
 
     @Id
+    @GeneratedValue
     @Column(name = "id")
     private UUID id;
 

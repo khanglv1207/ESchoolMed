@@ -41,6 +41,7 @@ public class AdminService {
             Student s = ps.getStudent();
             Parent p = ps.getParent();
             return ParentStudentResponse.builder()
+                    .id(ps.getId())
                     .StudentCode(s.getStudentCode())
                     .studentName(s.getFullName())
                     .studentDob(s.getDate_of_birth())
@@ -132,11 +133,25 @@ public class AdminService {
 
 
     public void updateStudentAndParent(UpdateStudentParentRequest request) {
-        ParentStudent ps = parentStudentRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy parent_student"));
+        ParentStudent ps = parentStudentRepository
+                .findByStudentCodeAndParentCode(request.getStudentCode(), request.getParentCode())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy liên kết học sinh - phụ huynh"));
 
         ps.setRelationship(request.getRelationship());
         ps.setStatus(request.getStatus());
+
+        ps.setStudentCode(request.getStudentCode());
+        ps.setStudentName(request.getStudentName());
+        ps.setStudentDob(request.getStudentDob());
+        ps.setGender(request.getGender());
+        ps.setClassName(request.getClassName());
+
+        ps.setParentCode(request.getParentCode());
+        ps.setParentName(request.getParentName());
+        ps.setParentEmail(request.getParentEmail());
+        ps.setParentPhone(request.getParentPhone());
+        ps.setParentAddress(request.getParentAddress());
+        ps.setParentDob(request.getParentDob());
         parentStudentRepository.save(ps);
 
         Student student = ps.getStudent();
@@ -158,6 +173,7 @@ public class AdminService {
         parent.setDateOfBirth(request.getParentDob());
         parentRepository.save(parent);
     }
+
 
 
     public void createMedicalCheckup(MedicalCheckupCreateRequest request) {
