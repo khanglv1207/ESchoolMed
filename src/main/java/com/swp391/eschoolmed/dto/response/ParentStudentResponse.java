@@ -9,6 +9,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class ParentStudentResponse {
+    private UUID id;
     private String StudentCode;
     private String studentName;
     private LocalDate studentDob;

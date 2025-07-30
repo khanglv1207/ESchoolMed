@@ -11,6 +11,7 @@ import com.swp391.eschoolmed.service.AdminService;
 import com.swp391.eschoolmed.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class AdminController {
 
     // update hs ph
     @PutMapping("/update-student-parent")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PARENT')")
     public ApiResponse<?> updateStudentParent(@RequestBody UpdateStudentParentRequest request) {
         adminService.updateStudentAndParent(request);
         return ApiResponse.builder()
@@ -64,6 +66,7 @@ public class AdminController {
                 .code(1000)
                 .build();
     }
+
 
     // tạo lịch kiểm tra y tế
     @PostMapping("/create-checkup")
