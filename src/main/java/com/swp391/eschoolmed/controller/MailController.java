@@ -1,13 +1,13 @@
 package com.swp391.eschoolmed.controller;
 
+import com.swp391.eschoolmed.dto.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
-import com.swp391.eschoolmed.dto.request.ChangePasswordRequest;
-import com.swp391.eschoolmed.dto.request.CheckupNoticeRequest;
-import com.swp391.eschoolmed.dto.request.CreateParentRequest;
 import com.swp391.eschoolmed.service.mail.MailService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/mail")
@@ -44,14 +44,16 @@ public class MailController {
     }
 
     // gửi thông báo ktra y tế
-    @PutMapping("/send-checkup-notices")
-    public ApiResponse<String> sendCheckupNotices() {
-        mailService.sendMedicalCheckupNotices(); // không truyền gì cả
+    @PostMapping("/checkup/send-notices")
+    public ApiResponse<String> sendBroadcastCheckup(@RequestBody MedicalCheckupEmailRequest request) {
+        mailService.sendBroadcastMedicalCheckup(request);
         return ApiResponse.<String>builder()
-                .message("Đã gửi thông báo kiểm tra y tế đến phụ huynh thành công.")
+                .message("Đã gửi thông báo kiểm tra y tế đến tất cả phụ huynh.")
                 .result("OK")
                 .build();
     }
+
+
 
 
 

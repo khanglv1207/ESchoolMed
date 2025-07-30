@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/parents/parent-profile").hasAuthority("PARENT")// hiển thị thông tin hồ sơ
                         .requestMatchers(HttpMethod.GET, "/api/parents/checkup-result").hasAuthority("PARENT")// hiển thị kq sau khi khám
                         .requestMatchers(HttpMethod.POST, "/api/parents/medical-request").hasAuthority("PARENT") // gửi thuốc
-                        .requestMatchers(HttpMethod.PUT, "/api/parents/confirm-checkup").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/parents//confirm-checkup/{notificationId}").permitAll()// ph xác nhận cho con khám sk
                         .requestMatchers(HttpMethod.POST, "/api/parents/health-profile").hasAuthority("PARENT")//ph khai báo sức khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/health-declaration/latest").hasAuthority("PARENT")// hiển thị tt khai báo sưc khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/students").hasAuthority("PARENT")

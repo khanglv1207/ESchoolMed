@@ -73,7 +73,7 @@ public class AdminController {
     public ApiResponse<?> createMedicalCheckup(@RequestBody MedicalCheckupCreateRequest request) {
         adminService.createMedicalCheckup(request);
         return ApiResponse.builder()
-                .message("Tạo đợt kiểm tra y tế thành công.")
+                .message("Tạo đợt kiểm tra y tế và gửi thông báo thành công.")
                 .code(1000)
                 .build();
     }

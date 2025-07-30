@@ -6,6 +6,7 @@ import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -176,32 +177,35 @@ public class AdminService {
 
 
 
+    @Transactional
     public void createMedicalCheckup(MedicalCheckupCreateRequest request) {
-        for (UUID studentId : request.getStudentIds()) {
-            Student student = studentRepository.findById(studentId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+        List<Parent> parents = parentRepository.findAll();
 
-            Parent parent = parentStudentRepository
-                    .findFirstByStudent_StudentId(student.getStudentId())
-                    .map(ParentStudent::getParent)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
-
-            MedicalCheckupNotification notification = new MedicalCheckupNotification();
-            notification.setId(UUID.randomUUID());
-            notification.setCheckupTitle(request.getCheckupTitle());
-            notification.setCheckupDate(request.getCheckupDate());
-            notification.setContent(request.getContent());
-
-            notification.setStudent(student);
-            notification.setStudentName(student.getFullName());
-            notification.setClassName(student.getClassEntity().getClassName());
-            notification.setGender(student.getGender());
-
-            notification.setParent(parent);
-            notification.setSentAt(LocalDateTime.now());
-            notification.setIsConfirmed(null);
-
-            medicalCheckupNotificationRepository.save(notification);
+        for (Parent parent : parents) {
+            if (parent.getUser() == null || parent.getEmail() == null || parent.getEmail().isBlank()) {
+                continue;
+            }
+            List<ParentStudent> parentStudents = parent.getParentStudents();
+            for (ParentStudent ps : parentStudents) {
+                Student student = ps.getStudent();
+                if (student == null) continue;
+                MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
+                        .checkupTitle(request.getCheckupTitle())
+                        .checkupDate(request.getCheckupDate())
+                        .content(request.getContent())
+                        .student(student)
+                        .parent(parent)
+                        .studentName(ps.getStudentName())
+                        .className(ps.getClassName())
+                        .gender(ps.getGender())
+                        .sentAt(LocalDateTime.now())
+                        .isConfirmed(null)
+                        .build();
+                medicalCheckupNotificationRepository.save(notification);
+            }
         }
     }
+
+
+
 }

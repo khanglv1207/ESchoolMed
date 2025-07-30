@@ -104,13 +104,17 @@ public class ParentController {
 
     //ph xác nhận tham gia
     @PutMapping("/confirm-checkup")
-    public ApiResponse<?> confirmMedicalCheckup(@RequestBody ConfirmCheckupRequest request) {
-        parentService.confirmCheckup(request);
-        return ApiResponse.builder()
+    public ApiResponse<Void> confirmMedicalCheckup(@RequestBody ConfirmCheckupRequest request,
+                                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        parentService.confirmCheckup(userId, request);
+        return ApiResponse.<Void>builder()
                 .message("Phản hồi của phụ huynh đã được ghi nhận.")
                 .code(1000)
                 .build();
     }
+
+
 
     //ph khai báo sức khỏe
     @PostMapping("/health-profile")

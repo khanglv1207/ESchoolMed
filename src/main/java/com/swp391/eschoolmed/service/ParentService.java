@@ -285,16 +285,27 @@ public class ParentService {
         };
     }
 
-    public void confirmCheckup(ConfirmCheckupRequest request) {
+    public void confirmCheckup(UUID userId, ConfirmCheckupRequest request) {
         MedicalCheckupNotification notification = medicalCheckupNotificationRepository
                 .findById(request.getNotificationId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đợt kiểm tra"));
-
+        Parent parent = notification.getParent();
+        if (parent == null || parent.getUser() == null) {
+            throw new IllegalStateException("Thông tin người dùng phụ huynh không hợp lệ.");
+        }
+        UUID notificationUserId = parent.getUser().getId();
+        if (!notificationUserId.equals(userId)) {
+            throw new SecurityException("Bạn không có quyền xác nhận thông báo này.");
+        }
+        if (notification.getIsConfirmed() != null) {
+            throw new IllegalStateException("Thông báo này đã được xác nhận.");
+        }
         notification.setIsConfirmed(request.isConfirmed());
         notification.setConfirmedAt(LocalDateTime.now());
-
         medicalCheckupNotificationRepository.save(notification);
     }
+
+
 
     @Transactional
     public void createOrUpdateHealthProfile(UUID userId, HealthProfileRequest request) {
