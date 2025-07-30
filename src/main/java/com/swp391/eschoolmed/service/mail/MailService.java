@@ -8,9 +8,7 @@ import java.util.List;
 
 import java.util.UUID;
 
-import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationNotificationRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
+import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
 import jakarta.transaction.Transactional;
@@ -315,35 +313,46 @@ public class MailService {
 
 
     // gửi thông báo kiểm tra sức khỏe
-    public void sendMedicalCheckupNotices() {
-        List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository
-                .findAllBySentAtIsNotNullAndIsConfirmedIsNull();
-        for (MedicalCheckupNotification notification : notifications) {
-            Parent parent = notification.getParent();
-            if (parent == null || parent.getEmail() == null || parent.getEmail().isBlank()) {
-                System.out.printf("Bỏ qua thông báo vì thiếu phụ huynh hoặc email: %s%n", notification.getId());
-                continue;
-            }
+    @Transactional
+    public void sendBroadcastMedicalCheckup(MedicalCheckupEmailRequest request) {
+        List<ParentStudent> targets = parentStudentRepository.findAll();
+        for (ParentStudent ps : targets) {
+            if (ps.getParentEmail() == null || ps.getParentEmail().isBlank()) continue;
+            MedicalCheckupNotification notification = MedicalCheckupNotification.builder()
+                    .checkupTitle(request.getCheckupTitle())
+                    .checkupDate(request.getCheckupDate())
+                    .content(request.getContent())
+                    .student(ps.getStudent())
+                    .parent(ps.getParent())
+                    .studentName(ps.getStudentName())
+                    .className(ps.getClassName())
+                    .gender(ps.getGender())
+                    .sentAt(LocalDateTime.now())
+                    .isConfirmed(false)
+                    .build();
+            medicalCheckupNotificationRepository.save(notification);
             try {
                 MimeMessage message = javaMailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-                helper.setTo(parent.getEmail());
+                helper.setTo(ps.getParentEmail());
                 helper.setFrom(from);
-                helper.setSubject("[Emed] Thông báo kiểm tra y tế định kỳ");
+                helper.setSubject("[Emed] " + request.getCheckupTitle());
                 String confirmLink = "http://localhost:3000/medical-checkup/" + notification.getId();
                 Context context = new Context();
-                context.setVariable("fullName", parent.getFullName());
-                context.setVariable("content", notification.getContent());
+                context.setVariable("fullName", ps.getParentName());
+                context.setVariable("studentName", ps.getStudentName());
+                context.setVariable("className", ps.getClassName());
+                context.setVariable("content", request.getContent());
                 context.setVariable("confirmLink", confirmLink);
                 String htmlContent = templateEngine.process("medical-checkup-notice.html", context);
                 helper.setText(htmlContent, true);
                 javaMailSender.send(message);
-                System.out.printf("Đã gửi email tới: %s (%s)%n", parent.getFullName(), parent.getEmail());
             } catch (Exception e) {
-                System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parent.getEmail(), e.getMessage());
+                System.err.printf("Lỗi gửi đến %s: %s%n", ps.getParentEmail(), e.getMessage());
             }
         }
     }
+
 
     public void sendVaccinationResultsToParents() {
         List<VaccinationResult> results = vaccinationResultRepository.findAllByFinalizedFalse();

@@ -3,11 +3,9 @@ package com.swp391.eschoolmed.dto.request;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @Data
-public class MedicalCheckupCreateRequest {
+public class MedicalCheckupEmailRequest {
     private String checkupTitle;
     private LocalDate checkupDate;
     private String content;
