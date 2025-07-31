@@ -399,8 +399,6 @@ public class MailService {
             result.setFinalized(true);
             vaccinationResultRepository.save(result);
         }
-
-
     }
 
 }

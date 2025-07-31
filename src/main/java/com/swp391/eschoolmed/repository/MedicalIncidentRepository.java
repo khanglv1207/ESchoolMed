@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MedicalIncidentRepository extends JpaRepository<MedicalIncident, Long> {
-    List<MedicalIncident> findByStudent_StudentId(UUID studentId);
+    List<MedicalIncident> findAllByParentNotifiedFalse();
 }
 

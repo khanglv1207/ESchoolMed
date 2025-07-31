@@ -45,6 +45,9 @@ public class MedicalIncidentService {
 
     @Autowired
     private ParentStudentRepository  parentStudentRepository;
+    @Autowired
+    private MedicalIncidentRepository medicalIncidentRepository;
+
 
     public void createIncident(CreateMedicalIncidentRequest request) {
         Student student = studentRepository.findByStudentCode(request.getStudentCode())
@@ -57,23 +60,18 @@ public class MedicalIncidentService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mối quan hệ phụ huynh-học sinh với ID: " + request.getParentStudentId()));
 
         MedicalIncident incident = new MedicalIncident();
-
         incident.setStudent(student);
         incident.setNurse(nurse);
         incident.setParentStudent(parentStudent);
-
         incident.setClassName(request.getClassName());
         incident.setOccurredAt(request.getOccurredAt());
         incident.setIncidentType(request.getIncidentType());
         incident.setIncidentDescription(request.getIncidentDescription());
-
         incident.setInitialTreatment(request.getInitialTreatment());
         incident.setInitialResponder(request.getInitialResponder());
-
         incident.setHandledByParent(request.isHandledByParent());
         incident.setHandledByStaff(request.isHandledByStaff());
         incident.setMonitoredBySchool(request.isMonitoredBySchool());
-
         incident.setCurrentStatus(request.getCurrentStatus());
         incident.setImageUrl(request.getImageUrl());
 
@@ -82,32 +80,51 @@ public class MedicalIncidentService {
 
 
     public void sendIncidentNotifications() {
-        List<MedicalIncidentNotification> unsentList = medicalIncidentNotificationRepository.findAllBySentAtIsNull();
-        for (MedicalIncidentNotification notification : unsentList) {
-            Parent parent = notification.getParent();
-            if (parent == null || parent.getEmail() == null || parent.getEmail().isBlank()) {
-                System.out.printf("Bỏ qua - thiếu phụ huynh hoặc email: %d%n", notification.getId());
+        List<MedicalIncident> incidents = medicalIncidentRepository.findAllByParentNotifiedFalse();
+        for (MedicalIncident incident : incidents) {
+            Student student = incident.getStudent();
+            ParentStudent parentStudent = incident.getParentStudent();
+            if (student == null || parentStudent == null || parentStudent.getParent() == null) {
+                System.out.printf("⚠️ Thiếu dữ liệu cần thiết cho incident ID %d%n", incident.getId());
                 continue;
             }
+            Parent parent = parentStudent.getParent();
+            String parentEmail = parent.getEmail();
+            String parentName = parent.getFullName();
+            if (parentEmail == null || parentEmail.isBlank()) {
+                System.out.printf("⚠️ Bỏ qua vì thiếu email của phụ huynh: %s%n", parentName);
+                continue;
+            }
+
             try {
                 MimeMessage message = javaMailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-                helper.setTo(parent.getEmail());
+                helper.setTo(parentEmail);
                 helper.setFrom(from);
-                helper.setSubject("[Emed] Thông báo sự cố y tế");
+                helper.setSubject("[eSchoolMed] Thông báo sự cố y tế của học sinh " + student.getFullName());
                 Context context = new Context();
-                context.setVariable("fullName", parent.getFullName());
-                context.setVariable("content", notification.getContent());
-                String htmlContent = templateEngine.process("medical-incident-notice.html", context);
-                helper.setText(htmlContent, true);
+                context.setVariable("parentName", parentName);
+                context.setVariable("studentName", student.getFullName());
+                context.setVariable("incidentType", incident.getIncidentType());
+                context.setVariable("incidentDescription", incident.getIncidentDescription());
+                context.setVariable("incidentTime", incident.getOccurredAt());
+                String html = templateEngine.process("medical-incident-notice.html", context);
+                helper.setText(html, true);
                 javaMailSender.send(message);
+                System.out.printf("✅ Đã gửi thông báo đến %s (%s)%n", parentName, parentEmail);
+                MedicalIncidentNotification notification = new MedicalIncidentNotification();
+                notification.setIncident(incident);
+                notification.setParent(parent);
+                notification.setContent(incident.getIncidentDescription());
                 notification.setSentAt(LocalDateTime.now());
                 medicalIncidentNotificationRepository.save(notification);
-                System.out.printf("Đã gửi thông báo đến %s (%s)%n", parent.getFullName(), parent.getEmail());
+                incident.setParentNotified(true);
+                medicalIncidentRepository.save(incident);
             } catch (Exception e) {
-                System.err.printf("Gửi thất bại đến %s: %s%n", parent.getEmail(), e.getMessage());
+                System.err.printf("❌ Lỗi khi gửi đến %s (%s): %s%n", parentName, parentEmail, e.getMessage());
             }
         }
     }
+
 
 }
