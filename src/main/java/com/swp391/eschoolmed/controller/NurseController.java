@@ -2,23 +2,21 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
+import com.swp391.eschoolmed.dto.request.CreateNurseRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
 import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
 import com.swp391.eschoolmed.dto.response.*;
-import com.swp391.eschoolmed.model.MedicalCheckupNotification;
-import com.swp391.eschoolmed.model.Nurse;
-import com.swp391.eschoolmed.model.VaccineType;
 import com.swp391.eschoolmed.repository.StudentRepository;
 import com.swp391.eschoolmed.repository.VaccineTypeRepository;
 import com.swp391.eschoolmed.service.NurseService;
-import com.swp391.eschoolmed.service.VaccinationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/nurse")
@@ -32,6 +30,17 @@ public class NurseController {
 
     @Autowired
     private StudentRepository  studentRepository;
+
+    @PostMapping("/create-nurse")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ApiResponse<String> createNurseFromUser(@RequestParam String email) {
+        nurseService.createNurseFromUser(email);
+        return ApiResponse.<String>builder()
+                .message("Tạo y tá thành công từ tài khoản người dùng.")
+                .result("OK")
+                .build();
+    }
+
 
     // lấy danh sách y tá
    @GetMapping("/get-all-nurse")
