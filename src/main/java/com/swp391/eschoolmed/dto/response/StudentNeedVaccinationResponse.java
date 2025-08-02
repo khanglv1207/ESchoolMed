@@ -11,8 +11,10 @@ import java.util.UUID;
 public class StudentNeedVaccinationResponse {
     private UUID confirmationId;
     private UUID studentId;
-    private String fullName;
+    private String studentCode;
+    private String studentName;
     private String className;
+    private String parentEmail;
     private String vaccineName;
     private LocalDate vaccinationDate;
 }

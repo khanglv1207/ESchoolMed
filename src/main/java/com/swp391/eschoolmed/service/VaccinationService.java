@@ -41,8 +41,6 @@ public class VaccinationService {
     @Autowired
     private ParentRepository parentRepository;
 
-
-
     public List<StudentNeedVaccinationResponse> findEligibleStudentsForNotification(String vaccineName) {
         VaccineType vaccineType = vaccineTypeRepository.findByNameIgnoreCaseTrimmed(vaccineName)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại vaccine: " + vaccineName));
@@ -51,14 +49,28 @@ public class VaccinationService {
 
         return students.stream()
                 .filter(student -> !vaccinationNotificationRepository.existsByStudentAndVaccineType(student, vaccineType))
-                .map(student -> StudentNeedVaccinationResponse.builder()
-                        .studentId(student.getStudentId())
-                        .fullName(student.getFullName())
-                        .className(student.getClassEntity().getClassName())
-                        .vaccineName(vaccineType.getName())
-                        .build()
-                ).toList();
+                .map(student -> {
+                    String parentEmail = "N/A";
+
+                    List<ParentStudent> links = parentStudentRepository.findByStudent_StudentId(student.getStudentId());
+                    if (links != null && !links.isEmpty()) {
+                        Parent parent = links.get(0).getParent();
+                        if (parent != null && parent.getEmail() != null) {
+                            parentEmail = parent.getEmail();
+                        }
+                    }
+                    return StudentNeedVaccinationResponse.builder()
+                            .studentId(student.getStudentId())
+                            .studentCode(student.getStudentCode())
+                            .studentName(student.getFullName())
+                            .className(student.getClassEntity() != null ? student.getClassEntity().getClassName() : "N/A")
+                            .parentEmail(parentEmail)
+                            .vaccineName(vaccineType.getName())
+                            .build();
+                }).toList();
     }
+
+
 
     public void createVaccineType(CreateVaccineTypeRequest request) {
         if (vaccineTypeRepository.findByNameIgnoreCaseTrimmed(request.getName()).isPresent()) {
@@ -125,7 +137,7 @@ public class VaccinationService {
             return StudentNeedVaccinationResponse.builder()
                     .confirmationId(conf.getId())
                     .studentId(student.getStudentId())
-                    .fullName(student.getFullName())
+                    .studentName(student.getFullName())
                     .className(student.getClass().getName())
                     .vaccineName(vaccine.getName())
                     .vaccinationDate(LocalDate.from(conf.getNotification().getScheduledDate()))

@@ -5,6 +5,7 @@ import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
 import com.swp391.eschoolmed.dto.request.MedicalCheckupCreateRequest;
 import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
+import com.swp391.eschoolmed.dto.response.StudentResponse;
 import com.swp391.eschoolmed.model.ParentStudent;
 import com.swp391.eschoolmed.model.Student;
 import com.swp391.eschoolmed.service.AdminService;
@@ -34,6 +35,16 @@ public class AdminController {
                 .result(responses)
                 .build();
     }
+
+//    //hiển thị danh sách students
+//    @GetMapping("/get-all-student")
+//    public ApiResponse<List<StudentResponse>> getAllStudentResponse(){
+//        List<StudentResponse> responses = adminService.getAllStudentResponse();
+//        return ApiResponse.<List<StudentResponse>>builder()
+//                .message("Hiển thị danh sách.")
+//                .result(responses)
+//                .build();
+//    }
 
     // tạo hs ph
     @PostMapping("/create-student-parent")

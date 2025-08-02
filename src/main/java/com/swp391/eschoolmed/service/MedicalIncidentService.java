@@ -85,14 +85,14 @@ public class MedicalIncidentService {
             Student student = incident.getStudent();
             ParentStudent parentStudent = incident.getParentStudent();
             if (student == null || parentStudent == null || parentStudent.getParent() == null) {
-                System.out.printf("⚠️ Thiếu dữ liệu cần thiết cho incident ID %d%n", incident.getId());
+                System.out.printf("Thiếu dữ liệu cần thiết cho incident ID %d%n", incident.getId());
                 continue;
             }
             Parent parent = parentStudent.getParent();
             String parentEmail = parent.getEmail();
             String parentName = parent.getFullName();
             if (parentEmail == null || parentEmail.isBlank()) {
-                System.out.printf("⚠️ Bỏ qua vì thiếu email của phụ huynh: %s%n", parentName);
+                System.out.printf("Bỏ qua vì thiếu email của phụ huynh: %s%n", parentName);
                 continue;
             }
 
@@ -111,7 +111,7 @@ public class MedicalIncidentService {
                 String html = templateEngine.process("medical-incident-notice.html", context);
                 helper.setText(html, true);
                 javaMailSender.send(message);
-                System.out.printf("✅ Đã gửi thông báo đến %s (%s)%n", parentName, parentEmail);
+                System.out.printf("Đã gửi thông báo đến %s (%s)%n", parentName, parentEmail);
                 MedicalIncidentNotification notification = new MedicalIncidentNotification();
                 notification.setIncident(incident);
                 notification.setParent(parent);
@@ -121,7 +121,7 @@ public class MedicalIncidentService {
                 incident.setParentNotified(true);
                 medicalIncidentRepository.save(incident);
             } catch (Exception e) {
-                System.err.printf("❌ Lỗi khi gửi đến %s (%s): %s%n", parentName, parentEmail, e.getMessage());
+                System.err.printf("Lỗi khi gửi đến %s (%s): %s%n", parentName, parentEmail, e.getMessage());
             }
         }
     }

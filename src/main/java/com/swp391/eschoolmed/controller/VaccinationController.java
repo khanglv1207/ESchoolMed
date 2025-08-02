@@ -55,20 +55,14 @@ public class VaccinationController {
 
     // lấy ds hoọc sinh tiêm loại vaccin:
     @GetMapping("/students-to-vaccinate")
-    public ApiResponse<List<StudentNeedVaccinationResponse>> getStudentsToVaccinate(
-            @RequestParam String vaccineName,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        // ADMIN kiểm tra quyền
+    public ApiResponse<List<StudentNeedVaccinationResponse>> getStudentsToVaccinate(@RequestParam String vaccineName,
+                                                                                    @AuthenticationPrincipal Jwt jwt) {
         String role = jwt.getClaimAsString("scope");
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!"ADMIN".equalsIgnoreCase(role) && !"NURSE".equalsIgnoreCase(role)) {
             throw new AccessDeniedException("Bạn không có quyền thực hiện thao tác này.");
         }
-
-        // Dùng HÀM MỚI
         List<StudentNeedVaccinationResponse> students = vaccinationService
                 .findEligibleStudentsForNotification(vaccineName);
-
         return ApiResponse.<List<StudentNeedVaccinationResponse>>builder()
                 .code(1000)
                 .message("Lấy danh sách học sinh đủ điều kiện gửi thông báo thành công.")
