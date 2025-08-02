@@ -4,6 +4,7 @@ import com.swp391.eschoolmed.dto.request.CreateStudentParentRequest;
 import com.swp391.eschoolmed.dto.request.MedicalCheckupCreateRequest;
 import com.swp391.eschoolmed.dto.request.UpdateStudentParentRequest;
 import com.swp391.eschoolmed.dto.response.ParentStudentResponse;
+import com.swp391.eschoolmed.dto.response.StudentResponse;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
 import jakarta.transaction.Transactional;
@@ -58,6 +59,7 @@ public class AdminService {
                     .build();
         }).collect(Collectors.toList());
     }
+
 
     public void createStudentAndParent(CreateStudentParentRequest request) {
         Student student = new Student();
@@ -205,7 +207,5 @@ public class AdminService {
             }
         }
     }
-
-
 
 }

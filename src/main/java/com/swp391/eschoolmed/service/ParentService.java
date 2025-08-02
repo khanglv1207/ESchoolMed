@@ -50,17 +50,41 @@ public class ParentService {
     private HealthCheckupRepository healthCheckupRepository;
     @Autowired
     private HealthProfileRepository healthProfileRepository;
+    @Autowired
+    private ClassRepository  classRepository;
 
+    @Transactional
     public void updateParentProfile(UpdateParentProfileRequest request) {
         Parent parent = parentRepository.findByUserId(request.getUserid())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+
         parent.setFullName(request.getFullName());
         parent.setPhoneNumber(request.getPhoneNumber());
         parent.setAddress(request.getAddress());
         parent.setDateOfBirth(request.getDateOfBirth());
-
+        if (parent.getUser() != null) {
+            parent.getUser().setEmail(request.getEmail());
+        }
         parentRepository.save(parent);
+
+        List<ParentStudent> links = parentStudentRepository.findAllByParent_ParentId(parent.getParentId());
+        for (UpdateParentProfileRequest.ChildUpdateRequest childReq : request.getChildren()) {
+            ParentStudent ps = links.stream()
+                    .filter(l -> l.getStudent().getStudentId().equals(childReq.getStudentId()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh liên kết với phụ huynh"));
+
+            Student student = ps.getStudent();
+            student.setFullName(childReq.getStudentName());
+            student.setDate_of_birth(childReq.getStudentDob());
+            student.setGender(childReq.getGender());
+            ClassEntity classEntity = classRepository.findByClassNameIgnoreCase(childReq.getClassName().trim())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học tên: " + childReq.getClassName()));
+            student.setClassEntity(classEntity);
+            studentRepository.save(student);
+        }
     }
+
 
     public List<CheckupResultResponse> getCheckupResult(UUID userId) {
         User user = userRepository.findById(userId)
@@ -204,40 +228,30 @@ public class ParentService {
     }
 
 
-
     public ParentProfileResponse getParentProfileFromJwt(Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
-
         Parent parent = parentRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ phụ huynh"));
-
         UUID parentId = parent.getParentId();
 
         List<ParentStudent> linkedStudents = parentStudentRepository.findAllByParent_ParentId(parentId);
-
-        String relationship = linkedStudents.isEmpty() ? null : linkedStudents.get(0).getRelationship();
-
-        List<ParentProfileResponse.ChildInfo> children = linkedStudents.stream().map(ps -> {
-            Student student = ps.getStudent();
-            return ParentProfileResponse.ChildInfo.builder()
-                    .studentName(student.getFullName())
-                    .className(student.getClassEntity() != null
-                            ? student.getClassEntity().getClassName()
-                            : "Chưa cập nhật")
-                    .studentDob(student.getDate_of_birth())
-                    .gender(student.getGender())
-                    .build();
-        }).collect(Collectors.toList());
-
-        LocalDate dob = parent.getDateOfBirth();
-
+        List<ParentProfileResponse.ChildInfo> children = linkedStudents.stream()
+                .map(ps -> ParentProfileResponse.ChildInfo.builder()
+                        .studentCode(ps.getStudentCode())
+                        .studentName(ps.getStudentName())
+                        .className(ps.getClassName())
+                        .studentDob(ps.getStudentDob())
+                        .gender(ps.getGender())
+                        .relationship(ps.getRelationship())
+                        .build())
+                .toList();
         return ParentProfileResponse.builder()
                 .parentName(parent.getFullName())
-                .email(parent.getUser().getEmail())
-                .phoneNumber(parent.getPhoneNumber())
-                .address(parent.getAddress())
-                .relationship(relationship)
-                .dateOfBirth(dob)
+                .parentEmail(parent.getUser().getEmail())
+                .parentPhone(parent.getPhoneNumber())
+                .parentAddress(parent.getAddress())
+                .parentCode(linkedStudents.isEmpty() ? null : linkedStudents.get(0).getParentCode())
+                .parentDob(parent.getDateOfBirth())
                 .children(children)
                 .build();
     }
@@ -340,7 +354,6 @@ public class ParentService {
                     .createdAt(LocalDateTime.now())
                     .build();
         }
-
         healthProfileRepository.save(profile);
     }
 

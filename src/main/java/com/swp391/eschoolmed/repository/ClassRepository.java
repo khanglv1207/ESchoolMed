@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface ClassRepository extends JpaRepository<ClassEntity, UUID> {
     Optional<ClassEntity> findByClassName(String className);
+    Optional<ClassEntity> findByClassNameIgnoreCase(String className);
 }

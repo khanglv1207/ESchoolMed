@@ -54,6 +54,7 @@ public class ParentController {
                 .build();
     }
 
+    //cập nhật thông tin hồ sơ
     @PostMapping("/update-profile-parent")
     public ApiResponse<Void> updateParentProfile(@RequestBody UpdateParentProfileRequest request){
         parentService.updateParentProfile(request);

@@ -13,11 +13,11 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ParentProfileResponse {
     private String parentName;
-    private String email;
-    private String phoneNumber;
-    private String address;
-    private String relationship;
-    private LocalDate dateOfBirth;
+    private String parentEmail;
+    private String parentPhone;
+    private String parentAddress;
+    private String parentCode;
+    private LocalDate parentDob;
 
     private List<ChildInfo> children;
 
@@ -25,11 +25,11 @@ public class ParentProfileResponse {
     @Builder
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ChildInfo {
+        private String studentCode;
         private String studentName;
         private String className;
         private LocalDate studentDob;
         private String gender;
+        private String relationship;
     }
 }
-
-
