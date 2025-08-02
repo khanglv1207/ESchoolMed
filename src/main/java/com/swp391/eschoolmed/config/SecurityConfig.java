@@ -62,6 +62,7 @@ public class SecurityConfig {
                         // Admin/Nurse-specific endpoints (permitted for now - can be restricted later)
                         .requestMatchers("/create-parent-account", "/admin-dashboard").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/mail/create-parent").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/nurse/create-nurse").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/students/import-student").permitAll()// add danh sách học sinh
                         .requestMatchers(HttpMethod.POST, "/api/mail/send-checkup-notice").permitAll() // gửi mail thông báo ktra
                         .requestMatchers(HttpMethod.GET, "/api/admin/get-all-student-parent").permitAll() // lấy danh sách studetn parent
@@ -79,14 +80,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/nurse/get-all-nurse").permitAll()//lấy danh sách y tá
                         .requestMatchers(HttpMethod.POST, "/api/nurse/update-nurse").permitAll()//sửa thông tin y tá
                         .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
-                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").permitAll()//tạo sự cố y tế
-                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").permitAll()// gửi thông báo sự cố đến ph
+                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").hasAuthority("NURSE")//tạo sự cố y tế
+                        .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").hasAuthority("NURSE")// gửi thông báo sự cố đến ph
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-notices").permitAll()// gửi lịch tiêm
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-results").permitAll()// gửi kq tiêm
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/students-need-vaccination").permitAll()// lấy danh sách hs sau khi ph xác nhận
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/vaccination/result").permitAll()// ghi nhận kq tiêm
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/create-vaccine-typer").permitAll()// them loại vaccin
-                        .requestMatchers(HttpMethod.GET, "/api/vaccinations//students-to-vaccinate").permitAll()// lấy ds hoọc sinh tiêm loại vaccin:
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/students-to-vaccinate").permitAll()// lấy ds hoọc sinh tiêm loại vaccin:
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccine-types").permitAll()// lấy danh sách vaccin
 
                         // blog
                         .requestMatchers(HttpMethod.POST, "/api/blogs/create_document").permitAll()// tạo bài viết

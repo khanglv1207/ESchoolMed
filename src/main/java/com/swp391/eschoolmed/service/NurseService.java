@@ -1,6 +1,7 @@
 package com.swp391.eschoolmed.service;
 
 import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
+import com.swp391.eschoolmed.dto.request.CreateNurseRequest;
 import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
 import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
 import com.swp391.eschoolmed.dto.response.*;
@@ -26,7 +27,8 @@ public class NurseService {
 
     @Autowired
     private StudentService studentService;
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private MedicationRequestRepository medicationRequestRepository;
     @Autowired
@@ -40,6 +42,24 @@ public class NurseService {
     @Autowired
     private MedicalCheckupNotificationRepository medicalCheckupNotificationRepository;
 
+
+
+    public void createNurseFromUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
+        if (!"NURSE".equalsIgnoreCase(user.getRole())) {
+            throw new RuntimeException("Người dùng không có vai trò y tá.");
+        }
+        if (nurseRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Người dùng này đã được thêm làm y tá.");
+        }
+        Nurse nurse = new Nurse();
+        nurse.setFullName(user.getFullName());
+        nurse.setEmail(user.getEmail());
+        nurse.setPhone(null);
+        nurse.setSpecialization("Y tế học đường");
+        nurseRepository.save(nurse);
+    }
 
     public List<ConfirmedStudentResponse> getConfirmedStudents() {
         List<MedicalCheckupNotification> notifications = notificationRepository.findByIsConfirmedTrue();

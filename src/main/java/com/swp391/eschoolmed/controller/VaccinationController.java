@@ -2,12 +2,14 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.*;
+import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
 import com.swp391.eschoolmed.model.VaccinationNotification;
 import com.swp391.eschoolmed.service.VaccinationService;
 
 import com.swp391.eschoolmed.service.mail.MailService;
+import io.swagger.v3.core.util.OpenAPI30To31;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,6 +41,18 @@ public class VaccinationController {
                 .code(1000)
                 .build();
     }
+
+    //lấy danh sách vaccin
+    @GetMapping("/vaccine-types")
+    public ApiResponse<List<GetAllVaccineTypesResponse>> getAllVaccineTypes() {
+        List<GetAllVaccineTypesResponse> types = vaccinationService.getAllVaccineTypes();
+        return ApiResponse.<List<GetAllVaccineTypesResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách loại vaccine thành công.")
+                .result(types)
+                .build();
+    }
+
     // lấy ds hoọc sinh tiêm loại vaccin:
     @GetMapping("/students-to-vaccinate")
     public ApiResponse<List<StudentNeedVaccinationResponse>> getStudentsToVaccinate(

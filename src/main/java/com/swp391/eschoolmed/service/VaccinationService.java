@@ -4,6 +4,7 @@ import com.swp391.eschoolmed.dto.request.CreateVaccineTypeRequest;
 import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
+import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
 import com.swp391.eschoolmed.model.*;
@@ -71,6 +72,19 @@ public class VaccinationService {
         vaccineType.setIntervalDays(request.getIntervalDays());
 
         vaccineTypeRepository.save(vaccineType);
+    }
+
+    public List<GetAllVaccineTypesResponse> getAllVaccineTypes() {
+        List<VaccineType> vaccineTypes = vaccineTypeRepository.findAll();
+
+        return vaccineTypes.stream().map(vt -> GetAllVaccineTypesResponse.builder()
+                        .id(vt.getId())
+                        .name(vt.getName())
+                        .description(vt.getDescription())
+                        .dosesRequired(vt.getDosesRequired())
+                        .intervalDays(vt.getIntervalDays())
+                        .build())
+                .toList();
     }
 
     public void confirmVaccination(UUID userId, VaccinationConfirmationRequest request) {
