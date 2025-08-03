@@ -210,6 +210,7 @@ public class VaccinationService {
         return vaccinationNotificationRepository.findNotificationsByUserId(userId)
                 .stream()
                 .map(n -> new VaccinationNotificationResponse(
+                        n.getId(),
                         n.getVaccineType().getName(),
                         n.getLocation(),
                         n.getNote(),
