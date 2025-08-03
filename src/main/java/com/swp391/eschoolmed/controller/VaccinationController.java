@@ -4,6 +4,7 @@ import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
+import com.swp391.eschoolmed.dto.response.VaccinationNotificationResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
 import com.swp391.eschoolmed.model.VaccinationNotification;
 import com.swp391.eschoolmed.service.VaccinationService;
@@ -78,7 +79,7 @@ public class VaccinationController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         String role = jwt.getClaimAsString("scope");
-        if (!"ADMIN".equalsIgnoreCase(role)) {
+        if (!"ADMIN".equalsIgnoreCase(role) && !"NURSE".equalsIgnoreCase(role)) {
             throw new AccessDeniedException("Bạn không có quyền gửi thông báo tiêm chủng.");
         }
 
@@ -86,6 +87,18 @@ public class VaccinationController {
         return ApiResponse.<Void>builder()
                 .code(1000)
                 .message("Đã gửi thông báo tiêm chủng thành công.")
+                .build();
+    }
+
+    //hiển thị thông báo tiêm chủng
+    @GetMapping("/notifications")
+    public ApiResponse<List<VaccinationNotificationResponse>> getVaccinationNotifications(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<VaccinationNotificationResponse> notifications = vaccinationService.getVaccinationNotifications(userId);
+        return ApiResponse.<List<VaccinationNotificationResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách thông báo tiêm chủng thành công.")
+                .result(notifications)
                 .build();
     }
 

@@ -6,6 +6,7 @@ import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
 import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
 import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
+import com.swp391.eschoolmed.dto.response.VaccinationNotificationResponse;
 import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
@@ -205,7 +206,17 @@ public class VaccinationService {
     }
 
 
-
+    public List<VaccinationNotificationResponse> getVaccinationNotifications(UUID userId) {
+        return vaccinationNotificationRepository.findNotificationsByUserId(userId)
+                .stream()
+                .map(n -> new VaccinationNotificationResponse(
+                        n.getVaccineType().getName(),
+                        n.getLocation(),
+                        n.getNote(),
+                        n.getScheduledDate()
+                ))
+                .collect(Collectors.toList());
+    }
 
 
 }

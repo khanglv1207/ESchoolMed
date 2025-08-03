@@ -12,5 +12,4 @@ public class VaccinationNotificationRequest {
     private LocalDate scheduledDate;
     private String location;
     private String note;
-    private List<UUID> studentIds;
 }

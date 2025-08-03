@@ -247,7 +247,7 @@ public class MailService {
         VaccineType vaccineType = vaccineTypeRepository.findByNameIgnoreCaseTrimmed(request.getVaccineName())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại vaccine: " + request.getVaccineName()));
 
-        List<Student> students = studentRepository.findAllById(request.getStudentIds());
+        List<Student> students = studentRepository.findEligibleStudentsByVaccine(request.getVaccineName());
 
         for (Student student : students) {
             boolean alreadySent = vaccinationNotificationRepository.existsByStudentAndVaccineType(student, vaccineType);
@@ -261,6 +261,7 @@ public class MailService {
                 continue;
             }
             VaccinationNotification notification = VaccinationNotification.builder()
+                    .student(student)
                     .vaccineType(vaccineType)
                     .scheduledDate(request.getScheduledDate().atStartOfDay())
                     .location(request.getLocation())
