@@ -17,7 +17,7 @@ public class Parent {
     @Column(name = "parent_id")
     private UUID parentId;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", unique = true)
     private User user;
 

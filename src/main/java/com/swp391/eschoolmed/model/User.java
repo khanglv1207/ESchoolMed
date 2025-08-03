@@ -29,7 +29,7 @@ public class User {
     private String passwordHash;
 
     @Column(name = "role")
-    private String role = "parent"; // Gán mặc định
+    private String role = "parent";
 
     @Column(name = "must_change_password")
     private boolean mustChangePassword = false;

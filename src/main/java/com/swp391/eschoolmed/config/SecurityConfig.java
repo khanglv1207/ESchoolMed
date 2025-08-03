@@ -89,7 +89,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/create-vaccine-typer").permitAll()// them loại vaccin
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/students-to-vaccinate").permitAll()// lấy ds hoọc sinh tiêm loại vaccin:
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccine-types").permitAll()// lấy danh sách vaccin
-
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/notifications").permitAll()// hiển thị thông báo vaccin
                         // blog
                         .requestMatchers(HttpMethod.POST, "/api/blogs/create_document").permitAll()// tạo bài viết
                         .requestMatchers(HttpMethod.GET, "/api/blogs/get_all_blog").permitAll()// lấy tất cả bài viết
