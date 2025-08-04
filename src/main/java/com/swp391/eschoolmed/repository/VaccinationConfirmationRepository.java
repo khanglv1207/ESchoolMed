@@ -14,6 +14,6 @@ import java.util.UUID;
 
 public interface VaccinationConfirmationRepository extends JpaRepository<VaccinationConfirmation, UUID> {
     List<VaccinationConfirmation> findByStatusAndVaccinationResultIsNull(ConfirmationStatus status);
-    List<VaccinationConfirmation> findByStudent_Parent(Parent parent);
 
+    List<VaccinationConfirmation> findByStudent_Parent(Parent parent);
 }
