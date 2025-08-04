@@ -20,7 +20,8 @@ public interface MedicalCheckupNotificationRepository extends JpaRepository<Medi
     List<MedicalCheckupNotification> findByParent(Parent parent);
     List<MedicalCheckupNotification> findByIsConfirmedTrue();
     List<MedicalCheckupNotification> findAll();
-    List<MedicalCheckupNotification> findAllBySentAtIsNotNullAndIsConfirmedIsNull();
+    List<MedicalCheckupNotification> findAllByOrderByCheckupDateDesc();
+
 
 
 

@@ -91,7 +91,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccine-types").permitAll()// lấy danh sách vaccin
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/notifications").permitAll()// hiển thị thông báo vaccin
                         .requestMatchers(HttpMethod.GET, "/api/nurse/checked-students").permitAll()// hiển thị danh sách sau khám
-
+                        .requestMatchers(HttpMethod.GET, "/api/nurse/medical-checkup-notices").permitAll()//hiển thị thông báo kiểm tra y tế
 
 
 
