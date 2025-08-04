@@ -4,10 +4,7 @@ import com.swp391.eschoolmed.dto.request.CreateVaccineTypeRequest;
 import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
 import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
-import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
-import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
-import com.swp391.eschoolmed.dto.response.VaccinationNotificationResponse;
-import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
+import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
 import jakarta.mail.internet.MimeMessage;
@@ -217,6 +214,28 @@ public class VaccinationService {
                         n.getScheduledDate()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public List<VaccinationConfirmationResponse> getVaccinationConfirmations(UUID userId) {
+        Parent parent = parentRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
+
+        List<VaccinationConfirmation> confirmations = vaccinationConfirmationRepository
+                .findByStudent_Parent(parent);
+
+        return confirmations.stream()
+                .map(confirmation -> {
+                    Student student = confirmation.getStudent();
+                    VaccinationNotification notification = confirmation.getNotification();
+                    return VaccinationConfirmationResponse.builder()
+                            .studentId(student.getStudentId())
+                            .studentName(student.getFullName())
+                            .vaccineName(notification.getVaccineType().getName())
+                            .scheduledDate(notification.getScheduledDate().toLocalDate())
+                            .status(confirmation.getStatus().name())
+                            .confirmedAt(confirmation.getConfirmedAt())
+                            .build();
+                }).toList();
     }
 
 
