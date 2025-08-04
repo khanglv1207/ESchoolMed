@@ -78,7 +78,6 @@ public class AdminController {
                 .build();
     }
 
-
     // tạo lịch kiểm tra y tế
     @PostMapping("/create-checkup")
     public ApiResponse<?> createMedicalCheckup(@RequestBody MedicalCheckupCreateRequest request) {
