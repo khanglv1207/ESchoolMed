@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/parents/students").hasAuthority("PARENT")
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/confirm-vaccination").hasAuthority("PARENT")// ph đồng ý hoặc từ chối
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination-result").hasAuthority("PARENT")// hiển thị kq tiêm chủng cho ph
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/confirmation-status").hasAuthority("PARENT")// // hiển thị danh sách xác nhận tiêm chủng của phụ huynh
 
                         // Student/Parent import & update (permitted for all - caution advised)
                         .requestMatchers(HttpMethod.POST, "/api/students/update-profile-student").permitAll()

@@ -2,10 +2,7 @@ package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.*;
-import com.swp391.eschoolmed.dto.response.GetAllVaccineTypesResponse;
-import com.swp391.eschoolmed.dto.response.StudentNeedVaccinationResponse;
-import com.swp391.eschoolmed.dto.response.VaccinationNotificationResponse;
-import com.swp391.eschoolmed.dto.response.VaccinationResultResponse;
+import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.VaccinationNotification;
 import com.swp391.eschoolmed.service.VaccinationService;
 
@@ -108,10 +105,21 @@ public class VaccinationController {
                                                 @AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
         vaccinationService.confirmVaccination(userId, request);
-
         return ApiResponse.<Void>builder()
                 .code(1000)
                 .message("Xác nhận tiêm chủng thành công.")
+                .build();
+    }
+
+    // hiển thị danh sách xác nhận tiêm chủng của phụ huynh
+    @GetMapping("/confirmation-status")
+    public ApiResponse<List<VaccinationConfirmationResponse>> getVaccinationConfirmations(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<VaccinationConfirmationResponse> responses = vaccinationService.getVaccinationConfirmations(userId);
+        return ApiResponse.<List<VaccinationConfirmationResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách xác nhận tiêm chủng thành công.")
+                .result(responses)
                 .build();
     }
 

@@ -33,7 +33,7 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
 
     List<ParentStudent> findByStudent(Student student);
 
-    List<ParentStudent> findByStudent_StudentIdIn(List<UUID> studentIds);
+    List<ParentStudent> findByParent_User_UserId(UUID userId);
 
 }
 
