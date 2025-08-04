@@ -139,14 +139,16 @@ public class NurseController {
     }
 
     //Lấy lịch uống thuốc hôm nay của học sinh
-    @GetMapping("/today-schedules/{studentId}")
-    public ApiResponse<List<MedicationScheduleForNurse>> getTodaySchedules(@PathVariable UUID studentId) {
-        List<MedicationScheduleForNurse> schedules = nurseService.getTodaySchedulesByStudent(studentId);
+    @GetMapping("/today-schedules")
+    public ApiResponse<List<MedicationScheduleForNurse>> getTodaySchedulesForAllStudents() {
+        List<MedicationScheduleForNurse> schedules = nurseService.getTodaySchedulesForAllStudents();
         return ApiResponse.<List<MedicationScheduleForNurse>>builder()
-                .message("Lấy lịch uống thuốc hôm nay thành công.")
+                .message("Lấy lịch uống thuốc hôm nay cho tất cả học sinh thành công.")
                 .result(schedules)
+                .code(1000)
                 .build();
     }
+
 
     //Đánh dấu lịch đã uống thuốc
     @PutMapping("/mark-schedule-as-taken/{scheduleId}")

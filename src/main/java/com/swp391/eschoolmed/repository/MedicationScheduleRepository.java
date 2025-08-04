@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -24,15 +25,13 @@ public interface MedicationScheduleRepository extends JpaRepository<MedicationSc
     List<MedicationSchedule> findAllByStudentId(@Param("studentId") UUID studentId);
 
     @Query("""
-        SELECT s FROM MedicationSchedule s
-        WHERE s.item.request.student.studentId = :studentId
-          AND s.item.request.requestDate >= :from
-          AND s.hasTaken = false
-    """)
-    List<MedicationSchedule> findUnTakenSchedules(
-            @Param("studentId") UUID studentId,
-            @Param("from") LocalDateTime from
-    );
+    SELECT s FROM MedicationSchedule s
+    WHERE s.scheduleDate = :today
+      AND s.hasTaken = false
+""")
+    List<MedicationSchedule> findUnTakenSchedulesToday(@Param("today") LocalDate today);
+
+
 
     List<MedicationSchedule> findAllByItem_Request_Student_StudentIdIn(List<UUID> studentIds);
 

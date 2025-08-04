@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,5 +37,9 @@ public class MedicationSchedule {
 
     @Column(name = "taken_time")
     private LocalDateTime takenTime;
+
+    @Column(name = "schedule_date", nullable = false)
+    private LocalDate scheduleDate;
+
 }
 

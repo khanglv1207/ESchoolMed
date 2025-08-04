@@ -103,8 +103,6 @@ public class NurseService {
         healthCheckupRepository.save(checkup);
     }
 
-
-
     public void updateMedicationStatus(UpdateMedicationStatusRequest request) {
 
         MedicationRequest medicationRequest = medicationRequestRepository.findById(request.getRequestId())
@@ -135,10 +133,9 @@ public class NurseService {
     }
 
 
-    public List<MedicationScheduleForNurse> getTodaySchedulesByStudent(UUID studentId) {
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-
-        List<MedicationSchedule> schedules = medicationScheduleRepository.findUnTakenSchedules(studentId, todayStart);
+    public List<MedicationScheduleForNurse> getTodaySchedulesForAllStudents() {
+        LocalDate today = LocalDate.now();
+        List<MedicationSchedule> schedules = medicationScheduleRepository.findUnTakenSchedulesToday(today);
 
         return schedules.stream().map(sch -> {
             MedicationItem item = sch.getItem();
@@ -154,8 +151,6 @@ public class NurseService {
                     .takenTime(sch.getTakenTime())
                     .build();
         }).toList();
-
-
     }
 
     public void markScheduleAsTaken(UUID scheduleId) {
