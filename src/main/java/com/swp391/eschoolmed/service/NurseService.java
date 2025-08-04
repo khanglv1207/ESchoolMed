@@ -191,5 +191,23 @@ public class NurseService {
     }
 
 
+    public List<CheckedStudentResponse> getAllCheckedStudents() {
+        List<HealthCheckup> checkups = healthCheckupRepository.findAllByOrderByCheckupDateDesc();
+
+        return checkups.stream().map(checkup -> {
+            Student student = checkup.getStudent();
+            return CheckedStudentResponse.builder()
+                    .studentId(student.getStudentId())
+                    .studentName(student.getFullName())
+                    .className(student.getClassEntity() != null ? student.getClassEntity().getClassName() : null)
+                    .checkupDate(checkup.getCheckupDate())
+                    .heightCm(checkup.getHeightCm())
+                    .weightKg(checkup.getWeightKg())
+                    .nurseName(checkup.getNurse() != null ? checkup.getNurse().getFullName() : null)
+                    .build();
+        }).toList();
+    }
+
+
 }
 

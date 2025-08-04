@@ -1,10 +1,7 @@
 package com.swp391.eschoolmed.controller;
 
 import com.swp391.eschoolmed.dto.ApiResponse;
-import com.swp391.eschoolmed.dto.request.CreateHealthCheckupRequest;
-import com.swp391.eschoolmed.dto.request.CreateNurseRequest;
-import com.swp391.eschoolmed.dto.request.UpdateMedicationStatusRequest;
-import com.swp391.eschoolmed.dto.request.UpdateNurseRequest;
+import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.repository.StudentRepository;
 import com.swp391.eschoolmed.repository.VaccineTypeRepository;
@@ -83,7 +80,6 @@ public class NurseController {
                 .build();
     }
 
-
     //lưu thông tin sau khi khám
     @PostMapping("/health-checkup")
     public ApiResponse<String> createHealthCheckup(@RequestBody CreateHealthCheckupRequest request) {
@@ -91,6 +87,18 @@ public class NurseController {
         return ApiResponse.<String>builder()
                 .message("Đã lưu thông tin khám sức khỏe thành công.")
                 .result("OK")
+                .build();
+    }
+
+    //hiển thị danh sách sau khám
+    @GetMapping("/checked-students")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('NURSE')")
+    public ApiResponse<List<CheckedStudentResponse>> getAllCheckedStudents() {
+        List<CheckedStudentResponse> result = nurseService.getAllCheckedStudents();
+        return ApiResponse.<List<CheckedStudentResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách học sinh đã khám sức khỏe thành công.")
+                .result(result)
                 .build();
     }
 
@@ -104,7 +112,6 @@ public class NurseController {
                 .build();
     }
 
-
     //Lấy danh sách đơn thuốc đang chờ xác nhận
     @GetMapping("/medication-requests/pending")
     public ApiResponse<List<MedicationRequestResponse>> getPendingMedicationRequests() {
@@ -114,8 +121,6 @@ public class NurseController {
                 .result(requests)
                 .build();
     }
-
-
 
     //Lấy lịch uống thuốc hôm nay của học sinh
     @GetMapping("/today-schedules/{studentId}")
@@ -127,7 +132,6 @@ public class NurseController {
                 .build();
     }
 
-
     //Đánh dấu lịch đã uống thuốc
     @PutMapping("/mark-schedule-as-taken/{scheduleId}")
     public ApiResponse<String> markScheduleAsTaken(@PathVariable UUID scheduleId) {
@@ -137,5 +141,7 @@ public class NurseController {
                 .result("OK")
                 .build();
     }
+
+
 
 }

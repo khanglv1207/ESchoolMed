@@ -18,7 +18,6 @@ public class HealthCheckup {
     @JoinColumn(name = "checkup_id")
     private MedicalCheckupNotification notification;
 
-
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
