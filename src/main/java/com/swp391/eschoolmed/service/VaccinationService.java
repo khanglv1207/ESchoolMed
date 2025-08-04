@@ -103,31 +103,29 @@ public class VaccinationService {
         VaccinationConfirmation confirmation = vaccinationConfirmationRepository.findById(request.getConfirmationId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy xác nhận tiêm chủng."));
 
-        if (confirmation.getStatus() != ConfirmationStatus.PENDING) {
-            throw new IllegalStateException("Thông tin đã được xác nhận trước đó.");
-        }
-
         Student student = confirmation.getStudent();
         if (student == null) {
             throw new IllegalStateException("Xác nhận không gắn với học sinh.");
         }
-
         ParentStudent parentStudent = parentStudentRepository.findFirstByStudent_StudentId(student.getStudentId())
                 .orElseThrow(() -> new IllegalStateException("Không tìm thấy phụ huynh của học sinh."));
 
         Parent parent = parentStudent.getParent();
-        if (parent == null || parent.getUser() == null || !parent.getUser().getId().equals(userId)) {
+        if (parent == null || parent.getUser() == null) {
+            throw new IllegalStateException("Thông tin người dùng phụ huynh không hợp lệ.");
+        }
+        UUID confirmationUserId = parent.getUser().getId();
+        if (!confirmationUserId.equals(userId)) {
             throw new SecurityException("Bạn không có quyền xác nhận thông tin này.");
         }
-
+        if (confirmation.getStatus() != ConfirmationStatus.PENDING) {
+            throw new IllegalStateException("Thông tin đã được xác nhận trước đó.");
+        }
         confirmation.setStatus(request.getStatus());
         confirmation.setParentNote(request.getParentNote());
         confirmation.setConfirmedAt(LocalDateTime.now());
-
         vaccinationConfirmationRepository.save(confirmation);
-        System.out.println("Đã xác nhận: " + confirmation.getStatus());
     }
-
 
 
     public List<StudentNeedVaccinationResponse> getStudentsNeedVaccination() {
