@@ -69,6 +69,19 @@ public class NurseController {
                 .build();
     }
 
+    //hiển thị thông báo kiểm tra y tế
+    @GetMapping("/medical-checkup-notices")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('NURSE')")
+    public ApiResponse<List<MedicalCheckupNoticeResponse>> getMedicalCheckupNotices() {
+        List<MedicalCheckupNoticeResponse> notices = nurseService.getAllMedicalCheckupNoticesForAdminOrNurse();
+        return ApiResponse.<List<MedicalCheckupNoticeResponse>>builder()
+                .code(1000)
+                .message("Lấy danh sách thông báo kiểm tra y tế thành công.")
+                .result(notices)
+                .build();
+    }
+
+
     //Xác nhận danh sách học sinh theo ID cuộc kiểm tra sức khỏe
     @GetMapping("/confirmed-students")
     public ApiResponse<List<ConfirmedStudentResponse>> getConfirmedStudents() {

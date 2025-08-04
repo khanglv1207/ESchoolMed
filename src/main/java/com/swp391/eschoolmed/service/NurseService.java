@@ -208,6 +208,23 @@ public class NurseService {
         }).toList();
     }
 
+    public List<MedicalCheckupNoticeResponse> getAllMedicalCheckupNoticesForAdminOrNurse() {
+        List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository.findAllByOrderByCheckupDateDesc();
+
+        return notifications.stream()
+                .map(n -> MedicalCheckupNoticeResponse.builder()
+                        .id(n.getId())
+                        .checkupTitle(n.getCheckupTitle())
+                        .checkupDate(n.getCheckupDate())
+                        .studentName(n.getStudentName())
+                        .className(n.getClassName())
+                        .isConfirmed(n.getIsConfirmed())
+                        .sentAt(n.getSentAt())
+                        .confirmedAt(n.getConfirmedAt())
+                        .build())
+                .toList();
+    }
+
 
 }
 
