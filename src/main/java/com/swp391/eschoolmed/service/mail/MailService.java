@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.swp391.eschoolmed.dto.request.*;
@@ -66,6 +67,8 @@ public class MailService {
     private VaccinationResultRepository vaccinationResultRepository;
     @Autowired
     private VaccinationConfirmationRepository vaccinationConfirmationRepository;
+    @Autowired
+    private HealthCheckupRepository  healthCheckupRepository;
 
 
     @Async
@@ -401,5 +404,50 @@ public class MailService {
             vaccinationResultRepository.save(result);
         }
     }
+
+    public void sendHealthCheckupResults(MedicalCheckupResultEmailRequest request) {
+        List<HealthCheckup> checkups;
+        if (request.getCheckupId() != null) {
+            checkups = healthCheckupRepository.findByNotificationId(request.getCheckupId());
+        } else if (request.getDate() != null) {
+            checkups = healthCheckupRepository.findByCheckupDate(request.getDate());
+        } else {
+            checkups = healthCheckupRepository.findAll();
+        }
+        for (HealthCheckup checkup : checkups) {
+            Student student = checkup.getStudent();
+            if (student == null) continue;
+            Optional<ParentStudent> psOpt = parentStudentRepository.findFirstByStudent_StudentId(student.getStudentId());
+            if (!psOpt.isPresent()) continue;
+            Parent parent = psOpt.get().getParent();
+            if (parent == null || parent.getEmail() == null || parent.getEmail().isBlank()) continue;
+            try {
+                MimeMessage message = javaMailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setTo(parent.getEmail());
+                helper.setFrom(from);
+                helper.setSubject("[eSchoolMed] Kết quả khám sức khỏe của học sinh " + student.getFullName());
+                Context context = new Context();
+                context.setVariable("parentName", parent.getFullName());
+                context.setVariable("studentName", student.getFullName());
+                context.setVariable("className", student.getClassEntity() != null ? student.getClassEntity().getClassName() : "Chưa rõ");
+                context.setVariable("height", checkup.getHeightCm());
+                context.setVariable("weight", checkup.getWeightKg());
+                context.setVariable("visionLeft", checkup.getVisionLeft());
+                context.setVariable("visionRight", checkup.getVisionRight());
+                context.setVariable("notes", checkup.getNotes());
+                String html = templateEngine.process("health-checkup-result.html", context);
+                helper.setText(html, true);
+                javaMailSender.send(message);
+                checkup.setResultSent(true);
+                healthCheckupRepository.save(checkup);
+            } catch (Exception e) {
+                System.err.printf("Lỗi gửi mail đến %s: %s%n", parent.getEmail(), e.getMessage());
+            }
+        }
+    }
+
+
 
 }

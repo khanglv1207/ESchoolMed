@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả khám sức khỏe</title>
+</head>
+<body>
+<p>Kính gửi phụ huynh <strong th:text="${parentName}"></strong>,</p>
+
+<p>Học sinh <strong th:text="${studentName}"></strong> - lớp <strong th:text="${className}"></strong> đã hoàn thành đợt khám sức khỏe.</p>
+
+<ul>
+    <li>Chiều cao: <span th:text="${height}"></span> cm</li>
+    <li>Cân nặng: <span th:text="${weight}"></span> kg</li>
+    <li>Thị lực trái: <span th:text="${visionLeft}"></span></li>
+    <li>Thị lực phải: <span th:text="${visionRight}"></span></li>
+    <li>Ghi chú: <span th:text="${notes}"></span></li>
+</ul>
+
+<p>Trân trọng,<br/>eSchoolMed</p>
+</body>
+</html>

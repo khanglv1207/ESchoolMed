@@ -53,6 +53,17 @@ public class MailController {
                 .build();
     }
 
+    //gửi thông báo khám sức khỏe
+    @PostMapping("/checkup/send-results")
+    public ApiResponse<String> sendHealthCheckupResults(@RequestBody MedicalCheckupResultEmailRequest request) {
+        mailService.sendHealthCheckupResults(request);
+        return ApiResponse.<String>builder()
+                .message("Đã gửi kết quả khám sức khỏe đến phụ huynh.")
+                .result("OK")
+                .code(1000)
+                .build();
+    }
+
 
 
 
