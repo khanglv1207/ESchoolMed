@@ -22,7 +22,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
 """)
     List<Student> findEligibleStudentsByVaccine(@Param("vaccineName") String vaccineName);
 
-    List<ParentStudent> findByParent_ParentId(UUID parentId);
 
     Optional<Student> findByStudentCode(String studentCode);
 

@@ -17,7 +17,7 @@ import com.swp391.eschoolmed.model.MedicalCheckupNotification;
 
 @Repository
 public interface MedicalCheckupNotificationRepository extends JpaRepository<MedicalCheckupNotification, UUID> {
-    List<MedicalCheckupNotification> findByParent(Parent parent);
+    Optional<MedicalCheckupNotification> findByStudentAndCheckupDate(Student student, LocalDate checkupDate);
     List<MedicalCheckupNotification> findByIsConfirmedTrue();
     List<MedicalCheckupNotification> findAll();
     List<MedicalCheckupNotification> findAllByOrderByCheckupDateDesc();
