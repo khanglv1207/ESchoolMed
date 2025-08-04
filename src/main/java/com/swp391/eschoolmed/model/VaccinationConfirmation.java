@@ -23,10 +23,6 @@ public class VaccinationConfirmation {
     @JoinColumn(name = "notification_id", referencedColumnName = "notification_id")
     private VaccinationNotification notification;
 
-    @OneToOne
-    @JoinColumn(name = "confirmation_id", unique = true)
-    private VaccinationConfirmation confirmation;
-
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
@@ -43,3 +39,4 @@ public class VaccinationConfirmation {
     @OneToOne(mappedBy = "confirmation", cascade = CascadeType.ALL)
     private VaccinationResult vaccinationResult;
 }
+
