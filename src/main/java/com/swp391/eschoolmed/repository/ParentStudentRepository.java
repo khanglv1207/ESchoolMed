@@ -7,14 +7,17 @@ import java.util.UUID;
 import com.swp391.eschoolmed.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.swp391.eschoolmed.model.ParentStudent;
 
 @Repository
 public interface ParentStudentRepository extends JpaRepository<ParentStudent, UUID> {
+
     List<ParentStudent> findAllByParent_ParentId(UUID parentId);
     List<ParentStudent> findByParentEmail(String email);
+
     @Query("SELECT MAX(ps.parentCode) FROM ParentStudent ps WHERE ps.parentCode LIKE 'PH%'")
     String findLatestParentCode();
 
@@ -33,7 +36,7 @@ public interface ParentStudentRepository extends JpaRepository<ParentStudent, UU
 
     List<ParentStudent> findByStudent(Student student);
 
-    List<ParentStudent> findByParent_User_UserId(UUID userId);
-
+    List<ParentStudent> findByParent_User_Id(UUID userId);
 }
+
 
