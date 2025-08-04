@@ -64,19 +64,30 @@ public class ParentController {
                 .build();
     }
 
+    //ph xác nhận tham gia
+    @PutMapping("/confirm-checkup")
+    public ApiResponse<Void> confirmMedicalCheckup(@RequestBody ConfirmCheckupRequest request,
+                                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        parentService.confirmCheckup(userId, request);
+        return ApiResponse.<Void>builder()
+                .message("Phản hồi của phụ huynh đã được ghi nhận.")
+                .code(1000)
+                .build();
+    }
+
     // hiển thị thông tin sau khi khám
     @GetMapping("/checkup-result")
-    public ApiResponse<List<CheckupResultResponse>> getCheckupResult(@AuthenticationPrincipal Jwt jwt) {
+    public ApiResponse<List<CheckupResultResponse>> getCheckupResults(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
-
-        List<CheckupResultResponse> responses = parentService.getCheckupResult(userId);
-
+        List<CheckupResultResponse> result = parentService.getCheckupResult(userId);
         return ApiResponse.<List<CheckupResultResponse>>builder()
                 .code(1000)
                 .message("Lấy kết quả khám sức khỏe thành công.")
-                .result(responses)
+                .result(result)
                 .build();
     }
+
 
 
     // gửi thuốc
@@ -102,20 +113,6 @@ public class ParentController {
                 .result(schedules)
                 .build();
     }
-
-    //ph xác nhận tham gia
-    @PutMapping("/confirm-checkup")
-    public ApiResponse<Void> confirmMedicalCheckup(@RequestBody ConfirmCheckupRequest request,
-                                                   @AuthenticationPrincipal Jwt jwt) {
-        UUID userId = UUID.fromString(jwt.getSubject());
-        parentService.confirmCheckup(userId, request);
-        return ApiResponse.<Void>builder()
-                .message("Phản hồi của phụ huynh đã được ghi nhận.")
-                .code(1000)
-                .build();
-    }
-
-
 
     //ph khai báo sức khỏe
     @PostMapping("/health-profile")

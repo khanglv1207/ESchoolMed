@@ -93,31 +93,34 @@ public class ParentService {
         Parent parent = parentRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh."));
 
-        List<MedicalCheckupNotification> notifications = medicalCheckupNotificationRepository.findByParent(parent);
+        List<ParentStudent> parentStudents = parentStudentRepository.findByParent_ParentId(parent.getParentId());
 
-        return notifications.stream()
-                .filter(MedicalCheckupNotification::getIsConfirmed)
-                .map(notification -> {
-                    Student student = notification.getStudent();
+        List<UUID> studentIds = parentStudents.stream()
+                .map(ps -> ps.getStudent().getStudentId())
+                .collect(Collectors.toList());
 
-                    Optional<HealthCheckup> optionalCheckup = healthCheckupRepository.findByNotification(notification);
+        if (studentIds.isEmpty()) return Collections.emptyList();
 
-                    HealthCheckup checkup = optionalCheckup.orElse(null);
+        List<HealthCheckup> checkups = healthCheckupRepository.findByStudent_StudentIdIn(studentIds);
 
+        return checkups.stream()
+                .map(checkup -> {
+                    Student student = checkup.getStudent();
                     return CheckupResultResponse.builder()
                             .studentId(student.getStudentId())
                             .studentName(student.getFullName())
                             .className(student.getClassEntity() != null ? student.getClassEntity().getClassName() : null)
-                            .hasChecked(checkup != null)
-                            .heightCm(checkup != null ? checkup.getHeightCm() : null)
-                            .weightKg(checkup != null ? checkup.getWeightKg() : null)
-                            .visionLeft(checkup != null ? checkup.getVisionLeft() : null)
-                            .visionRight(checkup != null ? checkup.getVisionRight() : null)
-                            .notes(checkup != null ? checkup.getNotes() : null)
+                            .hasChecked(true)
+                            .heightCm(checkup.getHeightCm())
+                            .weightKg(checkup.getWeightKg())
+                            .visionLeft(checkup.getVisionLeft())
+                            .visionRight(checkup.getVisionRight())
+                            .notes(checkup.getNotes())
                             .build();
-                })
-                .toList();
+                }).collect(Collectors.toList());
     }
+
+
 
 
     @Transactional
