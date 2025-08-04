@@ -74,13 +74,20 @@ public class NurseService {
         ).toList();
     }
 
-    public void createHealthCheckup(CreateHealthCheckupRequest request) {
-        Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
-        Nurse nurse = nurseRepository.findById(request.getNurseId())
+    public void createHealthCheckup(CreateHealthCheckupRequest request, UUID userId) {
+        Nurse nurse = nurseRepository.findByUser_Id(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy y tá"));
-        MedicalCheckupNotification notification = medicalCheckupNotificationRepository.findById(request.getCheckupId())
+
+        Student student = studentRepository.findByStudentCode(request.getStudentCode())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy học sinh"));
+
+        MedicalCheckupNotification notification = medicalCheckupNotificationRepository
+                .findByStudentAndCheckupDate(student, request.getCheckupDate())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo khám sức khỏe"));
+
+        if (healthCheckupRepository.existsByNotification(notification)) {
+            throw new IllegalStateException("Thông tin khám sức khỏe đã tồn tại.");
+        }
 
         HealthCheckup checkup = new HealthCheckup();
         checkup.setNotification(notification);
@@ -95,6 +102,7 @@ public class NurseService {
 
         healthCheckupRepository.save(checkup);
     }
+
 
 
     public void updateMedicationStatus(UpdateMedicationStatusRequest request) {

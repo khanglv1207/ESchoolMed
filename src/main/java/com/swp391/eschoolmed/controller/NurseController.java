@@ -95,13 +95,16 @@ public class NurseController {
 
     //lưu thông tin sau khi khám
     @PostMapping("/health-checkup")
-    public ApiResponse<String> createHealthCheckup(@RequestBody CreateHealthCheckupRequest request) {
-        nurseService.createHealthCheckup(request);
+    public ApiResponse<String> createHealthCheckup(@RequestBody CreateHealthCheckupRequest request,
+                                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        nurseService.createHealthCheckup(request, userId);
         return ApiResponse.<String>builder()
                 .message("Đã lưu thông tin khám sức khỏe thành công.")
                 .result("OK")
                 .build();
     }
+
 
     //hiển thị danh sách sau khám
     @GetMapping("/checked-students")

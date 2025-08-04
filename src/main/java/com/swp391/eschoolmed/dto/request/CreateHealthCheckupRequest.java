@@ -7,9 +7,7 @@ import java.util.UUID;
 
 @Data
 public class CreateHealthCheckupRequest {
-    private UUID checkupId;
-    private UUID studentId;
-    private UUID nurseId;
+    private String studentCode;
     private LocalDate checkupDate;
     private Double heightCm;
     private Double weightKg;

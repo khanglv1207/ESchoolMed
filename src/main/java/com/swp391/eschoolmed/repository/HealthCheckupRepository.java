@@ -13,6 +13,8 @@ public interface HealthCheckupRepository extends JpaRepository<HealthCheckup, UU
     List<HealthCheckup> findAllByOrderByCheckupDateDesc();
 
     List<HealthCheckup> findByStudent_StudentIdIn(List<UUID> studentIds);
+    boolean existsByNotification(MedicalCheckupNotification notification);
+
 
 }
 

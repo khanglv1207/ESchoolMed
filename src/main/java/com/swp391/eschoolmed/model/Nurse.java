@@ -24,4 +24,9 @@ public class Nurse {
     private String phone;
 
     private String specialization;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
+
 }
