@@ -141,6 +141,7 @@ public class ParentService {
         ParentStudent parentStudent = parentStudentRepository
                 .findByParent_ParentIdAndStudent_StudentId(parent.getParentId(), student.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Học sinh không được liên kết với phụ huynh này."));
+
         List<MedicalRequest.MedicationItemRequest> medicationItems = request.getMedications();
         if (medicationItems == null || medicationItems.isEmpty()) {
             throw new IllegalArgumentException("Phải có ít nhất một loại thuốc trong đơn.");
@@ -157,14 +158,21 @@ public class ParentService {
                 .build();
 
         medicationRequestRepository.save(medicationRequest);
-
         for (MedicalRequest.MedicationItemRequest itemReq : medicationItems) {
             List<String> schedules = itemReq.getSchedule();
 
             if (schedules == null || schedules.isEmpty()) {
                 throw new IllegalArgumentException("Bạn phải chọn ít nhất một buổi uống thuốc (VD: Sáng, Chiều) cho thuốc: " + itemReq.getMedicationName());
             }
-
+            if (itemReq.getScheduleDate() == null || itemReq.getScheduleDate().isBlank()) {
+                throw new IllegalArgumentException("Thiếu ngày uống thuốc (scheduleDate) cho thuốc: " + itemReq.getMedicationName());
+            }
+            LocalDate scheduleDate;
+            try {
+                scheduleDate = LocalDate.parse(itemReq.getScheduleDate());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Ngày uống thuốc không hợp lệ (định dạng đúng: yyyy-MM-dd) cho thuốc: " + itemReq.getMedicationName());
+            }
             MedicationItem item = MedicationItem.builder()
                     .itemId(UUID.randomUUID())
                     .request(medicationRequest)
@@ -174,24 +182,20 @@ public class ParentService {
                     .build();
 
             medicationItemRepository.save(item);
-
             for (String timeOfDayRaw : schedules) {
                 if (timeOfDayRaw == null || timeOfDayRaw.isBlank()) continue;
-
                 String mappedTimeOfDay = mapTimeOfDay(timeOfDayRaw);
-
                 MedicationSchedule schedule = MedicationSchedule.builder()
                         .scheduleId(UUID.randomUUID())
                         .item(item)
                         .timeOfDay(mappedTimeOfDay)
                         .instruction(itemReq.getNote())
                         .hasTaken(false)
+                        .scheduleDate(scheduleDate)
                         .build();
-
                 medicationScheduleRepository.save(schedule);
             }
         }
-
         return MedicationRequestResponse.builder()
                 .requestId(medicationRequest.getRequestId())
                 .requestDate(medicationRequest.getRequestDate())
@@ -200,6 +204,7 @@ public class ParentService {
                 .note(request.getNote())
                 .build();
     }
+
 
 
     public List<ParentStudentResponse> getStudentsOfLoggedInParent(UUID userId) {
