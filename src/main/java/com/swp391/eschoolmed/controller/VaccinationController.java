@@ -1,5 +1,6 @@
 package com.swp391.eschoolmed.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.*;
@@ -105,6 +106,7 @@ public class VaccinationController {
 
     // hiển thị danh sách xác nhận tiêm chủng của phụ huynh
     @GetMapping("/confirmation-status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('NURSE')")
     public ApiResponse<List<VaccinationConfirmationResponse>> getVaccinationConfirmations(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
         List<VaccinationConfirmationResponse> responses = vaccinationService.getVaccinationConfirmations(userId);
