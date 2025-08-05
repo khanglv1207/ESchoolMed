@@ -1,19 +1,13 @@
 package com.swp391.eschoolmed.service;
 
-import com.swp391.eschoolmed.dto.request.CreateVaccineTypeRequest;
-import com.swp391.eschoolmed.dto.request.SendVaccinationNoticeRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationConfirmationRequest;
-import com.swp391.eschoolmed.dto.request.VaccinationResultRequest;
+import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.dto.response.*;
 import com.swp391.eschoolmed.model.*;
 import com.swp391.eschoolmed.repository.*;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.naming.Context;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -96,35 +90,6 @@ public class VaccinationService {
                         .intervalDays(vt.getIntervalDays())
                         .build())
                 .toList();
-    }
-
-    @Transactional
-    public void confirmVaccination(UUID userId, VaccinationConfirmationRequest request) {
-        VaccinationConfirmation confirmation = vaccinationConfirmationRepository.findById(request.getConfirmationId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy xác nhận tiêm chủng."));
-
-        Student student = confirmation.getStudent();
-        if (student == null) {
-            throw new IllegalStateException("Xác nhận không gắn với học sinh.");
-        }
-        ParentStudent parentStudent = parentStudentRepository.findFirstByStudent_StudentId(student.getStudentId())
-                .orElseThrow(() -> new IllegalStateException("Không tìm thấy phụ huynh của học sinh."));
-
-        Parent parent = parentStudent.getParent();
-        if (parent == null || parent.getUser() == null) {
-            throw new IllegalStateException("Thông tin người dùng phụ huynh không hợp lệ.");
-        }
-        UUID confirmationUserId = parent.getUser().getId();
-        if (!confirmationUserId.equals(userId)) {
-            throw new SecurityException("Bạn không có quyền xác nhận thông tin này.");
-        }
-        if (confirmation.getStatus() != ConfirmationStatus.PENDING) {
-            throw new IllegalStateException("Thông tin đã được xác nhận trước đó.");
-        }
-        confirmation.setStatus(request.getStatus());
-        confirmation.setParentNote(request.getParentNote());
-        confirmation.setConfirmedAt(LocalDateTime.now());
-        vaccinationConfirmationRepository.save(confirmation);
     }
 
 
@@ -239,6 +204,25 @@ public class VaccinationService {
                             .build();
                 }).toList();
     }
+
+
+    @Transactional
+    public void confirmVaccinationFromEmail(UUID confirmationId, ConfirmationStatus status) {
+        VaccinationConfirmation confirmation = vaccinationConfirmationRepository.findById(confirmationId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy xác nhận"));
+
+        if (confirmation.getStatus() != ConfirmationStatus.PENDING) {
+            throw new IllegalStateException("Đã xác nhận trước đó");
+        }
+
+        confirmation.setStatus(status);
+        confirmation.setConfirmedAt(LocalDateTime.now());
+        vaccinationConfirmationRepository.save(confirmation);
+    }
+
+
+
+
 
 
 }

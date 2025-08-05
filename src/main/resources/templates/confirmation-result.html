@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kết quả xác nhận</title>
+</head>
+<body>
+<h2 th:text="${status == T(com.swp391.eschoolmed.model.ConfirmationStatus).ACCEPTED ? '✅ Bạn đã đồng ý tiêm chủng' : '❌ Bạn đã từ chối tiêm chủng'}"></h2>
+</body>
+</html>

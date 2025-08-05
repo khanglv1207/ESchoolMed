@@ -1,29 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Thông báo tiêm chủng</title>
+    <title>Xác nhận tiêm chủng</title>
 </head>
 <body>
-<p>Xin chào quý phụ huynh <strong th:text="${fullName}"></strong>,</p>
+<p>Kính gửi phụ huynh <b th:text="${parentName}"></b>,</p>
+<p>Học sinh <b th:text="${studentName}"></b> được đề nghị tiêm chủng vaccine <b th:text="${vaccineName}"></b>.</p>
+<p><b>Thời gian:</b> <span th:text="${scheduledDate}"></span></p>
+<p><b>Địa điểm:</b> <span th:text="${location}"></span></p>
 
-<p>Học sinh <strong th:text="${studentName}"></strong> hiện chưa được tiêm chủng <strong th:text="${vaccineName}"></strong>.</p>
-
-<p>Vui lòng đưa học sinh đến địa điểm sau để thực hiện tiêm chủng:</p>
-<ul>
-    <li><strong>Địa điểm:</strong> <span th:text="${location}"></span></li>
-    <li><strong>Thời gian:</strong> <span th:text="${scheduledDate}"></span></li>
-    <li><strong>Ghi chú:</strong> <span th:text="${note}"></span></li>
-</ul>
-
-<p>Quý phụ huynh vui lòng <strong>truy cập đường link bên dưới</strong> để xác nhận đồng ý hoặc từ chối tiêm chủng cho học sinh:</p>
-
+<p>Vui lòng xác nhận bên dưới:</p>
 <p>
-    <a th:href="${confirmLink}" target="_blank" style="display:inline-block; padding:10px 20px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
-        Xác nhận tiêm chủng
-    </a>
+    <a th:href="'http://localhost:8080/api/vaccinations/confirm-email?confirmationId=' + ${confirmationId} + '&status=ACCEPTED'">Đồng ý</a>
+    <a th:href="'http://localhost:8080/api/vaccinations/confirm-email?confirmationId=' + ${confirmationId} + '&status=DECLINED'">Từ chối</a>
 </p>
 
-<p>Trân trọng,<br/>Ban y tế học đường</p>
+<p>Trân trọng,<br/>Hệ thống eSchoolMed</p>
 </body>
 </html>

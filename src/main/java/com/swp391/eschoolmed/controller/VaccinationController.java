@@ -1,22 +1,22 @@
 package com.swp391.eschoolmed.controller;
 
+import org.springframework.ui.Model;
 import com.swp391.eschoolmed.dto.ApiResponse;
 import com.swp391.eschoolmed.dto.request.*;
 import com.swp391.eschoolmed.dto.response.*;
-import com.swp391.eschoolmed.model.VaccinationNotification;
+import com.swp391.eschoolmed.model.ConfirmationStatus;
 import com.swp391.eschoolmed.service.VaccinationService;
 
 import com.swp391.eschoolmed.service.mail.MailService;
-import io.swagger.v3.core.util.OpenAPI30To31;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.AccessDeniedException;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,22 +70,15 @@ public class VaccinationController {
 
 
     // Gửi thông báo tiêm chủng đến phụ huynh các học sinh cần tiêm
-    @PostMapping("/send-vaccination-notices")
-    public ApiResponse<Void> sendVaccinationNotices(
-            @RequestBody VaccinationNotificationRequest request,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        String role = jwt.getClaimAsString("scope");
-        if (!"ADMIN".equalsIgnoreCase(role) && !"NURSE".equalsIgnoreCase(role)) {
-            throw new AccessDeniedException("Bạn không có quyền gửi thông báo tiêm chủng.");
-        }
-
+    @PostMapping("/send-notices")
+    public ApiResponse<String> sendVaccinationNotices(@RequestBody VaccinationNotificationRequest request) throws MessagingException {
         mailService.sendVaccinationNotices(request);
-        return ApiResponse.<Void>builder()
-                .code(1000)
-                .message("Đã gửi thông báo tiêm chủng thành công.")
+        return ApiResponse.<String>builder()
+                .message("Đã gửi thông báo xác nhận tiêm chủng.")
+                .result("OK")
                 .build();
     }
+
 
     //hiển thị thông báo tiêm chủng
     @GetMapping("/notifications")
@@ -100,15 +93,14 @@ public class VaccinationController {
     }
 
     // ph đồng ý hoặc từ chối
-    @PostMapping("/confirm-vaccination")
-    public ApiResponse<Void> confirmVaccination(@RequestBody VaccinationConfirmationRequest request,
-                                                @AuthenticationPrincipal Jwt jwt) {
-        UUID userId = UUID.fromString(jwt.getSubject());
-        vaccinationService.confirmVaccination(userId, request);
-        return ApiResponse.<Void>builder()
-                .code(1000)
-                .message("Xác nhận tiêm chủng thành công.")
-                .build();
+    @GetMapping("/confirm-email")
+    public ResponseEntity<String> confirmVaccinationFromEmail(@RequestParam UUID confirmationId,
+                                                              @RequestParam ConfirmationStatus status) {
+        vaccinationService.confirmVaccinationFromEmail(confirmationId, status);
+        String message = status == ConfirmationStatus.ACCEPTED ?
+                "Bạn đã xác nhận Đồng ý tiêm chủng." :
+                "Bạn đã từ chối tiêm chủng.";
+        return ResponseEntity.ok(message);
     }
 
     // hiển thị danh sách xác nhận tiêm chủng của phụ huynh
