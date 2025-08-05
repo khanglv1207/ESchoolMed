@@ -17,5 +17,6 @@ public class MedicalRequest {
         private String dosage;
         private String note;
         private List<String> schedule;
+        private String scheduleDate;
     }
 }
