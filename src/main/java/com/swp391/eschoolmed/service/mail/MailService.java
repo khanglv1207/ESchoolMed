@@ -246,75 +246,58 @@ public class MailService {
     }
 
 
-    public void sendVaccinationNotices(VaccinationNotificationRequest request) {
-        VaccineType vaccineType = vaccineTypeRepository.findByNameIgnoreCaseTrimmed(request.getVaccineName())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại vaccine: " + request.getVaccineName()));
+    @Transactional
+    public void sendVaccinationNotices(VaccinationNotificationRequest request) throws MessagingException {
+        for (UUID studentId : request.getStudentIds()) {
+            ParentStudent parentStudent = parentStudentRepository
+                    .findFirstByStudent_StudentId(studentId)
+                    .orElse(null);
 
-        List<Student> students = studentRepository.findEligibleStudentsByVaccine(request.getVaccineName());
+            if (parentStudent == null || parentStudent.getParent() == null) continue;
 
-        for (Student student : students) {
-            boolean alreadySent = vaccinationNotificationRepository.existsByStudentAndVaccineType(student, vaccineType);
-            if (alreadySent) {
-                System.out.printf("Đã tồn tại thông báo tiêm cho học sinh: %s%n", student.getFullName());
-                continue;
-            }
-            List<ParentStudent> parentLinks = parentStudentRepository.findByStudent_StudentId(student.getStudentId());
-            if (parentLinks == null || parentLinks.isEmpty()) {
-                System.out.printf("Bỏ qua học sinh %s vì không có phụ huynh liên kết.%n", student.getFullName());
-                continue;
-            }
-            VaccinationNotification notification = VaccinationNotification.builder()
+            Parent parent = parentStudent.getParent();
+            if (parent.getEmail() == null || parent.getEmail().isBlank()) continue;
+
+            Student student = parentStudent.getStudent();
+
+            VaccineType vaccineType = vaccineTypeRepository.findById(request.getVaccineTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại vaccine"));
+
+            VaccinationNotification notification = vaccinationNotificationRepository.save(
+                    VaccinationNotification.builder()
+                            .vaccineType(vaccineType)
+                            .location(request.getLocation())
+                            .scheduledDate(request.getScheduledDate())
+                            .note(request.getNote())
+                            .createdAt(LocalDateTime.now())
+                            .student(student)
+                            .build()
+            );
+
+            VaccinationConfirmation confirmation = VaccinationConfirmation.builder()
                     .student(student)
-                    .vaccineType(vaccineType)
-                    .scheduledDate(request.getScheduledDate().atStartOfDay())
-                    .location(request.getLocation())
-                    .note(request.getNote())
-                    .createdAt(LocalDateTime.now())
+                    .notification(notification)
+                    .status(ConfirmationStatus.PENDING)
                     .build();
-            vaccinationNotificationRepository.save(notification);
+            vaccinationConfirmationRepository.save(confirmation);
 
-            for (ParentStudent link : parentLinks) {
-                String parentEmail = link.getParentEmail();
-                String parentName = link.getParentName();
-
-                if (parentEmail == null || parentEmail.isBlank()) {
-                    System.out.printf("Bỏ qua phụ huynh %s vì thiếu email.%n", parentName);
-                    continue;
-                }
-
-                VaccinationConfirmation confirmation = VaccinationConfirmation.builder()
-                        .student(student)
-                        .notification(notification)
-                        .status(ConfirmationStatus.PENDING)
-                        .confirmedAt(LocalDateTime.now())
-                        .build();
-                vaccinationConfirmationRepository.save(confirmation);
-                try {
-                    MimeMessage message = javaMailSender.createMimeMessage();
-                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-                    helper.setTo(parentEmail);
-                    helper.setFrom(from);
-                    helper.setSubject("[Emed] Thông báo tiêm chủng cho học sinh");
-                    String confirmLink = "http://localhost:3000/vaccination-confirm/" + confirmation.getId();
-                    Context context = new Context();
-                    context.setVariable("fullName", parentName);
-                    context.setVariable("studentName", student.getFullName());
-                    context.setVariable("vaccineName", vaccineType.getName());
-                    context.setVariable("scheduledDate", request.getScheduledDate().toString());
-                    context.setVariable("location", request.getLocation());
-                    context.setVariable("note", request.getNote());
-                    context.setVariable("confirmLink", confirmLink);
-                    String htmlContent = templateEngine.process("vaccination-notice.html", context);
-                    helper.setText(htmlContent, true);
-                    javaMailSender.send(message);
-                    System.out.printf("Đã gửi thông báo tiêm cho: %s (%s)%n", parentName, parentEmail);
-                } catch (Exception e) {
-                    System.err.printf("Gửi thất bại tới %s - Lỗi: %s%n", parentEmail, e.getMessage());
-                }
-            }
+            Context context = new Context();
+            context.setVariable("parentName", parent.getFullName());
+            context.setVariable("studentName", student.getFullName());
+            context.setVariable("vaccineName", vaccineType.getName());
+            context.setVariable("scheduledDate", request.getScheduledDate());
+            context.setVariable("location", request.getLocation());
+            context.setVariable("confirmationId", confirmation.getId());
+            String html = templateEngine.process("vaccination-notice.html", context);
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(parent.getEmail());
+            helper.setSubject("[eSchoolMed] Xác nhận tiêm chủng cho học sinh " + student.getFullName());
+            helper.setText(html, true);
+            helper.setFrom(from);
+            javaMailSender.send(message);
         }
     }
-
 
     // gửi thông báo kiểm tra sức khỏe
     @Transactional

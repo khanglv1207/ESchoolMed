@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/parents/health-profile").hasAuthority("PARENT")//ph khai báo sức khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/health-declaration/latest").hasAuthority("PARENT")// hiển thị tt khai báo sưc khỏe
                         .requestMatchers(HttpMethod.GET, "/api/parents/students").hasAuthority("PARENT")
-                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/confirm-vaccination").hasAuthority("PARENT")// ph đồng ý hoặc từ chối
+                        .requestMatchers(HttpMethod.GET, "/api/vaccinations/confirm-email").permitAll()// ph đồng ý hoặc từ chối
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/vaccination-result").hasAuthority("PARENT")// hiển thị kq tiêm chủng cho ph
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/confirmation-status").hasAuthority("ADMIN,NURSE")// // hiển thị danh sách xác nhận tiêm chủng của phụ huynh
 
@@ -83,7 +83,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/nurse/delete-nurse/").permitAll()// xóa thông tin y tá
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/create_medicalIncident").hasAuthority("NURSE")//tạo sự cố y tế
                         .requestMatchers(HttpMethod.POST, "/api/medicalIncident/send-incidents").hasAuthority("NURSE")// gửi thông báo sự cố đến ph
-                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-notices").permitAll()// gửi lịch tiêm
+                        .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-notices").permitAll()// gửi lịch tiêm
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/send-vaccination-results").permitAll()// gửi kq tiêm
                         .requestMatchers(HttpMethod.GET, "/api/vaccinations/students-need-vaccination").permitAll()// lấy danh sách hs sau khi ph xác nhận
                         .requestMatchers(HttpMethod.POST, "/api/vaccinations/vaccination/result").permitAll()// ghi nhận kq tiêm
